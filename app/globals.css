@@ -1,26 +1,127 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-display: Inter, sans-serif;
+
+  --color-nav: #F8F9FA;
+  --color-nav-text: #007BFF;
+  --color-site-text: #343A40;
+  --color-card-text: #212529;
+  --color-card-price: #868E96;
+  --color-login-background: #E9ECEF;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Nav-Bar */
+.layout-container {
+  @apply w-full h-screen;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.layout-cover {
+  @apply w-screen h-screen flex justify-center;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.cover {
+  @apply w-full h-full max-w-[1920px];
+}
+
+.navigation-bar {
+  @apply flex items-center justify-between bg-nav text-site-text p-0;
+}
+
+.top-left-nav-tag {
+  @apply flex font-semibold text-[16px] font-display text-center mt-4 pl-9;
+}
+
+.top-right-nav-tag {
+  @apply flex font-display text-lg items-center gap-5 text-nav-text pr-9;
+}
+
+.top-right-text {
+  @apply text-[12px] hover:text-blue-700 transition-colors;
+}
+
+.top-icons {
+  @apply pt-4 pb-4 hover:text-blue-700 transition-colors;
+}
+
+.content-section {
+  @apply bg-white;
+}
+
+.content-div {
+  @apply pt-6 pr-4 pl-4 block justify-between items-center md:flex md:pr-14 md:pl-14 md:pt-8 lg:pr-15 lg:pl-15
+}
+
+/* content */
+.content-paragraph {
+  @apply text-[24px] text-nav-text font-display md:pt-6;
+}
+
+.content-features {
+  @apply flex justify-between items-center gap-6;
+}
+
+.content-search-bar {
+  @apply pt-6 pb-8;
+}
+
+.content-sort-by {
+  @apply mb-2;
+}
+
+.content-grid {
+  @apply pt-6 pr-4 pl-4 md:pr-14 md:pl-14 md:pt-8 lg:pr-15 lg:pl-15;
+}
+
+.content-grid-card {
+  @apply w-full h-full flex flex-col justify-between p-0;
+}
+
+.card-image {
+  @apply pr-3 pl-3 pt-3 pb-1.5 object-fill md:pr-4 md:pl-4 md:pb-2 md:pt-4
+}
+
+.meta-content {
+  @apply pr-3 pl-3 pt-1.5 pb-3 md:pr-4 md:pl-4 md:pt-2 md:pb-4
+}
+
+.card-text {
+  @apply text-sm text-left text-card-text font-semibold;
+
+}
+
+.card-description {
+  @apply text-blue-500 w-full h-full text-left font-semibold;
+}
+
+.card-buttons {
+  @apply flex items-center justify-between mt-4 w-full;
+}
+
+.card-buttons-div {
+  @apply flex flex-1 items-center gap-1;
+}
+
+.card-buttons-layout {
+  @apply px-2 border border-[#DFDFDF] text-nav-text rounded-md relative max-w-8 max-h-8;
+}
+
+.card-buttons-span {
+  @apply flex items-center justify-center border border-[#DFDFDF] rounded-md font-display relative max-w-11 max-h-8;
+}
+
+.add-to-cart {
+  @apply flex-1 pr-3 pl-3 text-center;
+}
+
+.authy-cover {
+  @apply w-full h-full flex items-center justify-center bg-login-background;
+}
+
+.authy-card {
+  @apply h-full w-full pt-54 pb-54 pr-4 pl-4 flex flex-col items-center justify-center md:pt-58 md:pb-38 md:pr-59 md:pl-59 lg:pt-33 lg:pb-33 lg:pr-95 lg:pl-95;
 }
