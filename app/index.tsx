@@ -19,7 +19,7 @@ const BaseLayout = ({
   children: React.ReactNode;
 }>) => {
   const pathname = usePathname();
-  const hideNavBarRoutes = ['/login', '/signup', '/forgotpassword', '/resetpassword'];
+  const hideNavBarRoutes = ['/login', '/signup', '/forgotpassword', '/resetpassword', '/orders'];
   const hideNavBar = pathname && hideNavBarRoutes.includes(pathname);
   return (
     <html lang='en'>
@@ -29,7 +29,7 @@ const BaseLayout = ({
             <Layout className='layout-container'>
               {isSignedIn ? (
                 <>
-                  {!hideNavBar && <NavBar />}
+                  {!hideNavBar && <NavBar authed />}
                   <Content className='content-section'>
                     {children}
                   </Content>

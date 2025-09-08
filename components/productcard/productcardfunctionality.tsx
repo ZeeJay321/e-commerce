@@ -11,7 +11,7 @@ const { Meta } = Card;
 type Product = {
   id: number | string;
   name: string;
-  price: string;
+  price: number;
   image: string;
 };
 
@@ -43,7 +43,6 @@ const ProductCard = ({ product }: { product: Product }) => {
           padding: 0
         }
       }}
-      variant='borderless'
     >
       <div className='meta-content'>
         <Meta
@@ -52,6 +51,7 @@ const ProductCard = ({ product }: { product: Product }) => {
               <p className='text-card-price text-sm'>
                 Price:
                 <span className='card-description'>
+                  $
                   {product.price}
                 </span>
               </p>

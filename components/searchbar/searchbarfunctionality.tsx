@@ -2,11 +2,17 @@
 
 import { Input } from 'antd';
 
-const SearchBar = () => (
+type SearchBarProps = {
+  onSearch: (value: string) => void;
+};
+
+const SearchBar = ({ onSearch }: SearchBarProps) => (
   <Input.Search
     className="content-search-bar"
     placeholder="Search by user & order ID"
     variant="filled"
+    allowClear
+    onSearch={onSearch}
   />
 );
 
