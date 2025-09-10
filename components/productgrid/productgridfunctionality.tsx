@@ -6,6 +6,8 @@ import { Col, Row } from 'antd';
 
 import ProductCard from '@/components/productcard/productcardfunctionality';
 
+import './grid.css';
+
 type Product = {
   id: number;
   name: string;
@@ -239,7 +241,7 @@ const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
   }, [search, sortOption]);
 
   return (
-    <Row className='content-grid' gutter={[16, 16]}>
+    <Row className='content-grid' gutter={[30, 32]}>
       {sortedProducts.slice(0, visibleCount).map((product) => (
         <Col key={product.id} lg={6} md={8} sm={12} xs={24}>
           <ProductCard product={product} />

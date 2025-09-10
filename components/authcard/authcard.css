@@ -16,32 +16,14 @@
   --color-search-bg: #E2E8F0;
 }
 
-/* Nav-Bar */
-.layout-container {
-  @apply w-full h-screen;
+.inner {
+  @apply bg-white max-w-205 shadow-lg rounded-2xl w-full pt-4.75 pl-8 pr-8;
 }
 
-.layout-cover {
-  @apply w-screen h-screen flex justify-center;
+.ant-form-now {
+  @apply w-full pt-8 pb-8 !important;
 }
 
-.cover {
-  @apply w-full h-full max-w-[1920px];
-}
-
-.content-section {
-  @apply bg-white;
-}
-
-.content-div {
-  @apply pt-6 pr-4 pl-4 block justify-between items-center md:flex md:pr-14 md:pl-14 md:pt-8 lg:pr-15 lg:pl-15
-}
-
-/* content */
-.content-paragraph {
-  @apply text-[24px] text-nav-text font-display text-nowrap md:pt-6;
-}
-
-.content-features {
-  @apply flex justify-end items-center gap-6;
+.form-options {
+  @apply text-center;
 }

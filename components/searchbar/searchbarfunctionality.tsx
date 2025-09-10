@@ -1,6 +1,8 @@
 'use client';
 
 import { Input } from 'antd';
+import 'antd/dist/reset.css';
+import './searchbar.css';
 
 type SearchBarProps = {
   onSearch: (value: string) => void;

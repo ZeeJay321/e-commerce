@@ -13,12 +13,14 @@
   --color-card-text: #212529;
   --color-card-price: #868E96;
   --color-login-background: #E9ECEF;
-  --color-search-bg: #E2E8F0;
+  --color-title-style: #002050;
+  --color-midnight-gray: #979797;
+  --color-blackish-gray: #272B41;
 }
 
 /* Nav-Bar */
 .layout-container {
-  @apply w-full h-screen;
+  @apply w-full h-screen font-display;
 }
 
 .layout-cover {
@@ -39,9 +41,43 @@
 
 /* content */
 .content-paragraph {
-  @apply text-[24px] text-nav-text font-display text-nowrap md:pt-6;
+  @apply text-[24px] text-title-style font-display pb-8 md:pt-6 hover:text-gray-500;
 }
 
 .content-features {
-  @apply flex justify-end items-center gap-6;
+  @apply flex justify-between items-center gap-6 hover:text-blue-700 transition-colors;
+}
+
+.page-section {
+  @apply flex flex-col w-full;
+}
+
+.divider-midnight {
+  @apply bg-midnight-gray m-0;
+}
+
+.divider-large {
+  @apply pt-8 m-0;
+}
+
+/* Order Info Section */
+.order-info-row {
+  @apply flex flex-wrap justify-baseline pt-6 pb-8 gap-10 sm:justify-between;
+}
+
+.order-info-block {
+  @apply flex flex-col justify-between gap-2;
+}
+
+.order-info-label {
+  @apply text-midnight-gray text-xs pt-6;
+}
+
+.order-info-value {
+  @apply text-blackish-gray text-sm;
+}
+
+/* Titles */
+.section-title {
+  @apply text-title-style text-xl pt-6 pb-4;
 }

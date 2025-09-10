@@ -27,7 +27,7 @@ const Page = () => {
     <div className="cover">
       <div className="content-div">
         <p className="content-paragraph">Our Products</p>
-        <div className="content-features">
+        <div className="content-features w-full">
           <SearchBar onSearch={setSearch} />
           <Sort onChange={setSortOption} />
         </div>

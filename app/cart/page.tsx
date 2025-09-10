@@ -6,6 +6,7 @@ import { ArrowLeftOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 
 import LoadingSpinner from '@/components/loading/loadingspinner';
+import CustomNotification from '@/components/notifications/notificationsfunctionality';
 import CartTable from '@/components/table/tablefunctionality';
 
 import 'antd/dist/reset.css';
@@ -13,6 +14,11 @@ import './cart.css';
 
 const Page = () => {
   const [isRendered, setIsRendered] = useState(false);
+  const [notif, setNotif] = useState<{
+    type: 'success' | 'error';
+    message: string;
+    description?: string;
+  } | null>(null);
 
   useEffect(() => {
     setIsRendered(true);
@@ -22,8 +28,44 @@ const Page = () => {
     return <LoadingSpinner />;
   }
 
+  const handlePlaceOrder = async () => {
+    try {
+      const success = true;
+
+      if (success) {
+        setNotif({
+          type: 'success',
+          message: 'Awesome, Your order has been placed successfully!'
+        });
+      } else {
+        setNotif({
+          type: 'error',
+          message: 'Order placement failed'
+        });
+      }
+    } catch (error) {
+      setNotif({
+        type: 'error',
+        message: 'Something went wrong'
+      });
+    }
+
+    setTimeout(() => setNotif(null), 3000);
+  };
+
   return (
     <div className="cover">
+      {/* ✅ Notification */}
+      {notif && (
+        <CustomNotification
+          type={notif.type}
+          message={notif.message}
+          description={notif.description}
+          placement="topRight"
+          onClose={() => setNotif(null)}
+        />
+      )}
+
       <div className="content-div">
         <a href="/" className="content-paragraph">
           <ArrowLeftOutlined />
@@ -58,7 +100,13 @@ const Page = () => {
         </div>
 
         <div className="pt-6">
-          <Button className='place-button' type="primary" size="large" block>
+          <Button
+            className="place-button"
+            type="primary"
+            size="large"
+            block
+            onClick={handlePlaceOrder}
+          >
             Place Order
           </Button>
         </div>

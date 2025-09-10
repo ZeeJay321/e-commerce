@@ -6,6 +6,8 @@ import Image from 'next/image';
 
 import { Button, Card } from 'antd';
 
+import './card.css';
+
 const { Meta } = Card;
 
 type Product = {
@@ -71,9 +73,9 @@ const ProductCard = ({ product }: { product: Product }) => {
         <Image
           alt={product.name}
           className="card-image"
-          height={200}
+          height={222}
           src={product.image}
-          width={200}
+          width={257}
         />
       )}
       styles={{

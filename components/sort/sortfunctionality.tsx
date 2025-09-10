@@ -3,6 +3,8 @@
 import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons';
 import { Select } from 'antd';
 
+import './sort.css';
+
 type SortProps = {
   onChange: (value: string) => void;
 };

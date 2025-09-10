@@ -3,8 +3,10 @@
 import { useEffect, useState } from 'react';
 
 import { DeleteOutlined, WarningOutlined } from '@ant-design/icons';
-import type { TableColumnsType, TableProps } from 'antd';
-import { Button, Modal, Table } from 'antd';
+import type { TableColumnsType } from 'antd';
+import {
+  Button, Checkbox, Modal, Table
+} from 'antd';
 
 import './table.css';
 
@@ -19,37 +21,13 @@ interface CartItem {
   price: number;
 }
 
-const rowSelection: TableProps<CartItem>['rowSelection'] = {
-  onChange: (selectedRowKeys: React.Key[], selectedRows: CartItem[]) => {
-    console.log(
-      'selectedRowKeys: ',
-      selectedRowKeys,
-      'selectedRows: ',
-      selectedRows
-    );
-  }
-};
-
 const CartTable = () => {
-  // ✅ Initialize from localStorage OR fallback to default data
   const [cartData, setCartData] = useState<CartItem[]>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('cartData');
       if (saved) return JSON.parse(saved);
     }
-    return [
-      {
-        img: 'https://www.google.com/imgres?q=cat%20image&imgurl=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Fthumb%2F4%2F4d%2FCat_November_2010-1a.jpg%2F960px-Cat_November_2010-1a.jpg&imgrefurl=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2FTabby_cat&docid=oNx0iOzXSsdzRM&tbnid=qbSS319ZRpsjqM&vet=12ahUKEwiKgLGoj8uPAxU7VqQEHeaJJscQM3oECBsQAA..i&w=960&h=1282&hcb=2&ved=2ahUKEwiKgLGoj8uPAxU7VqQEHeaJJscQM3oECBsQAA',
-        key: 1,
-        product:
-          'Cargo Trousers for Men - 6 Pocket Trousers - 6 Pocket Cargo Trousers in all Colors - Cargo Trouser',
-        color: 'Beige',
-        colorcode: '#F5F5DC',
-        size: '34',
-        qty: 2,
-        price: 0.0
-      }
-    ];
+    return [];
   });
 
   useEffect(() => {
@@ -59,8 +37,26 @@ const CartTable = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteKey, setDeleteKey] = useState<number | null>(null);
 
+  const [selectedKeys, setSelectedKeys] = useState<number[]>([]);
+
+  // Toggle a single checkbox
+  const toggleSelect = (key: number) => {
+    setSelectedKeys((prev) => (prev.includes(key)
+      ? prev.filter((k) => k !== key) : [...prev, key]));
+  };
+
+  // Select all
+  const toggleSelectAll = () => {
+    if (selectedKeys.length === cartData.length) {
+      setSelectedKeys([]); // unselect all
+    } else {
+      setSelectedKeys(cartData.map((item) => item.key)); // select all
+    }
+  };
+
   const handleRemove = (key: number) => {
     setCartData((prev) => prev.filter((item) => item.key !== key));
+    setSelectedKeys((prev) => prev.filter((k) => k !== key));
   };
 
   const confirmDelete = () => {
@@ -94,17 +90,38 @@ const CartTable = () => {
 
   const columns: TableColumnsType<CartItem> = [
     {
-      title: 'Product',
+      title: (
+        <div className="flex pl-3 item-center text-center gap-0.5">
+          <Checkbox
+            checked={selectedKeys.length === cartData.length && cartData.length > 0}
+            indeterminate={
+              selectedKeys.length > 0
+              && selectedKeys.length < cartData.length
+            }
+            onChange={toggleSelectAll}
+          />
+          <span>Product</span>
+        </div>
+      ),
       dataIndex: 'product',
       render: (text: string, record) => (
-        <div className="cart-product-div">
-          <img src={record.img} alt={text} className="cart-product-image" />
-          <span className="font-display text-xs">{text}</span>
+        <div className="cart-product-check">
+          <Checkbox
+            checked={selectedKeys.includes(record.key)}
+            onChange={() => toggleSelect(record.key)}
+            className="mr-2"
+          />
+          <div className='cart-product-div'>
+            <img src={record.img} alt={text} className="cart-product-image" />
+            <span className="font-display text-xs whitespace-normal w-full max-w-78">
+              {text}
+            </span>
+          </div>
         </div>
       )
     },
     {
-      title: 'Color',
+      title: <span className='pl-3'>Color</span>,
       dataIndex: 'color',
       render: (_, record) => (
         <div className="cart-color">
@@ -117,12 +134,14 @@ const CartTable = () => {
       )
     },
     {
-      title: 'Size',
+      title: <span className='pl-3'>Size</span>,
       dataIndex: 'size',
-      render: (value) => <span className="font-display text-xs">{value}</span>
+      render: (value) => (
+        <span className="font-display text-xs pl-3 py-4">{value}</span>
+      )
     },
     {
-      title: 'Qty',
+      title: <span className='pl-3'>Qty</span>,
       dataIndex: 'qty',
       render: (value: number, record) => (
         <div className="card-buttons-div">
@@ -133,7 +152,9 @@ const CartTable = () => {
           >
             -
           </Button>
-          <span className="card-buttons-span">{formattedQuantity(value)}</span>
+          <span className="card-buttons-span">
+            {formattedQuantity(value)}
+          </span>
           <Button
             className="card-buttons-layout"
             size="small"
@@ -145,17 +166,17 @@ const CartTable = () => {
       )
     },
     {
-      title: 'Price',
+      title: <span className='pl-3'>Price</span>,
       dataIndex: 'price',
       render: (value: number) => (
-        <span className="font-display text-xs">
+        <span className="font-display text-xs pl-3 py-4">
           $
           {value.toFixed(2)}
         </span>
       )
     },
     {
-      title: 'Actions',
+      title: <span className='pl-3'>Actions</span>,
       key: 'actions',
       render: (_, record) => (
         <DeleteOutlined
@@ -163,7 +184,7 @@ const CartTable = () => {
             setDeleteKey(record.key);
             setIsModalOpen(true);
           }}
-          className="cart-button text-red-500 cursor-pointer"
+          className="cart-button text-red-500 cursor-pointer pl-3 py-4"
         />
       )
     }
@@ -172,7 +193,6 @@ const CartTable = () => {
   return (
     <div className="cart-items-div">
       <Table<CartItem>
-        rowSelection={{ type: 'checkbox', ...rowSelection }}
         columns={columns}
         dataSource={cartData}
         pagination={false}

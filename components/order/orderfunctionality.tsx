@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import { useRouter } from 'next/navigation';
+
 import { ArrowsAltOutlined } from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
 import { Pagination, Table } from 'antd';
@@ -18,6 +20,8 @@ interface Order {
 }
 
 const OrdersTable = () => {
+  const router = useRouter();
+
   const data: Order[] = Array.from({ length: 10 }, (_, i) => ({
     key: i + 1,
     date: '22 March 2023',
@@ -62,7 +66,9 @@ const OrdersTable = () => {
       render: (_, record) => (
         <ArrowsAltOutlined
           className="cursor-pointer hover:text-blue-600"
-          onClick={() => console.log('Function called', record)}
+          onClick={() => {
+            router.push(`/orderdetails/${record.orderNumber}`);
+          }}
         />
       )
     }

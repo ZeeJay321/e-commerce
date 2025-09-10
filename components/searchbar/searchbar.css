@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
+
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-display: Inter, sans-serif;
+
+  --color-search-bg: #E2E8F0;
+  --color-search-icon: #00364B;
+}
+
+
+.content-search-bar {
+  @apply !w-full max-w-[350px] pt-6 pb-8;
+}
+
+.ant-input-affix-wrapper {
+  @apply bg-white;
+}
+
+.ant-input-filled {
+  @apply border-gray-200
+}
+
+.ant-input-group-addon {
+  @apply bg-search-bg;
+}
+
+.ant-btn-icon {
+  @apply text-search-icon;
+}

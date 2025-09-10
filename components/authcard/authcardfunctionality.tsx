@@ -8,6 +8,7 @@ import {
 } from 'antd';
 import 'antd/dist/reset.css';
 import type { Rule } from 'rc-field-form/lib/interface';
+import './authcard.css';
 
 export type FieldType = {
   fullname?: string;

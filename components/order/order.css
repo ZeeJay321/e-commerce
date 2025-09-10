@@ -10,7 +10,8 @@
   --color-card-text: #212529;
   --color-card-price: #868E96;
   --color-login-background: #E9ECEF;
-  --color-count-gray: #868E96
+  --color-count-gray: #868E96;
+  --color-table-top: #F8F8F8;
 }
 
 .orders-items-div {

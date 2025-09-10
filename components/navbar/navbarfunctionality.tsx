@@ -4,6 +4,8 @@ import { BellOutlined, ShoppingOutlined, UserOutlined } from '@ant-design/icons'
 import { Dropdown, Layout, MenuProps } from 'antd';
 import { signOut } from 'next-auth/react';
 
+import './navbar.css';
+
 const { Header } = Layout;
 
 type NavBarProps = {
@@ -39,7 +41,7 @@ const NavBar = ({ authed }: NavBarProps) => {
             Login
           </a>
         ) : (
-          <Dropdown menu={{ items }} placement="bottomLeft" arrow>
+          <Dropdown menu={{ items }} placement="bottomLeft" arrow trigger={['click']}>
             <UserOutlined className="top-icons cursor-pointer" />
           </Dropdown>
         )}

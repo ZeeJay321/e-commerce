@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
+
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-display: Inter, sans-serif;
+
+  --color-nav: #F8F9FA;
+  --color-nav-text: #007BFF;
+  --color-site-text: #343A40;
+  --color-card-text: #212529;
+  --color-card-price: #868E96;
+  --color-login-background: #E9ECEF;
+  --color-search-bg: #E2E8F0;
+}
+
+.content-grid-card {
+  @apply w-full h-full flex flex-col justify-between p-0;
+}
+
+.card-image {
+  @apply pr-3 pl-3 pt-3 pb-1.5 object-cover md:pr-4 md:pl-4 md:pb-2 md:pt-4
+}
+
+.meta-content {
+  @apply pr-3 pl-3 pt-1.5 pb-3 md:pr-4 md:pl-4 md:pt-2 md:pb-4
+}
+
+.card-text {
+  @apply text-sm text-left text-card-text font-semibold;
+
+}
+
+.card-description {
+  @apply text-blue-500 w-full h-full text-left font-semibold;
+}
+
+.card-buttons {
+  @apply flex items-center justify-between mt-4 w-full;
+}
+
+.card-buttons-div {
+  @apply flex flex-1 items-center gap-1;
+}
+
+.card-buttons-layout {
+  @apply px-2 border border-[#DFDFDF] text-nav-text rounded-md w-full h-full max-w-8 max-h-8;
+}
+
+.card-buttons-span {
+  @apply flex items-center justify-center border border-[#DFDFDF] rounded-md font-display w-full h-full max-w-11 max-h-8;
+}
+
+.add-to-cart {
+  @apply flex-1 pr-3 pl-3 text-center;
+}

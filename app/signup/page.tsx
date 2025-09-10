@@ -64,7 +64,6 @@ const Page = () => {
 
   const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
     console.log('Signup Failed:', errorInfo);
-
     setNotif({
       type: 'error',
       message: 'Signup failed'

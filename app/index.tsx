@@ -22,8 +22,15 @@ const BaseLayout = ({
 }>) => {
   const { data: session } = useSession();
   const pathname = usePathname();
-  const hideNavBarRoutes = ['/login', '/signup', '/forgotpassword', '/resetpassword', '/orders'];
-  const hideNavBar: boolean = hideNavBarRoutes.includes(pathname ?? '');
+  const hideNavBarRoutes = [
+    '/login',
+    '/signup',
+    '/forgotpassword',
+    '/resetpassword',
+    '/orders'
+  ];
+  const hideNavBar = hideNavBarRoutes.includes(pathname ?? '')
+    || pathname?.startsWith('/orderdetails');
   return (
     <html lang='en'>
       <body>
