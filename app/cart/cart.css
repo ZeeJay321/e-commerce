@@ -48,3 +48,7 @@
 .totals-div {
   @apply flex flex-col items-end pt-[21px] pr-4 md:pr-14 lg:pr-15;
 }
+
+.place-button {
+  @apply font-display text-xl font-normal rounded-[0px];
+}

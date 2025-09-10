@@ -15,7 +15,7 @@ export type FieldType = {
   mobile?: string;
   password?: string;
   confirmPassword?: string;
-  remember?: boolean; // added for checkbox
+  remember?: boolean;
 };
 
 export type FieldConfig = {
@@ -34,6 +34,7 @@ type AuthCardProps = {
   onFinishFailed?: FormProps<FieldType>['onFinishFailed'];
   submitText?: string;
   footer?: React.ReactNode; // optional custom footer
+
 };
 
 const AuthCard = ({

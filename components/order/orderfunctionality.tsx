@@ -1,8 +1,11 @@
 'use client';
 
+import { useState } from 'react';
+
 import { ArrowsAltOutlined } from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
-import { Table } from 'antd';
+import { Pagination, Table } from 'antd';
+
 import './order.css';
 
 interface Order {
@@ -23,6 +26,9 @@ const OrdersTable = () => {
     products: '$00.00',
     amount: '$00.00'
   }));
+
+  const [current, setCurrent] = useState(1);
+  const pageSize = 8;
 
   const columns: TableColumnsType<Order> = [
     {
@@ -62,15 +68,34 @@ const OrdersTable = () => {
     }
   ];
 
+  const paginatedData = data.slice((current - 1) * pageSize, current * pageSize);
+
   return (
-    <div className="cart-items-div">
+    <div className="orders-items-div">
       <Table<Order>
         columns={columns}
-        dataSource={data}
-        pagination={{ pageSize: 8 }}
+        dataSource={paginatedData}
+        pagination={false}
         bordered
         className=''
       />
+      <div className='orders-footer-div'>
+        <div>
+          <span className='orders-footer-span'>
+            {data.length}
+            {' '}
+            Total Count
+          </span>
+        </div>
+        <div className="orders-footer-pagination">
+          <Pagination
+            current={current}
+            pageSize={pageSize}
+            total={data.length}
+            onChange={(page) => setCurrent(page)}
+          />
+        </div>
+      </div>
     </div>
   );
 };

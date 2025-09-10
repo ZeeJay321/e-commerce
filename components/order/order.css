@@ -10,44 +10,21 @@
   --color-card-text: #212529;
   --color-card-price: #868E96;
   --color-login-background: #E9ECEF;
+  --color-count-gray: #868E96
 }
 
-.cart-color {
-  @apply flex items-center gap-0.5;
+.orders-items-div {
+  @apply pt-8 px-4 md:px-14 lg:px-15;
 }
 
-.cart-color-span {
-  @apply inline-block w-4 h-4 rounded-full border border-gray-300;
+.orders-footer-div {
+  @apply flex justify-between items-center pt-8;
 }
 
-.cart-button {
-  @apply cursor-pointer text-red-500 hover:text-red-700 text-lg;
+.orders-footer-span {
+  @apply text-count-gray font-display text-lg;
 }
 
-.card-buttons {
-  @apply flex items-center justify-between mt-4 w-full;
-}
-
-.card-buttons-div {
-  @apply flex flex-1 items-center gap-2;
-}
-
-.card-buttons-layout {
-  @apply px-2 border border-[#DFDFDF] text-nav-text rounded-md relative w-8 h-8;
-}
-
-.card-buttons-span {
-  @apply flex items-center justify-center border border-[#DFDFDF] rounded-md font-display text-xs relative w-20 h-8;
-}
-
-.cart-product-div {
-  @apply flex items-center gap-1;
-}
-
-.cart-product-image {
-  @apply w-6 h-6 object-cover;
-}
-
-.cart-items-div {
-  @apply pt-8 pl-4 md:px-14 lg:px-15;
+.orders-footer-pagination {
+  @apply flex justify-end mt-4;
 }

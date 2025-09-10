@@ -6,6 +6,7 @@ import type { FormProps } from 'antd';
 
 import AuthCard, { FieldConfig, FieldType } from '@/components/authcard/authcardfunctionality';
 import LoadingSpinner from '@/components/loading/loadingspinner';
+import CustomNotification from '@/components/notifications/notificationsfunctionality'; // ✅ import notif
 import './signup.css';
 
 const signupFields: FieldConfig[] = [
@@ -44,13 +45,32 @@ const signupFields: FieldConfig[] = [
 
 const Page = () => {
   const [isRendered, setIsRendered] = useState(false);
+  const [notif, setNotif] = useState<{
+    type: 'success' | 'error';
+    message: string;
+    description?: string;
+  } | null>(null);
 
   const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
     console.log('Signup Success:', values);
+
+    setNotif({
+      type: 'success',
+      message: 'Awesome, Your order has been placed successfully.'
+    });
+
+    setTimeout(() => setNotif(null), 3000);
   };
 
   const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
     console.log('Signup Failed:', errorInfo);
+
+    setNotif({
+      type: 'error',
+      message: 'Signup failed'
+    });
+
+    setTimeout(() => setNotif(null), 3000);
   };
 
   useEffect(() => {
@@ -63,6 +83,17 @@ const Page = () => {
 
   return (
     <div className="cover">
+      {/* ✅ Notification */}
+      {notif && (
+        <CustomNotification
+          type={notif.type}
+          message={notif.message}
+          description={notif.description}
+          placement="topRight"
+          onClose={() => setNotif(null)}
+        />
+      )}
+
       <div className="signup-card">
         <p className="signup-card-text">Signup</p>
         <AuthCard

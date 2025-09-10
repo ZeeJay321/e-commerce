@@ -10,7 +10,7 @@ type SortProps = {
 const Sort = ({ onChange }: SortProps) => (
   <Select
     className="content-sort-by"
-    placeholder="Sort by;"
+    placeholder="Sort by:"
     onChange={onChange}
     allowClear
     options={[

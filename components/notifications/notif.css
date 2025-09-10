@@ -1,0 +1,19 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-display: Inter, sans-serif;
+
+  --color-failure: #F8D7DA;
+  --color-failure-layout: #721C24;
+  --color-success: #D4EDDA;
+  --color-success-layout: #155724;
+}
+
+.notif-success {
+  @apply bg-success text-success-layout;
+}
+
+.notif-failure {
+  @apply bg-failure text-failure-layout;
+}

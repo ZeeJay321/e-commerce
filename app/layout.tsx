@@ -1,3 +1,7 @@
+'use client';
+
+import { SessionProvider } from 'next-auth/react';
+
 import BaseLayout from './index';
 
 const RootLayout = ({
@@ -5,9 +9,11 @@ const RootLayout = ({
 }: Readonly<{
   children: React.ReactNode;
 }>) => (
-  <BaseLayout>
-    {children}
-  </BaseLayout>
+  <SessionProvider refetchInterval={60 * 60 * 24}>
+    <BaseLayout>
+      {children}
+    </BaseLayout>
+  </SessionProvider>
 );
 
 export default RootLayout;

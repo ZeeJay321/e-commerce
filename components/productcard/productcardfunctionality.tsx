@@ -9,11 +9,25 @@ import { Button, Card } from 'antd';
 const { Meta } = Card;
 
 type Product = {
-  id: number | string;
+  id: number;
   name: string;
   price: number;
   image: string;
+  color: string;
+  colorcode: string;
+  size: string;
 };
+
+interface CartItem {
+  img: string;
+  key: number;
+  product: string;
+  colorcode: string;
+  color: string;
+  size: string;
+  qty: number;
+  price: number;
+}
 
 const ProductCard = ({ product }: { product: Product }) => {
   const [quantity, setQuantity] = useState(1);
@@ -23,74 +37,74 @@ const ProductCard = ({ product }: { product: Product }) => {
 
   const formattedQuantity = quantity.toString().padStart(2, '0');
 
+  const addToCart = () => {
+    const existingCart = localStorage.getItem('cartData');
+    const cart: CartItem[] = existingCart ? JSON.parse(existingCart) : [];
+
+    const index = cart.findIndex((item) => item.key === product.id);
+    if (index >= 0) {
+      cart[index].qty += quantity;
+    } else {
+      // Add new item
+      const newItem: CartItem = {
+        img: product.image,
+        key: product.id,
+        product: product.name,
+        colorcode: product.colorcode,
+        color: product.color,
+        size: product.size,
+        qty: quantity,
+        price: product.price
+      };
+      cart.push(newItem);
+    }
+
+    localStorage.setItem('cartData', JSON.stringify(cart));
+    alert(`${product.name} added to cart!`);
+  };
+
   return (
     <Card
       hoverable
-      className='content-grid-card'
-      cover={
-        (
-          <Image
-            alt={product.name}
-            className='card-image'
-            height={200}
-            src={product.image}
-            width={200}
-          />
-        )
-      }
+      className="content-grid-card"
+      cover={(
+        <Image
+          alt={product.name}
+          className="card-image"
+          height={200}
+          src={product.image}
+          width={200}
+        />
+      )}
       styles={{
-        body: {
-          padding: 0
-        }
+        body: { padding: 0 }
       }}
     >
-      <div className='meta-content'>
+      <div className="meta-content">
         <Meta
-          description={
-            (
-              <p className='text-card-price text-sm'>
-                Price:
-                <span className='card-description'>
-                  $
-                  {product.price}
-                </span>
-              </p>
-            )
-          }
-          title={
-            (
-              <p className='card-text'>
-                {product.name}
-              </p>
-            )
-          }
+          description={(
+            <p className="text-card-price text-sm">
+              Price:
+              <span className="card-description">
+                $
+                {product.price}
+              </span>
+            </p>
+          )}
+          title={<p className="card-text">{product.name}</p>}
         />
 
-        <div className='card-buttons'>
-          <div className='card-buttons-div'>
-            <Button
-              className='card-buttons-layout'
-              size='small'
-              onClick={decrease}
-            >
+        <div className="card-buttons">
+          <div className="card-buttons-div">
+            <Button size="small" onClick={decrease}>
               -
             </Button>
-            <span className='card-buttons-span'>
-              {formattedQuantity}
-            </span>
-            <Button
-              className='card-buttons-layout'
-              size='small'
-              onClick={increase}
-            >
+            <span className="card-buttons-span">{formattedQuantity}</span>
+            <Button size="small" onClick={increase}>
               +
             </Button>
           </div>
-          <Button
-            className='add-to-cart'
-            style={{ padding: 0 }}
-            type='primary'
-          >
+          <Button type="primary" onClick={addToCart}>
             Add to Cart
           </Button>
         </div>

@@ -7,6 +7,8 @@ import { Layout } from 'antd';
 import 'antd/dist/reset.css';
 import './globals.css';
 
+import { useSession } from 'next-auth/react';
+
 import NavBar from '@/components/navbar/navbarfunctionality';
 
 const { Content } = Layout;
@@ -18,16 +20,17 @@ const BaseLayout = ({
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
+  const { data: session } = useSession();
   const pathname = usePathname();
   const hideNavBarRoutes = ['/login', '/signup', '/forgotpassword', '/resetpassword', '/orders'];
-  const hideNavBar = pathname && hideNavBarRoutes.includes(pathname);
+  const hideNavBar: boolean = hideNavBarRoutes.includes(pathname ?? '');
   return (
     <html lang='en'>
       <body>
         <div className='layout-cover'>
           <div className='cover'>
             <Layout className='layout-container'>
-              {isSignedIn ? (
+              {session ? (
                 <>
                   {!hideNavBar && <NavBar authed />}
                   <Content className='content-section'>
@@ -35,9 +38,12 @@ const BaseLayout = ({
                   </Content>
                 </>
               ) : (
-                <Content className='content-section'>
-                  {children}
-                </Content>
+                <>
+                  {!hideNavBar && <NavBar authed={false} />}
+                  <Content className='content-section'>
+                    {children}
+                  </Content>
+                </>
               )}
             </Layout>
           </div>

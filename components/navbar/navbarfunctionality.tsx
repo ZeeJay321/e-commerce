@@ -2,6 +2,7 @@
 
 import { BellOutlined, ShoppingOutlined, UserOutlined } from '@ant-design/icons';
 import { Dropdown, Layout, MenuProps } from 'antd';
+import { signOut } from 'next-auth/react';
 
 const { Header } = Layout;
 
@@ -17,16 +18,14 @@ const NavBar = ({ authed }: NavBarProps) => {
     },
     {
       key: '2',
-      label: <a href="/logout">Logout</a>
+      label: <button type='button' onClick={() => signOut({ callbackUrl: '/' })}>Logout</button>
     }
   ];
 
   return (
     <Header className="navigation-bar">
-      {/* Left side */}
       <p className="top-left-nav-tag">E-commerce</p>
 
-      {/* Right side */}
       <div className="top-right-nav-tag">
         <a href="/cart">
           <ShoppingOutlined className="top-icons" />
