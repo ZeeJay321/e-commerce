@@ -20,7 +20,7 @@ const Sort = ({ onChange }: SortProps) => (
         value: 'priceLowHigh',
         label: (
           <span>
-            Price
+            Price: Low to High
             {' '}
             <ArrowUpOutlined style={{ fontSize: 12 }} />
           </span>
@@ -30,7 +30,7 @@ const Sort = ({ onChange }: SortProps) => (
         value: 'priceHighLow',
         label: (
           <span>
-            Price
+            Price: High to Low
             {' '}
             <ArrowDownOutlined style={{ fontSize: 12 }} />
           </span>
@@ -40,7 +40,7 @@ const Sort = ({ onChange }: SortProps) => (
         value: 'nameAZ',
         label: (
           <span>
-            Name
+            Name: A → Z
             {' '}
             <ArrowUpOutlined style={{ fontSize: 12 }} />
           </span>
@@ -50,13 +50,14 @@ const Sort = ({ onChange }: SortProps) => (
         value: 'nameZA',
         label: (
           <span>
-            Name
+            Name: Z → A
             {' '}
             <ArrowDownOutlined style={{ fontSize: 12 }} />
           </span>
         )
       }
     ]}
+
   />
 );
 

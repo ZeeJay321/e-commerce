@@ -6,6 +6,7 @@ import Image from 'next/image';
 
 import { Button, Card } from 'antd';
 
+import CustomNotification from '../notifications/notificationsfunctionality';
 import './card.css';
 
 const { Meta } = Card;
@@ -33,6 +34,11 @@ interface CartItem {
 
 const ProductCard = ({ product }: { product: Product }) => {
   const [quantity, setQuantity] = useState(1);
+  const [notif, setNotif] = useState<{
+    type: 'success' | 'error';
+    message: string;
+    description?: string;
+  } | null>(null);
 
   const increase = () => setQuantity((prev) => prev + 1);
   const decrease = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
@@ -47,7 +53,6 @@ const ProductCard = ({ product }: { product: Product }) => {
     if (index >= 0) {
       cart[index].qty += quantity;
     } else {
-      // Add new item
       const newItem: CartItem = {
         img: product.image,
         key: product.id,
@@ -62,7 +67,12 @@ const ProductCard = ({ product }: { product: Product }) => {
     }
 
     localStorage.setItem('cartData', JSON.stringify(cart));
-    alert(`${product.name} added to cart!`);
+    setNotif({
+      type: 'success',
+      message: `${product.name} added to cart!`
+    });
+
+    setTimeout(() => setNotif(null), 3000);
   };
 
   return (
@@ -82,10 +92,19 @@ const ProductCard = ({ product }: { product: Product }) => {
         body: { padding: 0 }
       }}
     >
+      {notif && (
+        <CustomNotification
+          type={notif.type}
+          message={notif.message}
+          description={notif.description}
+          placement="topRight"
+          onClose={() => setNotif(null)}
+        />
+      )}
       <div className="meta-content">
         <Meta
           description={(
-            <p className="text-card-price text-sm">
+            <p className="text-card-price text-sm font-bold">
               Price:
               <span className="card-description">
                 $
@@ -95,7 +114,6 @@ const ProductCard = ({ product }: { product: Product }) => {
           )}
           title={<p className="card-text">{product.name}</p>}
         />
-
         <div className="card-buttons">
           <div className="card-buttons-div">
             <Button size="small" onClick={decrease}>

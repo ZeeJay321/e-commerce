@@ -32,7 +32,7 @@ const Page = () => {
       <div className="content-div">
         <div className="page-section">
           <a href="/orders" className="content-paragraph">
-            <span className='text-nav-text'><ArrowLeftOutlined /></span>
+            <span className='text-nav-text hover:text-blue-700 transition-colors'><ArrowLeftOutlined /></span>
             {' '}
             Orders Details
           </a>

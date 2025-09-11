@@ -48,37 +48,37 @@ const DetailTable = () => {
 
   const columns: TableColumnsType<ProductItem> = [
     {
-      title: 'Title',
+      title: <span className="table-span-head">Title</span>,
       dataIndex: 'title',
       render: (text: string, record) => (
         <div className="cart-product-div">
-          <img src={record.img} alt={text} className="cart-product-image" />
-          <span className="font-display text-xs">{text}</span>
+          <img src={record.img} alt="" className="cart-product-image" />
+          <span className="font-display text-xs whitespace-normal">{text}</span>
         </div>
       )
     },
     {
-      title: 'Price',
+      title: <span className="table-span-head">Price</span>,
       dataIndex: 'price',
-      render: (value) => (
-        <span className="font-display text-sm">
+      render: (value: number) => (
+        <span className="table-span">
           $
           {value.toFixed(2)}
         </span>
       )
     },
     {
-      title: 'Quantity',
+      title: <span className="table-span-head">Quantity</span>,
       dataIndex: 'quantity',
-      render: (value) => (
-        <span className="font-display text-sm">{value}</span>
+      render: (value: number) => (
+        <span className="table-span">{value}</span>
       )
     },
     {
-      title: 'Stock',
+      title: <span className="table-span-head">Stock</span>,
       dataIndex: 'stock',
-      render: (value) => (
-        <span className="font-display text-sm">{value}</span>
+      render: (value: number) => (
+        <span className="table-span">{value}</span>
       )
     }
   ];

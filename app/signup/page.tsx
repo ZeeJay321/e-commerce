@@ -31,14 +31,26 @@ const signupFields: FieldConfig[] = [
     name: 'mobile',
     label: 'Mobile',
     placeholder: 'Mobile Number',
-    rules: [{ required: true, message: 'Please enter your mobile number' }],
+    rules: [
+      { required: true, message: 'Please enter your mobile number' },
+      {
+        pattern: /^\+?[1-9]\d{1,14}$/,
+        message: 'Enter a valid mobile number (e.g. +923001234567)'
+      }
+    ],
     inputType: 'text'
   },
   {
     name: 'password',
     label: 'Password',
     placeholder: 'Password',
-    rules: [{ required: true, message: 'Please enter your password' }],
+    rules: [
+      { required: true, message: 'Password is required' },
+      {
+        pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+        message: 'Password must be at least 8 characters, include uppercase, lowercase, number, and special character'
+      }
+    ],
     inputType: 'password'
   }
 ];

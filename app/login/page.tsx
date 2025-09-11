@@ -15,7 +15,10 @@ const loginFields: FieldConfig[] = [
     name: 'email',
     label: 'Enter email address',
     placeholder: 'Please enter your email',
-    rules: [{ required: true, message: 'Enter a valid email address' }]
+    rules: [
+      { required: true, message: 'Email is required' },
+      { type: 'email', message: 'Please enter a valid email address' }
+    ]
   },
   {
     name: 'password',
@@ -95,7 +98,7 @@ const Page = () => {
           submitText="Login"
           footer={(
             <>
-              <p className="text-sm">
+              <p className="text-sm pb-4">
                 Forgot password?
                 {' '}
                 <a href="/forgotpassword" className="form-hrefs">

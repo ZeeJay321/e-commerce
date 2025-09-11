@@ -26,7 +26,7 @@
 }
 
 .cover {
-  @apply w-full h-full max-w-[1920px];
+  @apply flex flex-col w-full h-full max-w-[1920px];
 }
 
 .content-section {
@@ -34,14 +34,18 @@
 }
 
 .content-div {
-  @apply pt-6 pr-4 pl-4 block justify-between items-center md:flex md:pr-14 md:pl-14 md:pt-8 lg:pr-15 lg:pl-15
+  @apply flex flex-col justify-end gap-3 pt-6 pr-4 pl-4 items-start md:gap-2 md:justify-between md:items-center md:flex-row md:pr-14 md:pl-14 md:pt-8 lg:pr-15 lg:pl-15
 }
 
 /* content */
 .content-paragraph {
-  @apply text-[24px] text-nav-text font-display text-nowrap md:pt-6;
+  @apply text-[24px] text-nav-text font-display text-nowrap;
 }
 
 .content-features {
   @apply flex justify-end items-center gap-6;
+}
+
+.ant-input-group-wrapper {
+  @apply !p-0;
 }

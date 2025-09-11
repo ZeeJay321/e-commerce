@@ -36,36 +36,41 @@ const OrdersTable = () => {
 
   const columns: TableColumnsType<Order> = [
     {
-      title: 'Date',
+      title: <span className="table-span-head">Date</span>,
       dataIndex: 'date',
-      key: 'date'
+      key: 'date',
+      render: (text: string) => <span className="table-span">{text}</span>
     },
     {
-      title: 'Order #',
+      title: <span className="table-span-head">Order #</span>,
       dataIndex: 'orderNumber',
-      key: 'orderNumber'
+      key: 'orderNumber',
+      render: (text: string) => <span className="table-span">{text}</span>
     },
     {
-      title: 'User',
+      title: <span className="table-span-head">User</span>,
       dataIndex: 'user',
-      key: 'user'
+      key: 'user',
+      render: (text: string) => <span className="table-span">{text}</span>
     },
     {
-      title: 'Product(s)',
+      title: <span className="table-span-head">Product(s)</span>,
       dataIndex: 'products',
-      key: 'products'
+      key: 'products',
+      render: (text: string) => <span className="table-span">{text}</span>
     },
     {
-      title: 'Amount',
+      title: <span className="table-span-head">Amount</span>,
       dataIndex: 'amount',
-      key: 'amount'
+      key: 'amount',
+      render: (text: string) => <span className="table-span">{text}</span>
     },
     {
-      title: 'Actions',
+      title: <span className="table-span-head">Actions</span>,
       key: 'actions',
       render: (_, record) => (
         <ArrowsAltOutlined
-          className="cursor-pointer hover:text-blue-600"
+          className="cursor-pointer hover:text-blue-600 py-4 pl-3"
           onClick={() => {
             router.push(`/orderdetails/${record.orderNumber}`);
           }}

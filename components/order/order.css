@@ -29,3 +29,27 @@
 .orders-footer-pagination {
   @apply flex justify-end mt-4;
 }
+
+.ant-table-cell {
+  @apply !p-0;
+}
+
+.ant-table-cell:nth-child(1) {
+  @apply !p-0 !w-240 !max-w-120;
+}
+
+.ant-table-content {
+  @apply bg-white;
+}
+
+.ant-table-thead {
+  @apply bg-table-top h-8;
+}
+
+.table-span {
+  @apply pl-3 py-4
+}
+
+.table-span-head {
+  @apply pl-3 py-2
+}

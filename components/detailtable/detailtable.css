@@ -11,6 +11,7 @@
   --color-card-price: #868E96;
   --color-login-background: #E9ECEF;
   --color-modal-text: #272B41;
+  --color-table-top: #F8F8F8;
 }
 
 .cart-color {
@@ -45,10 +46,34 @@
   @apply flex items-center gap-1;
 }
 
-.cart-product-image {
-  @apply w-6 h-6 object-cover;
+.cart-product-div {
+  @apply flex items-center gap-1 py-2 pl-3;
 }
 
 .cart-items-div {
   @apply pt-8 pl-4 md:px-14 lg:px-15;
+}
+
+.ant-table-cell {
+  @apply !p-0;
+}
+
+.ant-table-cell:nth-child(1) {
+  @apply !p-0 !w-240 !max-w-120;
+}
+
+.ant-table-content {
+  @apply bg-white;
+}
+
+.ant-table-thead {
+  @apply bg-table-top h-8;
+}
+
+.table-span {
+  @apply pl-3 py-4
+}
+
+.table-span-head {
+  @apply pl-3 py-2
 }

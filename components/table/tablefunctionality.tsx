@@ -112,7 +112,7 @@ const CartTable = () => {
             className="mr-2"
           />
           <div className='cart-product-div'>
-            <img src={record.img} alt={text} className="cart-product-image" />
+            <img src={record.img} alt="" className="cart-product-image" />
             <span className="font-display text-xs whitespace-normal w-full max-w-78">
               {text}
             </span>

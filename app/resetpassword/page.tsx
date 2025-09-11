@@ -6,7 +6,7 @@ import type { FormProps } from 'antd';
 
 import AuthCard, { FieldConfig, FieldType } from '@/components/authcard/authcardfunctionality';
 import LoadingSpinner from '@/components/loading/loadingspinner';
-import CustomNotification from '@/components/notifications/notificationsfunctionality'; // ✅ import
+import CustomNotification from '@/components/notifications/notificationsfunctionality';
 import './resetpassword.css';
 
 const resetFields: FieldConfig[] = [
@@ -14,7 +14,13 @@ const resetFields: FieldConfig[] = [
     name: 'password',
     label: 'Enter new password',
     placeholder: 'Enter new password',
-    rules: [{ required: true, message: 'Please enter your new password' }],
+    rules: [
+      { required: true, message: 'Please enter your new password' },
+      {
+        pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+        message: 'Password must be at least 8 characters, include uppercase, lowercase, number, and special character'
+      }
+    ],
     inputType: 'password'
   }
 ];
