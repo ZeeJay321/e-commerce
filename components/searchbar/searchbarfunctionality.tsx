@@ -14,6 +14,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => (
     placeholder="Search by user & order ID"
     variant="filled"
     allowClear
+    onChange={(e) => onSearch(e.target.value)}
     onSearch={onSearch}
   />
 );

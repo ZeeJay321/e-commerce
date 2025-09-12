@@ -41,8 +41,7 @@ const Page = () => {
     const result = await signIn('credentials', {
       redirect: false,
       email: values.email,
-      password: values.password,
-      callbackUrl: '/'
+      password: values.password
     });
 
     if (result?.error) {

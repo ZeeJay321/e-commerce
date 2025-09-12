@@ -13,17 +13,17 @@ const { Meta } = Card;
 
 type Product = {
   id: number;
-  name: string;
+  title: string;
   price: number;
-  image: string;
+  img: string;
   color: string;
-  colorcode: string;
+  colorCode: string;
   size: string;
 };
 
 interface CartItem {
   img: string;
-  key: number;
+  id: number;
   product: string;
   colorcode: string;
   color: string;
@@ -49,15 +49,15 @@ const ProductCard = ({ product }: { product: Product }) => {
     const existingCart = localStorage.getItem('cartData');
     const cart: CartItem[] = existingCart ? JSON.parse(existingCart) : [];
 
-    const index = cart.findIndex((item) => item.key === product.id);
+    const index = cart.findIndex((item) => item.id === product.id);
     if (index >= 0) {
       cart[index].qty += quantity;
     } else {
       const newItem: CartItem = {
-        img: product.image,
-        key: product.id,
-        product: product.name,
-        colorcode: product.colorcode,
+        img: product.img,
+        id: product.id,
+        product: product.title,
+        colorcode: product.colorCode,
         color: product.color,
         size: product.size,
         qty: quantity,
@@ -69,7 +69,7 @@ const ProductCard = ({ product }: { product: Product }) => {
     localStorage.setItem('cartData', JSON.stringify(cart));
     setNotif({
       type: 'success',
-      message: `${product.name} added to cart!`
+      message: `${product.title} added to cart!`
     });
 
     setTimeout(() => setNotif(null), 3000);
@@ -81,10 +81,10 @@ const ProductCard = ({ product }: { product: Product }) => {
       className="content-grid-card"
       cover={(
         <Image
-          alt={product.name}
+          alt={product.title}
           className="card-image"
           height={222}
-          src={product.image}
+          src={product.img}
           width={257}
         />
       )}
@@ -112,7 +112,7 @@ const ProductCard = ({ product }: { product: Product }) => {
               </span>
             </p>
           )}
-          title={<p className="card-text">{product.name}</p>}
+          title={<p className="card-text">{product.title}</p>}
         />
         <div className="card-buttons">
           <div className="card-buttons-div">

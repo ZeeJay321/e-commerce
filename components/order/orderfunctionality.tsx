@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
@@ -8,36 +8,56 @@ import { ArrowsAltOutlined } from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
 import { Pagination, Table } from 'antd';
 
+import { useSession } from 'next-auth/react';
 import './order.css';
 
 interface Order {
   key: number;
-  date: string;
+  id: number;
+  createdAt: string;
   orderNumber: string;
-  user: string;
-  products: string;
-  amount: string;
+  products: { productId: number; quantity: number }[];
+  amount: number;
 }
 
 const OrdersTable = () => {
   const router = useRouter();
+  const { data: session } = useSession();
 
-  const data: Order[] = Array.from({ length: 10 }, (_, i) => ({
-    key: i + 1,
-    date: '22 March 2023',
-    orderNumber: '45',
-    user: '45',
-    products: '$00.00',
-    amount: '$00.00'
-  }));
-
+  const [orders, setOrders] = useState<Order[]>([]);
   const [current, setCurrent] = useState(1);
   const pageSize = 8;
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      const res = await fetch('/api/getorders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: session?.user.id ? Number(session.user.id) : 1 })
+      });
+
+      const data = await res.json();
+
+      // Transform API response for the table
+      const mapped = data.map((order: any, idx: number) => ({
+        key: idx + 1,
+        id: order.id,
+        createdAt: new Date(order.createdAt).toLocaleDateString(),
+        orderNumber: order.id.toString(),
+        products: order.products, // has product list
+        amount: order.amount
+      }));
+
+      setOrders(mapped);
+    };
+
+    fetchOrders();
+  }, []);
 
   const columns: TableColumnsType<Order> = [
     {
       title: <span className="table-span-head">Date</span>,
-      dataIndex: 'date',
+      dataIndex: 'createdAt',
       key: 'date',
       render: (text: string) => <span className="table-span">{text}</span>
     },
@@ -48,22 +68,27 @@ const OrdersTable = () => {
       render: (text: string) => <span className="table-span">{text}</span>
     },
     {
-      title: <span className="table-span-head">User</span>,
-      dataIndex: 'user',
-      key: 'user',
-      render: (text: string) => <span className="table-span">{text}</span>
-    },
-    {
       title: <span className="table-span-head">Product(s)</span>,
       dataIndex: 'products',
       key: 'products',
-      render: (text: string) => <span className="table-span">{text}</span>
+      render: (products: any[]) => (
+        <span className="table-span">
+          {products.length}
+          {' '}
+          item(s)
+        </span>
+      )
     },
     {
       title: <span className="table-span-head">Amount</span>,
       dataIndex: 'amount',
       key: 'amount',
-      render: (text: string) => <span className="table-span">{text}</span>
+      render: (amount: number) => (
+        <span className="table-span">
+          $
+          {amount.toFixed(2)}
+        </span>
+      )
     },
     {
       title: <span className="table-span-head">Actions</span>,
@@ -79,7 +104,7 @@ const OrdersTable = () => {
     }
   ];
 
-  const paginatedData = data.slice((current - 1) * pageSize, current * pageSize);
+  const paginatedData = orders.slice((current - 1) * pageSize, current * pageSize);
 
   return (
     <div className="orders-items-div">
@@ -88,12 +113,11 @@ const OrdersTable = () => {
         dataSource={paginatedData}
         pagination={false}
         bordered
-        className=''
       />
-      <div className='orders-footer-div'>
+      <div className="orders-footer-div">
         <div>
-          <span className='orders-footer-span'>
-            {data.length}
+          <span className="orders-footer-span">
+            {orders.length}
             {' '}
             Total Count
           </span>
@@ -102,7 +126,7 @@ const OrdersTable = () => {
           <Pagination
             current={current}
             pageSize={pageSize}
-            total={data.length}
+            total={orders.length}
             onChange={(page) => setCurrent(page)}
           />
         </div>

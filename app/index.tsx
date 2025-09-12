@@ -2,6 +2,8 @@
 
 import { usePathname } from 'next/navigation';
 
+import { Provider } from 'react-redux';
+
 import { Layout } from 'antd';
 
 import 'antd/dist/reset.css';
@@ -9,11 +11,9 @@ import './globals.css';
 
 import { useSession } from 'next-auth/react';
 
+import { store } from '@/store/store';
+
 import NavBar from '@/components/navbar/navbarfunctionality';
-
-const { Content } = Layout;
-
-const isSignedIn = true;
 
 const BaseLayout = ({
   children
@@ -40,16 +40,16 @@ const BaseLayout = ({
               {session ? (
                 <>
                   {!hideNavBar && <NavBar authed />}
-                  <Content className='content-section'>
+                  <Provider store={store}>
                     {children}
-                  </Content>
+                  </Provider>
                 </>
               ) : (
                 <>
                   {!hideNavBar && <NavBar authed={false} />}
-                  <Content className='content-section'>
+                  <Provider store={store}>
                     {children}
-                  </Content>
+                  </Provider>
                 </>
               )}
             </Layout>

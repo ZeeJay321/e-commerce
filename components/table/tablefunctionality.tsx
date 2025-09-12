@@ -12,7 +12,7 @@ import './table.css';
 
 interface CartItem {
   img: string;
-  key: number;
+  id: number;
   product: string;
   colorcode: string;
   color: string;
@@ -50,12 +50,12 @@ const CartTable = () => {
     if (selectedKeys.length === cartData.length) {
       setSelectedKeys([]); // unselect all
     } else {
-      setSelectedKeys(cartData.map((item) => item.key)); // select all
+      setSelectedKeys(cartData.map((item) => item.id)); // select all
     }
   };
 
   const handleRemove = (key: number) => {
-    setCartData((prev) => prev.filter((item) => item.key !== key));
+    setCartData((prev) => prev.filter((item) => item.id !== key));
     setSelectedKeys((prev) => prev.filter((k) => k !== key));
   };
 
@@ -73,7 +73,7 @@ const CartTable = () => {
   };
 
   const updateQty = (key: number, type: 'increase' | 'decrease') => {
-    setCartData((prev) => prev.map((item) => (item.key === key
+    setCartData((prev) => prev.map((item) => (item.id === key
       ? {
         ...item,
         qty:
@@ -107,8 +107,8 @@ const CartTable = () => {
       render: (text: string, record) => (
         <div className="cart-product-check">
           <Checkbox
-            checked={selectedKeys.includes(record.key)}
-            onChange={() => toggleSelect(record.key)}
+            checked={selectedKeys.includes(record.id)}
+            onChange={() => toggleSelect(record.id)}
             className="mr-2"
           />
           <div className='cart-product-div'>
@@ -148,7 +148,7 @@ const CartTable = () => {
           <Button
             className="card-buttons-layout"
             size="small"
-            onClick={() => updateQty(record.key, 'decrease')}
+            onClick={() => updateQty(record.id, 'decrease')}
           >
             -
           </Button>
@@ -158,7 +158,7 @@ const CartTable = () => {
           <Button
             className="card-buttons-layout"
             size="small"
-            onClick={() => updateQty(record.key, 'increase')}
+            onClick={() => updateQty(record.id, 'increase')}
           >
             +
           </Button>
@@ -181,7 +181,7 @@ const CartTable = () => {
       render: (_, record) => (
         <DeleteOutlined
           onClick={() => {
-            setDeleteKey(record.key);
+            setDeleteKey(record.id);
             setIsModalOpen(true);
           }}
           className="cart-button text-red-500 cursor-pointer pl-3 py-4"

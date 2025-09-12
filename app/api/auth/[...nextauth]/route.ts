@@ -1,8 +1,13 @@
-import NextAuth from 'next-auth';
+import bcrypt from 'bcrypt';
+import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GithubProvider from 'next-auth/providers/github';
 
-export const authOptions = {
+import { PrismaClient } from '@/app/generated/prisma';
+
+const prisma = new PrismaClient();
+
+export const authOptions: NextAuthOptions = {
   providers: [
     GithubProvider({
       clientId: process.env.GITHUB_ID!,
@@ -11,27 +16,56 @@ export const authOptions = {
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
-        email: { label: 'username', type: 'email' },
-        password: { label: 'password', type: 'password' }
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
-        console.log(credentials);
-        if (
-          credentials?.email === 'test@example.com'
-          && credentials?.password === '123'
-        ) {
-          console.log('done');
-          return { id: '1', name: 'Test User', email: 'test@example.com' };
+        if (!credentials?.email || !credentials?.password) return null;
+
+        // 🔑 Find user by email
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email }
+        });
+
+        if (!user) {
+          throw new Error('No user found with this email');
         }
-        return null;
+
+        const isValid = await bcrypt.compare(credentials.password, user.password);
+        if (!isValid) {
+          throw new Error('Invalid password');
+        }
+
+        return {
+          id: user.id.toString(),
+          name: user.fullname,
+          email: user.email,
+          role: user.role
+        };
       }
     })
   ],
   pages: {
-    signIn: '/login'
+    signIn: '/login' // custom login page
   },
   session: {
     strategy: 'jwt'
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
+      }
+      return session;
+    }
   }
 };
 
