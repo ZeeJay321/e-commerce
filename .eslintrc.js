@@ -17,7 +17,7 @@ module.exports = {
   ],
   overrides: [
     {
-      files: ['.eslintrc.{js,cjs,ts,cts}', 'next.config.ts'],
+      files: ['.eslintrc.{js,cjs,ts,cts}', 'next.config.ts', 'seed.ts'],
       env: { node: true },
       parserOptions: { sourceType: 'script', project: null }
     },

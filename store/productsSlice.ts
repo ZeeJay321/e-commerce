@@ -15,7 +15,6 @@ type ProductsState = {
   loading: boolean;
   hasMore: boolean;
   error: string | null;
-  segment: number;
 };
 
 const initialState: ProductsState = {
@@ -25,23 +24,25 @@ const initialState: ProductsState = {
   error: null
 };
 
-// Thunks
 export const fetchProducts = createAsyncThunk<Product[], {
   segment?: number;
   slice?: number;
   query?: string;
-  sortOption?: string;
+  sortOption?: string | null;
 }>(
   'products/fetchProducts',
   async ({
     segment, slice, query, sortOption
   }) => {
-    const res = await fetch('/api/products', {
-      method: segment && slice ? 'POST' : 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        segment, slice, query, sortOption
-      })
+    // build query string
+    const params = new URLSearchParams();
+    if (segment) params.append('segment', segment.toString());
+    if (slice) params.append('slice', slice.toString());
+    if (query) params.append('query', query);
+    if (sortOption) params.append('sortOption', sortOption);
+
+    const res = await fetch(`/api/products?${params.toString()}`, {
+      method: 'GET'
     });
 
     if (!res.ok) throw new Error('Failed to fetch products');
@@ -50,21 +51,24 @@ export const fetchProducts = createAsyncThunk<Product[], {
 );
 
 export const fetchNextProducts = createAsyncThunk<Product[], {
-  segment: number; // ✅ always required for next
+  segment: number;
   slice: number;
   query?: string;
-  sortOption?: string;
+  sortOption?: string | null;
 }>(
   'products/fetchNextProducts',
   async ({
     segment, slice, query, sortOption
   }) => {
-    const res = await fetch('/api/products', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        segment, slice, query, sortOption
-      })
+    // build query string
+    const params = new URLSearchParams();
+    params.append('segment', segment.toString());
+    params.append('slice', slice.toString());
+    if (query) params.append('query', query);
+    if (sortOption) params.append('sortOption', sortOption);
+
+    const res = await fetch(`/api/products?${params.toString()}`, {
+      method: 'GET'
     });
 
     if (!res.ok) throw new Error('Failed to fetch next products');

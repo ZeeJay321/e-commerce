@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt';
+import moment from 'moment';
 
 // eslint-disable-next-line import/no-relative-packages
 import { PrismaClient } from '../app/generated/prisma';
@@ -6,7 +7,6 @@ import { PrismaClient } from '../app/generated/prisma';
 const prisma = new PrismaClient();
 
 async function main() {
-  // Hash passwords
   const userPassword = await bcrypt.hash('user123', 10);
   const adminPassword = await bcrypt.hash('admin123', 10);
 
@@ -30,7 +30,7 @@ async function main() {
     }))
   );
 
-  // ---- ADMINS ---- (now seeded into User model)
+  // ---- ADMINS ----
   const admins = await Promise.all(
     Array.from({ length: 4 }).map((_, i) => prisma.user.create({
       data: {
@@ -56,7 +56,7 @@ async function main() {
     Array.from({ length: 24 }).map((_, i) => prisma.product.create({
       data: {
         title: `Product ${i + 1}`,
-        price: Math.floor(Math.random() * 100) + 10, // 10–109
+        price: Math.floor(Math.random() * 100) + 10,
         img: productImages[i % productImages.length],
         colorCode: ['#000000', '#FF0000', '#00FF00', '#0000FF'][i % 4],
         color: ['Black', 'Red', 'Green', 'Blue'][i % 4],
@@ -68,47 +68,51 @@ async function main() {
   );
 
   // ---- ORDERS ----
-  for (let i = 0; i < 4; i += 1) {
-    // eslint-disable-next-line no-await-in-loop
-    const order = await prisma.order.create({
-      data: {
-        userId: users[i].id,
-        amount: 0, // will update later
-        metadata: {},
-        products: {
-          create: [
-            {
-              productId: products[(i * 2) % products.length].id,
-              quantity: 1,
-              price: products[(i * 2) % products.length].price,
-              metadata: {}
-            },
-            {
-              productId: products[(i * 2 + 1) % products.length].id,
-              quantity: 2,
-              price: products[(i * 2 + 1) % products.length].price,
-              metadata: {}
-            }
-          ]
-        }
-      },
-      include: { products: true }
-    });
+  const orders = await Promise.all(
+    Array.from({ length: 4 }).map(async (_, i) => {
+      const order = await prisma.order.create({
+        data: {
+          userId: users[i].id,
+          amount: 0, // will update later
+          metadata: {},
+          date: moment().subtract(i, 'days').format('DD MMM YYYY'), // 👈 use moment here
+          products: {
+            create: [
+              {
+                productId: products[(i * 2) % products.length].id,
+                quantity: 1,
+                price: products[(i * 2) % products.length].price,
+                metadata: {}
+              },
+              {
+                productId: products[(i * 2 + 1) % products.length].id,
+                quantity: 2,
+                price: products[(i * 2 + 1) % products.length].price,
+                metadata: {}
+              }
+            ]
+          }
+        },
+        include: { products: true }
+      });
 
-    const total = order.products.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0
-    );
+      const total = order.products.reduce(
+        (sum: number, item: {
+          price: number;
+          quantity: number
+        }) => sum + item.price * item.quantity,
+        0
+      );
 
-    // eslint-disable-next-line no-await-in-loop
-    await prisma.order.update({
-      where: { id: order.id },
-      data: { amount: total }
-    });
-  }
+      return prisma.order.update({
+        where: { id: order.id },
+        data: { amount: total }
+      });
+    })
+  );
 
   console.log(
-    `✅ Seed complete: ${users.length} users, ${admins.length} admins, ${products.length} products, 4 orders`
+    `✅ Seed complete: ${users.length} users, ${admins.length} admins, ${products.length} products, ${orders.length} orders`
   );
 }
 

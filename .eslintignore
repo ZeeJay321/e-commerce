@@ -4,3 +4,4 @@ next.config.ts
 next-env.d.ts
 node_modules
 next-env.d.ts
+seed.ts

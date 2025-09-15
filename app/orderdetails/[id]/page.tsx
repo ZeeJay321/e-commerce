@@ -1,38 +1,51 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 import { useParams } from 'next/navigation';
 
 import { ArrowLeftOutlined } from '@ant-design/icons';
-
 import { Divider } from 'antd';
+import { useSession } from 'next-auth/react';
+import { useDispatch, useSelector } from 'react-redux';
 
 import DetailTable from '@/components/detailtable/detailtablefunctionality';
 import LoadingSpinner from '@/components/loading/loadingspinner';
-
+import { fetchOrderDetail } from '@/store/detailSlice';
+import { AppDispatch, RootState } from '@/store/store';
 import 'antd/dist/reset.css';
 import './orderdetails.css';
 
 const Page = () => {
-  const [isRendered, setIsRendered] = useState(false);
   const { id } = useParams();
+  const { data: session } = useSession();
+  const dispatch = useDispatch<AppDispatch>();
+
+  const {
+    products, orderInfo, loading, error
+  } = useSelector(
+    (state: RootState) => state.orderDetail
+  );
 
   useEffect(() => {
-    setIsRendered(true);
-    console.log('Order ID:', id);
-  }, [id]);
+    if (id && session?.user?.id) {
+      dispatch(fetchOrderDetail({ orderId: Number(id), userId: Number(session.user.id) }));
+    }
+  }, [id, session?.user?.id, dispatch]);
 
-  if (!isRendered) {
-    return <LoadingSpinner />;
-  }
+  if (loading) return <LoadingSpinner />;
+  if (error) return <div className="text-red-500 p-4">{error}</div>;
+
+  const totalAmount = products.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   return (
     <div className="cover">
       <div className="content-div">
         <div className="page-section">
           <a href="/orders" className="content-paragraph">
-            <span className='text-nav-text hover:text-blue-700 transition-colors'><ArrowLeftOutlined /></span>
+            <span className="text-nav-text hover:text-blue-700 transition-colors">
+              <ArrowLeftOutlined />
+            </span>
             {' '}
             Orders Details
           </a>
@@ -42,7 +55,7 @@ const Page = () => {
           <div className="order-info-row">
             <div className="order-info-block">
               <span className="order-info-label">Date</span>
-              <span className="order-info-value">23 March 2024</span>
+              <span className="order-info-value">{orderInfo?.date || 'N/A'}</span>
             </div>
 
             <div className="order-info-block">
@@ -51,18 +64,16 @@ const Page = () => {
             </div>
 
             <div className="order-info-block">
-              <span className="order-info-label">User</span>
-              <span className="order-info-value">Jackson Smith</span>
-            </div>
-
-            <div className="order-info-block">
               <span className="order-info-label">Products</span>
-              <span className="order-info-value">03</span>
+              <span className="order-info-value">{products.length}</span>
             </div>
 
             <div className="order-info-block">
               <span className="order-info-label">Amount</span>
-              <span className="order-info-value">$00.00</span>
+              <span className="order-info-value">
+                $
+                {totalAmount.toFixed(2)}
+              </span>
             </div>
           </div>
 

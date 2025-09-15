@@ -1,11 +1,24 @@
 import bcrypt from 'bcrypt';
-import NextAuth, { NextAuthOptions } from 'next-auth';
+import NextAuth, { DefaultSession, DefaultUser, NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GithubProvider from 'next-auth/providers/github';
 
 import { PrismaClient } from '@/app/generated/prisma';
 
 const prisma = new PrismaClient();
+
+declare module 'next-auth' {
+  interface User extends DefaultUser {
+    role?: string;
+  }
+
+  interface Session {
+    user: {
+      id: string;
+      role?: string;
+    } & DefaultSession['user'];
+  }
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -49,7 +62,8 @@ export const authOptions: NextAuthOptions = {
     signIn: '/login' // custom login page
   },
   session: {
-    strategy: 'jwt'
+    strategy: 'jwt',
+    maxAge: 60 * 60 * 6
   },
   callbacks: {
     async jwt({ token, user }) {

@@ -1,50 +1,28 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-
 import type { TableColumnsType } from 'antd';
-import { Table } from 'antd';
+import { Alert, Spin, Table } from 'antd';
+import { useSelector } from 'react-redux';
 
+import { RootState } from '@/store/store';
 import './detailtable.css';
 
 interface ProductItem {
   key: number;
+  id: number;
+  productId: number;
   img: string;
   title: string;
   price: number;
+  color: string;
+  colorCode: string;
+  size: string;
   quantity: number;
   stock: number;
 }
 
 const DetailTable = () => {
-  const [productData, setProductData] = useState<ProductItem[]>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('productData');
-      if (saved) return JSON.parse(saved);
-    }
-    return [
-      {
-        key: 1,
-        img: '',
-        title: 'Cargo Trousers for Men',
-        price: 49.99,
-        quantity: 2,
-        stock: 15
-      },
-      {
-        key: 2,
-        img: '',
-        title: 'Basic White T-Shirt',
-        price: 19.99,
-        quantity: 5,
-        stock: 30
-      }
-    ];
-  });
-
-  useEffect(() => {
-    localStorage.setItem('productData', JSON.stringify(productData));
-  }, [productData]);
+  const { products, loading, error } = useSelector((state: RootState) => state.orderDetail);
 
   const columns: TableColumnsType<ProductItem> = [
     {
@@ -70,24 +48,23 @@ const DetailTable = () => {
     {
       title: <span className="table-span-head">Quantity</span>,
       dataIndex: 'quantity',
-      render: (value: number) => (
-        <span className="table-span">{value}</span>
-      )
+      render: (value: number) => <span className="table-span">{value}</span>
     },
     {
       title: <span className="table-span-head">Stock</span>,
       dataIndex: 'stock',
-      render: (value: number) => (
-        <span className="table-span">{value}</span>
-      )
+      render: (value: number) => <span className="table-span">{value}</span>
     }
   ];
+
+  if (loading) return <Spin size="large" className="flex justify-center py-10" />;
+  if (error) return <Alert type="error" message={error} showIcon className="mb-4" />;
 
   return (
     <div className="cart-items-div">
       <Table<ProductItem>
         columns={columns}
-        dataSource={productData}
+        dataSource={products}
         pagination={false}
         bordered
         scroll={{ x: 'max-content' }}

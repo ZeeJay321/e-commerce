@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
+
 @import 'tailwindcss';
 
 @theme {
@@ -10,12 +13,12 @@
   --color-card-text: #212529;
   --color-card-price: #868E96;
   --color-login-background: #E9ECEF;
-  --color-modal-text: #272B41;
   --color-table-top: #F8F8F8;
+  --color-modal-text: #272B41;
 }
 
 .cart-color {
-  @apply flex items-center gap-0.5;
+  @apply flex items-center gap-0.5 pl-3 py-4;
 }
 
 .cart-color-span {
@@ -31,7 +34,7 @@
 }
 
 .card-buttons-div {
-  @apply flex flex-1 items-center gap-2;
+  @apply flex flex-1 items-center gap-2 py-2 pl-3;
 }
 
 .card-buttons-layout {
@@ -42,12 +45,16 @@
   @apply flex items-center justify-center border border-[#DFDFDF] rounded-md font-display text-xs relative w-20 h-8;
 }
 
-.cart-product-div {
-  @apply flex items-center gap-1;
+.cart-product-check {
+  @apply flex items-center gap-0.5 py-2 pl-3;
 }
 
 .cart-product-div {
   @apply flex items-center gap-1 py-2 pl-3;
+}
+
+.cart-product-image {
+  @apply w-6 h-6 object-cover;
 }
 
 .cart-items-div {

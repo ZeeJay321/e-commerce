@@ -10,16 +10,25 @@ const schema = Joi.object({
   segment: Joi.number().integer().min(0).optional(),
   slice: Joi.number().integer().min(0).optional(),
   query: Joi.string().allow('').optional(),
-  sortOption: Joi.string().optional()
+  sortOption: Joi.string()
     .valid('priceLowHigh', 'priceHighLow', 'nameAZ', 'nameZA', null)
     .optional()
 });
 
-export async function POST(req: Request) {
+export async function GET(req: Request) {
   try {
-    const body = await req.json();
-    const { error, value } = schema.validate(body, { abortEarly: false });
+    const { searchParams } = new URL(req.url);
 
+    // convert query string values into an object
+    const params = {
+      segment: searchParams.get('segment') ? Number(searchParams.get('segment')) : 0,
+      slice: searchParams.get('slice') ? Number(searchParams.get('slice')) : 0,
+      query: searchParams.get('query') || '',
+      sortOption: searchParams.get('sortOption')
+    };
+
+    // ✅ validate using Joi
+    const { error, value } = schema.validate(params, { abortEarly: false });
     if (error) {
       return NextResponse.json(
         { error: error.details.map((d) => d.message) },
@@ -32,15 +41,14 @@ export async function POST(req: Request) {
     } = value;
 
     const skip = segment && slice ? (segment - 1) * slice : undefined;
-    const take = slice;
+    const take = slice || undefined;
 
     let where: Prisma.ProductWhereInput | undefined;
-
     if (query) {
       where = { title: { contains: query, mode: 'insensitive' } };
     }
 
-    let orderBy: Prisma.ProductOrderByWithRelationInput; // ✅ Prisma type
+    let orderBy: Prisma.ProductOrderByWithRelationInput;
     switch (sortOption) {
       case 'priceLowHigh':
         orderBy = { price: 'asc' };
@@ -59,30 +67,27 @@ export async function POST(req: Request) {
         break;
     }
 
+    let products;
     if (segment !== 0 && slice !== 0) {
-      console.log('\n\n', {
+      products = await prisma.product.findMany({
         skip,
         take,
         where,
         orderBy
       });
-      const products = await prisma.product.findMany({
-        skip,
-        take,
+    } else {
+      products = await prisma.product.findMany({
         where,
         orderBy
       });
-      console.log('\n\n', 'products', products.length);
-      return NextResponse.json(products);
     }
-    const products = await prisma.product.findMany({
-      where,
-      orderBy
-    });
 
-    return NextResponse.json(products);
+    return NextResponse.json(products, { status: 200 });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to fetch products' },
+      { status: 500 }
+    );
   }
 }

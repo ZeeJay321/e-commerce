@@ -62,7 +62,7 @@ const Page = () => {
 
   const handlePlaceOrder = async () => {
     try {
-      const res = await fetch('/api/placeorder', {
+      const res = await fetch('/api/orders/placeorders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -76,8 +76,13 @@ const Page = () => {
         })
       });
 
-      if (!res.ok) throw new Error('Order placement failed');
       const data = await res.json();
+
+      if (!res.ok) {
+        // Throw the error message from API
+        throw new Error(data.error || 'Order placement failed');
+      }
+
       console.log('✅ Order created:', data);
 
       setNotif({
@@ -91,14 +96,18 @@ const Page = () => {
 
       setTimeout(() => {
         setNotif(null);
-        router.push('/');
+        router.push('/orders');
       }, 2000);
-    } catch (error) {
-      console.error(error);
+    } catch (err: unknown) {
+      console.error(err);
+
+      const message = err instanceof Error ? err.message : String(err);
+
       setNotif({
         type: 'error',
-        message: 'Something went wrong'
+        message
       });
+
       setTimeout(() => setNotif(null), 3000);
     }
   };

@@ -1,63 +1,75 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
 import { ArrowsAltOutlined } from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
-import { Pagination, Table } from 'antd';
-
+import {
+  Alert,
+  Pagination,
+  Spin,
+  Table
+} from 'antd';
 import { useSession } from 'next-auth/react';
+
+import { useDispatch, useSelector } from 'react-redux';
+
+import { fetchOrdersCount, fetchOrdersPaginated } from '@/store/ordersSlice';
+import { AppDispatch, RootState } from '@/store/store';
 import './order.css';
 
-interface Order {
+interface OrderRow {
   key: number;
   id: number;
-  createdAt: string;
   orderNumber: string;
   products: { productId: number; quantity: number }[];
+  date: string;
   amount: number;
 }
 
 const OrdersTable = () => {
   const router = useRouter();
   const { data: session } = useSession();
+  const dispatch = useDispatch<AppDispatch>();
 
-  const [orders, setOrders] = useState<Order[]>([]);
+  const {
+    items: orders, total, loading, error
+  } = useSelector(
+    (state: RootState) => state.orders
+  );
+
   const [current, setCurrent] = useState(1);
   const pageSize = 8;
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      const res = await fetch('/api/getorders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: session?.user.id ? Number(session.user.id) : 1 })
-      });
+    if (session?.user?.id) {
+      const userId = parseInt(session.user.id, 10);
+      if (total === 0) {
+        dispatch(fetchOrdersCount(userId));
+      }
+      dispatch(fetchOrdersPaginated({ userId, slice: pageSize, segment: current }));
+    }
+  }, [session, dispatch, current]);
 
-      const data = await res.json();
+  // ✅ Map orders into table rows
+  const mappedOrders: OrderRow[] = useMemo(
+    () => orders.map((order, idx) => ({
+      key: idx + 1,
+      id: order.id,
+      orderNumber: order.id.toString(),
+      products: order.products,
+      date: order.date,
+      amount: order.amount
+    })),
+    [orders]
+  );
 
-      // Transform API response for the table
-      const mapped = data.map((order: any, idx: number) => ({
-        key: idx + 1,
-        id: order.id,
-        createdAt: new Date(order.createdAt).toLocaleDateString(),
-        orderNumber: order.id.toString(),
-        products: order.products, // has product list
-        amount: order.amount
-      }));
-
-      setOrders(mapped);
-    };
-
-    fetchOrders();
-  }, []);
-
-  const columns: TableColumnsType<Order> = [
+  const columns: TableColumnsType<OrderRow> = [
     {
       title: <span className="table-span-head">Date</span>,
-      dataIndex: 'createdAt',
+      dataIndex: 'date',
       key: 'date',
       render: (text: string) => <span className="table-span">{text}</span>
     },
@@ -71,7 +83,7 @@ const OrdersTable = () => {
       title: <span className="table-span-head">Product(s)</span>,
       dataIndex: 'products',
       key: 'products',
-      render: (products: any[]) => (
+      render: (products: { productId: number; quantity: number, price: number }[]) => (
         <span className="table-span">
           {products.length}
           {' '}
@@ -96,41 +108,47 @@ const OrdersTable = () => {
       render: (_, record) => (
         <ArrowsAltOutlined
           className="cursor-pointer hover:text-blue-600 py-4 pl-3"
-          onClick={() => {
-            router.push(`/orderdetails/${record.orderNumber}`);
-          }}
+          onClick={() => router.push(`/orderdetails/${record.orderNumber}`)}
         />
       )
     }
   ];
 
-  const paginatedData = orders.slice((current - 1) * pageSize, current * pageSize);
-
   return (
     <div className="orders-items-div">
-      <Table<Order>
-        columns={columns}
-        dataSource={paginatedData}
-        pagination={false}
-        bordered
-      />
-      <div className="orders-footer-div">
-        <div>
-          <span className="orders-footer-span">
-            {orders.length}
-            {' '}
-            Total Count
-          </span>
+      {loading && (
+        <div className="flex justify-center py-10">
+          <Spin size="large" />
         </div>
-        <div className="orders-footer-pagination">
-          <Pagination
-            current={current}
-            pageSize={pageSize}
-            total={orders.length}
-            onChange={(page) => setCurrent(page)}
+      )}
+      {error && <Alert type="error" message={error} showIcon className="mb-4" />}
+      {!loading && !error && (
+        <>
+          <Table<OrderRow>
+            columns={columns}
+            dataSource={mappedOrders}
+            pagination={false}
+            bordered
           />
-        </div>
-      </div>
+          <div className="orders-footer-div">
+            <div>
+              <span className="orders-footer-span">
+                {total}
+                {' '}
+                Total Count
+              </span>
+            </div>
+            <div className="orders-footer-pagination">
+              <Pagination
+                current={current}
+                pageSize={pageSize}
+                total={total}
+                onChange={(page) => setCurrent(page)}
+              />
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

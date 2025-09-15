@@ -37,14 +37,17 @@ model Product {
 }
 
 model Order {
-  id          Int         @id @default(autoincrement())
-  date        DateTime    @default(now())
-  amount      Float       @default(0.0)
-  userId      Int
-  user        User        @relation(fields: [userId], references: [id])
-  products    OrderItem[]
-  metadata    Json?
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  amount    Float
+  metadata  Json
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  date      String
+  products  OrderItem[]
+  user      User      @relation(fields: [userId], references: [id])
 }
+
 
 model OrderItem {
   id        Int      @id @default(autoincrement())
