@@ -6,7 +6,7 @@ import type { FormProps } from 'antd';
 
 import AuthCard, { FieldConfig, FieldType } from '@/components/authcard/authcardfunctionality';
 import LoadingSpinner from '@/components/loading/loadingspinner';
-import CustomNotification from '@/components/notifications/notificationsfunctionality'; // ✅ import notif
+import CustomNotification from '@/components/notifications/notificationsfunctionality';
 import './signup.css';
 
 const signupFields: FieldConfig[] = [
@@ -63,38 +63,58 @@ const Page = () => {
     description?: string;
   } | null>(null);
 
-  const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-    console.log('Signup Success:', values);
-
-    setNotif({
-      type: 'success',
-      message: 'Awesome, Your order has been placed successfully.'
-    });
-
-    setTimeout(() => setNotif(null), 3000);
-  };
-
-  const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
-    console.log('Signup Failed:', errorInfo);
-    setNotif({
-      type: 'error',
-      message: 'Signup failed'
-    });
-
-    setTimeout(() => setNotif(null), 3000);
-  };
-
   useEffect(() => {
     setIsRendered(true);
   }, []);
 
-  if (!isRendered) {
-    return <LoadingSpinner />;
-  }
+  if (!isRendered) return <LoadingSpinner />;
+
+  const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
+    try {
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullname: values.fullname,
+          email: values.email,
+          phoneNumber: values.mobile,
+          password: values.password
+        })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Signup failed');
+      }
+
+      setNotif({
+        type: 'success',
+        message: 'Signup successful!',
+        description: 'Your account has been created successfully.'
+      });
+
+      setTimeout(() => setNotif(null), 3000);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      setNotif({
+        type: 'error',
+        message
+      });
+      setTimeout(() => setNotif(null), 3000);
+    }
+  };
+
+  const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
+    setNotif({
+      type: 'error',
+      message: 'Signup failed. Please check the form fields.'
+    });
+    setTimeout(() => setNotif(null), 3000);
+  };
 
   return (
     <div className="cover">
-      {/* ✅ Notification */}
       {notif && (
         <CustomNotification
           type={notif.type}
@@ -117,9 +137,7 @@ const Page = () => {
             <p className="text-sm">
               Already have an account?
               {' '}
-              <a href="/login" className="form-hrefs">
-                Login
-              </a>
+              <a href="/login" className="form-hrefs">Login</a>
             </p>
           )}
         />

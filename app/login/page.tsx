@@ -38,10 +38,13 @@ const Page = () => {
   } | null>(null);
 
   const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
+    const remember = values.remember ?? false;
+
     const result = await signIn('credentials', {
       redirect: false,
       email: values.email,
-      password: values.password
+      password: values.password,
+      remember // pass to backend if needed
     });
 
     if (result?.error) {
