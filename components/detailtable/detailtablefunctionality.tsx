@@ -1,7 +1,11 @@
 'use client';
 
 import type { TableColumnsType } from 'antd';
-import { Alert, Spin, Table } from 'antd';
+import {
+  Alert,
+  Spin,
+  Table
+} from 'antd';
 import { useSelector } from 'react-redux';
 
 import { ProductItem } from '@/models';

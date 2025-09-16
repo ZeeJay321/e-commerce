@@ -45,7 +45,11 @@ export async function GET(req: Request) {
       );
     }
 
-    const { userId, slice, segment } = value;
+    const {
+      userId,
+      slice,
+      segment
+    } = value;
 
     let orders;
 

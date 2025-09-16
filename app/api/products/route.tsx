@@ -37,7 +37,10 @@ export async function GET(req: Request) {
     }
 
     const {
-      segment, slice, query, sortOption
+      segment,
+      slice,
+      query,
+      sortOption
     } = value;
 
     const skip = segment && slice ? (segment - 1) * slice : undefined;

@@ -1,6 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useState
+} from 'react';
 
 import { useRouter } from 'next/navigation';
 
@@ -44,7 +48,12 @@ const OrdersTable = () => {
       }
       dispatch(fetchOrdersPaginated({ userId, slice: pageSize, segment: current }));
     }
-  }, [session, dispatch, current, total]);
+  }, [
+    session,
+    dispatch,
+    current,
+    total
+  ]);
 
   // ✅ Map orders into table rows
   const mappedOrders: OrderRow[] = useMemo(

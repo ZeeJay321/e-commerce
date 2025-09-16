@@ -1,7 +1,15 @@
 'use client';
 
-import { BellOutlined, ShoppingOutlined, UserOutlined } from '@ant-design/icons';
-import { Dropdown, Layout, MenuProps } from 'antd';
+import {
+  BellOutlined,
+  ShoppingOutlined,
+  UserOutlined
+} from '@ant-design/icons';
+import {
+  Dropdown,
+  Layout,
+  MenuProps
+} from 'antd';
 import { signOut } from 'next-auth/react';
 
 import './navbar.css';

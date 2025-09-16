@@ -97,8 +97,7 @@ const Page = () => {
 
       setNotif({
         type: 'success',
-        message: 'Signup successful!',
-        description: 'Your account has been created successfully.'
+        message: 'Your account has been created successfully.'
       });
 
       // ✅ Redirect after 2s

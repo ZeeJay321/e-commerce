@@ -42,7 +42,11 @@ const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
       query: search,
       sortOption
     }));
-  }, [dispatch, search, sortOption]);
+  }, [
+    dispatch,
+    search,
+    sortOption
+  ]);
 
   // Infinite scroll
   useEffect(() => {
@@ -64,7 +68,14 @@ const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
 
     window.addEventListener('scroll', onScroll);
     return () => window.removeEventListener('scroll', onScroll);
-  }, [dispatch, loading, hasMore, segment, search, sortOption]);
+  }, [
+    dispatch,
+    loading,
+    hasMore,
+    segment,
+    search,
+    sortOption
+  ]);
 
   return (
     <Row

@@ -1,6 +1,14 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import {
+  createAsyncThunk,
+  createSlice,
+  PayloadAction
+} from '@reduxjs/toolkit';
 
-import { OrderInfo, OrderItem, ProductItem } from '@/models';
+import {
+  OrderInfo,
+  OrderItem,
+  ProductItem
+} from '@/models';
 
 interface OrderDetailState {
   orderInfo: OrderInfo | null;
