@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from 'react';
 
+import { useRouter, useSearchParams } from 'next/navigation';
+
 import type { FormProps } from 'antd';
 
-import AuthCard, { FieldConfig, FieldType } from '@/components/authcard/authcardfunctionality';
+import AuthCard from '@/components/authcard/authcardfunctionality';
 import LoadingSpinner from '@/components/loading/loadingspinner';
 import CustomNotification from '@/components/notifications/notificationsfunctionality';
+import { FieldConfig, FieldType } from '@/models';
 import './resetpassword.css';
 
 const resetFields: FieldConfig[] = [
@@ -18,7 +21,8 @@ const resetFields: FieldConfig[] = [
       { required: true, message: 'Please enter your new password' },
       {
         pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-        message: 'Password must be at least 8 characters, include uppercase, lowercase, number, and special character'
+        message:
+          'Password must be at least 8 characters, include uppercase, lowercase, number, and special character'
       }
     ],
     inputType: 'password'
@@ -33,25 +37,53 @@ const Page = () => {
     description?: string;
   } | null>(null);
 
-  const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-    console.log('Reset Password request:', values);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const token = searchParams.get('token');
 
-    setNotif({
-      type: 'success',
-      message: 'Your password has been updated.  Please check your email.'
-    });
+  const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
+    try {
+      const res = await fetch('/api/auth/resetpassword', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token,
+          password: values.password,
+          confirmPassword: values.confirmPassword
+        })
+      });
 
-    setTimeout(() => setNotif(null), 3000);
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Password reset failed');
+      }
+
+      setNotif({
+        type: 'success',
+        message: 'Your password has been updated. You can now log in.'
+      });
+
+      // redirect after 3s
+      setTimeout(() => {
+        setNotif(null);
+        router.push('/login');
+      }, 3000);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      setNotif({
+        type: 'error',
+        message
+      });
+      setTimeout(() => setNotif(null), 3000);
+    }
   };
 
-  const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
-    console.log('Reset Password Failed:', errorInfo);
-
+  const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = () => {
     setNotif({
       type: 'error',
-      message: 'Password reset failed'
+      message: 'Password reset failed. Please check fields.'
     });
-
     setTimeout(() => setNotif(null), 3000);
   };
 
@@ -65,7 +97,6 @@ const Page = () => {
 
   return (
     <div className="cover">
-      {/* ✅ Notification */}
       {notif && (
         <CustomNotification
           type={notif.type}

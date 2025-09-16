@@ -10,16 +10,7 @@ import {
 
 import './table.css';
 
-interface CartItem {
-  img: string;
-  id: number;
-  product: string;
-  colorcode: string;
-  color: string;
-  size: string;
-  qty: number;
-  price: number;
-}
+import { CartItem } from '@/models';
 
 const CartTable = () => {
   const [cartData, setCartData] = useState<CartItem[]>(() => {

@@ -45,13 +45,15 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
-        const remember = credentials?.remember;
+        const remember = credentials.remember === 'true';
 
         const emailLower = credentials.email.toLowerCase();
 
-        // 🔑 Find user by lowercase email
-        const user = await prisma.user.findUnique({
-          where: { email: emailLower }
+        const user = await prisma.user.findFirst({
+          where: {
+            email: emailLower,
+            role: 'user'
+          }
         });
 
         if (!user) {
@@ -86,8 +88,13 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.role = user.role;
         token.rememberMe = user.rememberMe;
-      }
 
+        if (!token.exp) {
+          const expires = new Date();
+          expires.setDate(expires.getDate() + (user.rememberMe ? 30 : 1));
+          token.exp = expires.toISOString();
+        }
+      }
       return token;
     },
     async session({ session, token }) {
@@ -95,22 +102,10 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
         session.user.rememberMe = token.rememberMe;
-
-        if (token.rememberMe) {
-          const expires = new Date();
-          expires.setDate(expires.getDate() + 30);
-          session.expires = expires.toISOString();
-          console.log(session.expires);
-        } else {
-          const expires = new Date();
-          expires.setDate(expires.getDate() + 1);
-          session.expires = expires.toISOString();
-          console.log(session.expires);
-        }
+        session.expires = token.exp as string;
       }
       return session;
     }
-
   }
 
 };

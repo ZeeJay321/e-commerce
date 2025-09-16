@@ -1,47 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export interface Product {
-  id: number;
-  title: string;
-  price: number;
-  img: string;
-  color: string;
-  colorCode: string;
-  size: string;
-  stock: number;
-}
-
-export interface OrderItem {
-  id: number;
-  orderId: number;
-  productId: number;
-  quantity: number;
-  price: number;
-  product: Product;
-}
-
-export interface ProductItem {
-  key: number;
-  id: number; // order item id
-  productId: number;
-  img: string;
-  title: string;
-  price: number;
-  quantity: number;
-  stock: number;
-  color: string;
-  colorCode: string;
-  size: string;
-}
-
-export interface OrderInfo {
-  id: number;
-  userId: number;
-  amount: number;
-  date: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import { OrderInfo, OrderItem, ProductItem } from '@/models';
 
 interface OrderDetailState {
   orderInfo: OrderInfo | null;
@@ -77,7 +36,7 @@ export const fetchOrderDetail = createAsyncThunk<
     date: string;
     createdAt: string;
     updatedAt: string;
-    products: OrderItem[]
+    products: OrderItem[];
   } = await res.json();
 
   const products: ProductItem[] = order.products.map((item, index) => ({
@@ -123,14 +82,17 @@ const orderDetailSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchOrderDetail.fulfilled, (
-        state,
-        action: PayloadAction<{ orderInfo: OrderInfo; products: ProductItem[] }>
-      ) => {
-        state.orderInfo = action.payload.orderInfo;
-        state.products = action.payload.products;
-        state.loading = false;
-      })
+      .addCase(
+        fetchOrderDetail.fulfilled,
+        (
+          state,
+          action: PayloadAction<{ orderInfo: OrderInfo; products: ProductItem[] }>
+        ) => {
+          state.orderInfo = action.payload.orderInfo;
+          state.products = action.payload.products;
+          state.loading = false;
+        }
+      )
       .addCase(fetchOrderDetail.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch order detail';

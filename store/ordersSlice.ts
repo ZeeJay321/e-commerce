@@ -1,33 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export interface Product {
-  id: number;
-  title: string;
-  price: number;
-  img: string;
-  colorCode: string;
-  color: string;
-  size: string;
-  stock: number;
-}
-
-export interface OrderItem {
-  id: number;
-  productId: number;
-  quantity: number;
-  price: number;
-  product: Product;
-}
-
-export interface Order {
-  id: number;
-  userId: number;
-  amount: number;
-  date: string;
-  createdAt: string;
-  updatedAt: string;
-  products: OrderItem[];
-}
+import { Order } from '@/models';
 
 interface OrdersState {
   items: Order[];
@@ -38,7 +11,7 @@ interface OrdersState {
 
 const initialState: OrdersState = {
   items: [],
-  total: 0, // start at 0
+  total: 0,
   loading: false,
   error: null
 };
@@ -48,9 +21,7 @@ export const fetchOrdersAll = createAsyncThunk<Order[], number>(
   'orders/fetchAll',
   async (userId) => {
     const res = await fetch(`/api/orders/getorders?userId=${userId}&slice=0&segment=0`);
-
     if (!res.ok) throw new Error('Failed to fetch orders');
-
     return res.json();
   }
 );
@@ -63,19 +34,16 @@ export const fetchOrdersPaginated = createAsyncThunk<
   const res = await fetch(
     `/api/orders/getorders?userId=${userId}&slice=${slice}&segment=${segment}`
   );
-
   if (!res.ok) throw new Error('Failed to fetch paginated orders');
-
   return res.json();
 });
 
+// ✅ Fetch total count
 export const fetchOrdersCount = createAsyncThunk<number, number>(
   'orders/fetchCount',
   async (userId) => {
     const res = await fetch(`/api/orders/totalorders?userId=${userId}`);
-
     if (!res.ok) throw new Error('Failed to fetch order count');
-
     const data = await res.json();
     return data.totalOrders;
   }
@@ -87,7 +55,7 @@ const ordersSlice = createSlice({
   reducers: {
     clearOrders: (state) => {
       state.items = [];
-      state.total = 0; // reset total as well
+      state.total = 0;
       state.error = null;
       state.loading = false;
     }

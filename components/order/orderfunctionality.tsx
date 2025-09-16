@@ -20,14 +20,7 @@ import { fetchOrdersCount, fetchOrdersPaginated } from '@/store/ordersSlice';
 import { AppDispatch, RootState } from '@/store/store';
 import './order.css';
 
-interface OrderRow {
-  key: number;
-  id: number;
-  orderNumber: string;
-  products: { productId: number; quantity: number }[];
-  date: string;
-  amount: number;
-}
+import { OrderRow } from '@/models';
 
 const OrdersTable = () => {
   const router = useRouter();

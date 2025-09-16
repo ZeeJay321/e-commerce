@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from 'react';
 
+import { useRouter } from 'next/navigation';
+
 import type { FormProps } from 'antd';
 
-import AuthCard, { FieldConfig, FieldType } from '@/components/authcard/authcardfunctionality';
+import AuthCard from '@/components/authcard/authcardfunctionality';
 import LoadingSpinner from '@/components/loading/loadingspinner';
 import CustomNotification from '@/components/notifications/notificationsfunctionality';
+import { FieldConfig, FieldType } from '@/models';
 import './signup.css';
 
 const signupFields: FieldConfig[] = [
@@ -48,7 +51,8 @@ const signupFields: FieldConfig[] = [
       { required: true, message: 'Password is required' },
       {
         pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-        message: 'Password must be at least 8 characters, include uppercase, lowercase, number, and special character'
+        message:
+          'Password must be at least 8 characters, include uppercase, lowercase, number, and special character'
       }
     ],
     inputType: 'password'
@@ -63,6 +67,8 @@ const Page = () => {
     description?: string;
   } | null>(null);
 
+  const router = useRouter(); // ✅ router hook
+
   useEffect(() => {
     setIsRendered(true);
   }, []);
@@ -75,10 +81,11 @@ const Page = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          fullname: values.fullname,
+          fullName: values.fullname,
           email: values.email,
           phoneNumber: values.mobile,
-          password: values.password
+          password: values.password,
+          confirmPassword: values.confirmPassword
         })
       });
 
@@ -94,7 +101,11 @@ const Page = () => {
         description: 'Your account has been created successfully.'
       });
 
-      setTimeout(() => setNotif(null), 3000);
+      // ✅ Redirect after 2s
+      setTimeout(() => {
+        setNotif(null);
+        router.push('/login');
+      }, 2000);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       setNotif({
@@ -105,7 +116,7 @@ const Page = () => {
     }
   };
 
-  const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
+  const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = () => {
     setNotif({
       type: 'error',
       message: 'Signup failed. Please check the form fields.'
@@ -137,7 +148,9 @@ const Page = () => {
             <p className="text-sm">
               Already have an account?
               {' '}
-              <a href="/login" className="form-hrefs">Login</a>
+              <a href="/login" className="form-hrefs">
+                Login
+              </a>
             </p>
           )}
         />

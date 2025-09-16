@@ -5,10 +5,12 @@ import { useEffect, useState } from 'react';
 import type { FormProps } from 'antd';
 import { signIn } from 'next-auth/react';
 
-import AuthCard, { FieldConfig, FieldType } from '@/components/authcard/authcardfunctionality';
+import AuthCard from '@/components/authcard/authcardfunctionality';
 import LoadingSpinner from '@/components/loading/loadingspinner';
 import CustomNotification from '@/components/notifications/notificationsfunctionality';
 import './login.css';
+
+import { FieldConfig, FieldType } from '@/models';
 
 const loginFields: FieldConfig[] = [
   {

@@ -1,14 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export type Product = {
-  id: number;
-  title: string;
-  price: number;
-  img: string;
-  color: string;
-  colorCode: string;
-  size: string;
-};
+import { Product } from '@/models';
 
 type ProductsState = {
   items: Product[];
@@ -24,59 +16,46 @@ const initialState: ProductsState = {
   error: null
 };
 
-export const fetchProducts = createAsyncThunk<Product[], {
-  segment?: number;
-  slice?: number;
-  query?: string;
-  sortOption?: string | null;
-}>(
+export const fetchProducts = createAsyncThunk<
+  Product[],
+  { segment?: number; slice?: number; query?: string; sortOption?: string | null }
+>(
   'products/fetchProducts',
   async ({
     segment, slice, query, sortOption
   }) => {
-    // build query string
     const params = new URLSearchParams();
     if (segment) params.append('segment', segment.toString());
     if (slice) params.append('slice', slice.toString());
     if (query) params.append('query', query);
     if (sortOption) params.append('sortOption', sortOption);
 
-    const res = await fetch(`/api/products?${params.toString()}`, {
-      method: 'GET'
-    });
-
+    const res = await fetch(`/api/products?${params.toString()}`);
     if (!res.ok) throw new Error('Failed to fetch products');
     return res.json();
   }
 );
 
-export const fetchNextProducts = createAsyncThunk<Product[], {
-  segment: number;
-  slice: number;
-  query?: string;
-  sortOption?: string | null;
-}>(
+export const fetchNextProducts = createAsyncThunk<
+  Product[],
+  { segment: number; slice: number; query?: string; sortOption?: string | null }
+>(
   'products/fetchNextProducts',
   async ({
     segment, slice, query, sortOption
   }) => {
-    // build query string
     const params = new URLSearchParams();
     params.append('segment', segment.toString());
     params.append('slice', slice.toString());
     if (query) params.append('query', query);
     if (sortOption) params.append('sortOption', sortOption);
 
-    const res = await fetch(`/api/products?${params.toString()}`, {
-      method: 'GET'
-    });
-
+    const res = await fetch(`/api/products?${params.toString()}`);
     if (!res.ok) throw new Error('Failed to fetch next products');
     return res.json();
   }
 );
 
-// Slice
 const productsSlice = createSlice({
   name: 'products',
   initialState,
@@ -89,8 +68,8 @@ const productsSlice = createSlice({
     }
   },
   extraReducers: (builder) => {
-    // fetchProducts
     builder
+      // fetchProducts
       .addCase(fetchProducts.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -103,10 +82,9 @@ const productsSlice = createSlice({
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Something went wrong';
-      });
+      })
 
-    // fetchNextProducts
-    builder
+      // fetchNextProducts
       .addCase(fetchNextProducts.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -124,5 +102,4 @@ const productsSlice = createSlice({
 });
 
 export const { clearProducts } = productsSlice.actions;
-
 export default productsSlice.reducer;

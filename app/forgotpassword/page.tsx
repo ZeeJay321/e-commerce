@@ -4,9 +4,10 @@ import { useEffect, useState } from 'react';
 
 import type { FormProps } from 'antd';
 
-import AuthCard, { FieldConfig, FieldType } from '@/components/authcard/authcardfunctionality';
+import AuthCard from '@/components/authcard/authcardfunctionality';
 import LoadingSpinner from '@/components/loading/loadingspinner';
 import CustomNotification from '@/components/notifications/notificationsfunctionality'; // ✅ import
+import { FieldConfig, FieldType } from '@/models';
 import './forgotpassword.css';
 
 const forgotFields: FieldConfig[] = [
@@ -29,15 +30,33 @@ const Page = () => {
     description?: string;
   } | null>(null);
 
-  const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-    console.log('Forgot Password request:', values);
+  const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
+    try {
+      const res = await fetch('/api/auth/forgetpassword', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: values.email })
+      });
 
-    setNotif({
-      type: 'success',
-      message: 'Reset Password Instructions has been sent to your email address.'
-    });
+      const data = await res.json();
 
-    setTimeout(() => setNotif(null), 3000);
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to send reset link');
+      }
+
+      setNotif({
+        type: 'success',
+        message: 'Reset Password Instructions have been sent to your email address.'
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      setNotif({
+        type: 'error',
+        message
+      });
+    } finally {
+      setTimeout(() => setNotif(null), 3000);
+    }
   };
 
   const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {

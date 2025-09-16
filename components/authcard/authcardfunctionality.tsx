@@ -7,25 +7,9 @@ import {
   Form, Input
 } from 'antd';
 import 'antd/dist/reset.css';
-import type { Rule } from 'rc-field-form/lib/interface';
 import './authcard.css';
 
-export type FieldType = {
-  fullname?: string;
-  email?: string;
-  mobile?: string;
-  password?: string;
-  confirmPassword?: string;
-  remember?: boolean;
-};
-
-export type FieldConfig = {
-  name: keyof FieldType;
-  label: string;
-  placeholder: string;
-  rules: Rule[];
-  inputType?: 'text' | 'password';
-};
+import { FieldConfig, FieldType } from '@/models';
 
 type AuthCardProps = {
   fields: FieldConfig[];

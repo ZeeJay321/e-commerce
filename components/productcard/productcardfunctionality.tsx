@@ -6,31 +6,12 @@ import Image from 'next/image';
 
 import { Button, Card } from 'antd';
 
+import { CartItem, Product } from '@/models';
+
 import CustomNotification from '../notifications/notificationsfunctionality';
 import './card.css';
 
 const { Meta } = Card;
-
-type Product = {
-  id: number;
-  title: string;
-  price: number;
-  img: string;
-  color: string;
-  colorCode: string;
-  size: string;
-};
-
-interface CartItem {
-  img: string;
-  id: number;
-  product: string;
-  colorcode: string;
-  color: string;
-  size: string;
-  qty: number;
-  price: number;
-}
 
 const ProductCard = ({ product }: { product: Product }) => {
   const [quantity, setQuantity] = useState(1);

@@ -10,19 +10,40 @@ const prisma = new PrismaClient();
 
 // Joi schema for validation
 const schema = Joi.object({
-  fullname: Joi.string().min(3).required(),
-  email: Joi.string().email().required(),
-  phoneNumber: Joi.string().pattern(/^\+?[1-9]\d{1,14}$/).required(),
+  fullName: Joi.string().min(3).required().messages({
+    'string.empty': 'Full name is required',
+    'string.min': 'Full name must be at least 3 characters'
+  }),
+  email: Joi.string().email().required().messages({
+    'string.email': 'Enter a valid email address',
+    'string.empty': 'Email is required'
+  }),
+  phoneNumber: Joi.string()
+    .pattern(/^\+?[1-9]\d{1,14}$/)
+    .required()
+    .messages({
+      'string.pattern.base': 'Phone number must be in international format (e.g., +123456789)',
+      'string.empty': 'Phone number is required'
+    }),
   password: Joi.string()
     .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/)
     .required()
+    .messages({
+      'string.pattern.base':
+        'Password must be at least 8 characters long, include uppercase, lowercase, number, and special character',
+      'string.empty': 'Password is required'
+    }),
+  confirmPassword: Joi.string().valid(Joi.ref('password')).required().messages({
+    'any.only': 'Confirm password must match password',
+    'string.empty': 'Confirm password is required'
+  })
 });
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    // Validate input
+    // ✅ Validate input
     const { error, value } = schema.validate(body, { abortEarly: false });
     if (error) {
       return NextResponse.json(
@@ -32,34 +53,31 @@ export async function POST(req: Request) {
     }
 
     const {
-      fullname, email, phoneNumber, password
+      fullName,
+      email,
+      phoneNumber,
+      password,
+      confirmPassword
     } = value;
+    const emailLower = email.toLowerCase(); // normalize email
 
-    const emailLower = email.toLowerCase(); // ✅ normalize email
-
-    // Wrap everything in a transaction
+    // ✅ Transaction
     const user = await prisma.$transaction(async (tx) => {
-      // Check if user exists
       const existingUser = await tx.user.findUnique({ where: { email: emailLower } });
       if (existingUser) {
         throw new Error('Email already registered');
       }
 
-      // Hash password
-      const saltRounds = 10;
-      const hashedPassword = await bcrypt.hash(password, saltRounds);
+      const hashedPassword = await bcrypt.hash(password, 10);
 
-      // Create user
-      const newUser = await tx.user.create({
+      return tx.user.create({
         data: {
-          fullname,
-          email: emailLower, // ✅ store lowercase
+          fullname: fullName,
+          email: emailLower,
           phoneNumber,
           password: hashedPassword
         }
       });
-
-      return newUser;
     });
 
     return NextResponse.json(
