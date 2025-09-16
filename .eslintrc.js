@@ -3,7 +3,7 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
-    project: './tsconfig.json'
+    project: '/Users/zainulabidin/Documents/Qbatch/e-commerce-app/tsconfig.json'
   },
   plugins: ['@typescript-eslint'],
   env: {

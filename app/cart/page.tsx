@@ -30,7 +30,7 @@ interface CartItem {
 
 const Page = () => {
   const router = useRouter();
-  const { data: session } = useSession(); // ✅ move hook here
+  const { data: session } = useSession();
 
   const [isRendered, setIsRendered] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
