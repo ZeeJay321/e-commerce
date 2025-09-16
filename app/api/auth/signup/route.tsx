@@ -68,7 +68,7 @@ export async function POST(req: Request) {
         throw new Error('Email already registered');
       }
 
-      if (password === confirmPassword) {
+      if (password !== confirmPassword) {
         throw new Error('Passwords do not Match');
       }
 
