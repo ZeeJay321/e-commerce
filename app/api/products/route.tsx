@@ -84,9 +84,9 @@ export async function GET(req: Request) {
 
     return NextResponse.json(products, { status: 200 });
   } catch (err) {
-    console.error(err);
+    const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json(
-      { error: 'Failed to fetch products' },
+      { error: message },
       { status: 500 }
     );
   }

@@ -68,6 +68,10 @@ export async function POST(req: Request) {
         throw new Error('Email already registered');
       }
 
+      if (password === confirmPassword) {
+        throw new Error('Passwords do not Match');
+      }
+
       const hashedPassword = await bcrypt.hash(password, 10);
 
       return tx.user.create({
@@ -85,7 +89,6 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (err: unknown) {
-    console.error(err);
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: message || 'Failed to create user' }, { status: 500 });
   }

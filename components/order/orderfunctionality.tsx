@@ -44,7 +44,7 @@ const OrdersTable = () => {
       }
       dispatch(fetchOrdersPaginated({ userId, slice: pageSize, segment: current }));
     }
-  }, [session, dispatch, current]);
+  }, [session, dispatch, current, total]);
 
   // ✅ Map orders into table rows
   const mappedOrders: OrderRow[] = useMemo(

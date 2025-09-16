@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
+import Link from 'next/link';
+
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import { useSession } from 'next-auth/react';
@@ -83,8 +85,6 @@ const Page = () => {
         throw new Error(data.error || 'Order placement failed');
       }
 
-      console.log('✅ Order created:', data);
-
       setNotif({
         type: 'success',
         message: 'Awesome, Your order has been placed successfully!'
@@ -99,8 +99,6 @@ const Page = () => {
         router.push('/orders');
       }, 2000);
     } catch (err: unknown) {
-      console.error(err);
-
       const message = err instanceof Error ? err.message : String(err);
 
       setNotif({
@@ -125,11 +123,11 @@ const Page = () => {
       )}
 
       <div className="content-div">
-        <a href="/" className="content-paragraph">
+        <Link href="/" className="content-paragraph">
           <ArrowLeftOutlined />
           {' '}
           Your Shopping Bag
-        </a>
+        </Link>
       </div>
 
       <CartTable />

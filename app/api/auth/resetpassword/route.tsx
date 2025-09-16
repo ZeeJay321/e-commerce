@@ -70,7 +70,6 @@ export async function POST(req: Request) {
       );
     }
   } catch (err: unknown) {
-    console.error(err);
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json(
       { error: message || 'Something went wrong' },

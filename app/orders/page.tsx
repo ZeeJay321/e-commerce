@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 
+import Link from 'next/link';
+
 import { ArrowLeftOutlined } from '@ant-design/icons';
 
 import LoadingSpinner from '@/components/loading/loadingspinner';
@@ -24,11 +26,11 @@ const Page = () => {
   return (
     <div className="cover">
       <div className="content-div">
-        <a href='/' className="content-paragraph">
+        <Link href='/' className="content-paragraph">
           <ArrowLeftOutlined />
           {' '}
           Orders
-        </a>
+        </Link>
       </div>
       <OrdersTable />
     </div>

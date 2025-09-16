@@ -12,7 +12,7 @@ const paramsSchema = Joi.object({
   userId: Joi.number().integer().positive().required()
 });
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
   const url = new URL(req.url);
   const userIdParam = url.searchParams.get('userId');
@@ -40,7 +40,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     return NextResponse.json(order);
   } catch (err) {
-    console.error(err);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    const message = err instanceof Error ? err.message : String(err);
+    return NextResponse.json(
+      { error: message },
+      { status: 500 }
+    );
   }
 }

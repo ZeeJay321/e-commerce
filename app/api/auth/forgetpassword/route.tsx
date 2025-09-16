@@ -23,6 +23,10 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
+    const host = req.headers.get('host');
+    const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
+    const baseUrl = `${protocol}://${host}`;
+
     // ✅ Validate input
     const { error, value } = schema.validate(body, { abortEarly: false });
     if (error) {
@@ -66,7 +70,7 @@ export async function POST(req: Request) {
       });
     });
 
-    const resetUrl = `${process.env.NEXT_PUBLIC_URL}resetpassword?token=${token}`;
+    const resetUrl = `${baseUrl}resetpassword?token=${token}`;
 
     const transporter = nodemailer.createTransport({
       host: 'smtp.yandex.com',
@@ -96,9 +100,9 @@ export async function POST(req: Request) {
       { status: 200 }
     );
   } catch (err) {
-    console.error('Forgot password error:', err);
+    const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json(
-      { error: 'Failed to send reset email' },
+      { error: message },
       { status: 500 }
     );
   }

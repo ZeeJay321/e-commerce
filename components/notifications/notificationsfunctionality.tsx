@@ -40,7 +40,7 @@ const CustomNotification: React.FC<CustomNotificationProps> = ({
     });
   }, [api, message, description, placement, duration, type, onClose]);
 
-  return <>{contextHolder}</>;
+  return contextHolder;
 };
 
 export default CustomNotification;

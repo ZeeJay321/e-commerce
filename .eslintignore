@@ -1,7 +1,10 @@
 .eslintrc.js
 next.config.js
 next.config.ts
-next-env.d.ts
-node_modules
+next-env.d.js
 next-env.d.ts
 seed.ts
+node_modules
+.next
+prisma
+generated

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -29,7 +29,8 @@ const resetFields: FieldConfig[] = [
   }
 ];
 
-const Page = () => {
+// 🔹 This one contains your actual logic
+function ResetPasswordPage() {
   const [isRendered, setIsRendered] = useState(false);
   const [notif, setNotif] = useState<{
     type: 'success' | 'error';
@@ -64,7 +65,6 @@ const Page = () => {
         message: 'Your password has been updated. You can now log in.'
       });
 
-      // redirect after 3s
       setTimeout(() => {
         setNotif(null);
         router.push('/login');
@@ -91,9 +91,7 @@ const Page = () => {
     setIsRendered(true);
   }, []);
 
-  if (!isRendered) {
-    return <LoadingSpinner />;
-  }
+  if (!isRendered) return <LoadingSpinner />;
 
   return (
     <div className="cover">
@@ -119,6 +117,12 @@ const Page = () => {
       </div>
     </div>
   );
-};
+}
 
-export default Page;
+export default function Page() {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <ResetPasswordPage />
+    </Suspense>
+  );
+}

@@ -13,7 +13,8 @@ module.exports = {
   extends: [
     'airbnb',
     'plugin:@typescript-eslint/recommended',
-    'plugin:eslint-comments/recommended'
+    'plugin:eslint-comments/recommended',
+    'next/core-web-vitals'
   ],
   overrides: [
     {
@@ -30,6 +31,7 @@ module.exports = {
       }
     }
   ],
+  ignorePatterns: ['.next/*', 'node_modules/*', 'prisma/*', 'app/generated/*'],
   rules: {
     'comma-dangle': [
       'error',
