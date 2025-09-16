@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 
 import type { NotificationArgsProps } from 'antd';
 import { notification } from 'antd';
+
 import './notif.css';
 
 type NotificationPlacement = NotificationArgsProps['placement'];
@@ -12,7 +13,7 @@ type CustomNotificationProps = {
   description?: string;
   placement?: NotificationPlacement;
   duration?: number;
-  onClose?: () => void; // 🔑 new prop
+  onClose?: () => void;
 };
 
 const CustomNotification: React.FC<CustomNotificationProps> = ({
@@ -38,7 +39,14 @@ const CustomNotification: React.FC<CustomNotificationProps> = ({
       className: type === 'success' ? 'notif-success' : 'notif-failure',
       onClose
     });
-  }, [api, message, description, placement, duration, type, onClose]);
+  }, [api,
+    message,
+    description,
+    placement,
+    duration,
+    type,
+    onClose
+  ]);
 
   return contextHolder;
 };

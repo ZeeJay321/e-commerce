@@ -48,6 +48,7 @@ export const authOptions: NextAuthOptions = {
 
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
+
         const remember = credentials.remember === 'true';
 
         const emailLower = credentials.email.toLowerCase();

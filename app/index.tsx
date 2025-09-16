@@ -6,14 +6,14 @@ import { Provider } from 'react-redux';
 
 import { Layout } from 'antd';
 
-import 'antd/dist/reset.css';
-import './globals.css';
-
 import { useSession } from 'next-auth/react';
 
 import { store } from '@/redux/store';
 
 import NavBar from '@/components/navbar/navbar-functionality';
+
+import 'antd/dist/reset.css';
+import './globals.css';
 
 const BaseLayout = ({
   children

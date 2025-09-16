@@ -29,7 +29,6 @@ interface FetchOrderDetailParams {
   userId: number;
 }
 
-// ✅ Async thunk to fetch order detail
 export const fetchOrderDetail = createAsyncThunk<
   { orderInfo: OrderInfo; products: ProductItem[] },
   FetchOrderDetailParams

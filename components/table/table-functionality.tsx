@@ -18,6 +18,7 @@ const CartTable = () => {
       const saved = localStorage.getItem('cartData');
       if (saved) return JSON.parse(saved);
     }
+
     return [];
   });
 
@@ -30,18 +31,16 @@ const CartTable = () => {
 
   const [selectedKeys, setSelectedKeys] = useState<number[]>([]);
 
-  // Toggle a single checkbox
   const toggleSelect = (key: number) => {
     setSelectedKeys((prev) => (prev.includes(key)
       ? prev.filter((k) => k !== key) : [...prev, key]));
   };
 
-  // Select all
   const toggleSelectAll = () => {
     if (selectedKeys.length === cartData.length) {
-      setSelectedKeys([]); // unselect all
+      setSelectedKeys([]);
     } else {
-      setSelectedKeys(cartData.map((item) => item.id)); // select all
+      setSelectedKeys(cartData.map((item) => item.id));
     }
   };
 
@@ -54,6 +53,7 @@ const CartTable = () => {
     if (deleteKey !== null) {
       handleRemove(deleteKey);
     }
+
     setIsModalOpen(false);
     setDeleteKey(null);
   };

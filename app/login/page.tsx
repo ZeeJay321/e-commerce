@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 
 import type { FormProps } from 'antd';
+
 import { signIn } from 'next-auth/react';
 
 import AuthCard from '@/components/auth-card/auth-card-functionality';
@@ -17,10 +18,11 @@ const loginFields: FieldConfig[] = [{
   name: 'email',
   label: 'Enter email address',
   placeholder: 'Please enter your email',
-  rules: [
-    { required: true, message: 'Email is required' },
-    { type: 'email', message: 'Please enter a valid email address' }
-  ]
+  rules: [{
+    required: true, message: 'Email is required'
+  }, {
+    type: 'email', message: 'Please enter a valid email address'
+  }]
 }, {
   name: 'password',
   label: 'Password',
@@ -44,7 +46,7 @@ const Page = () => {
       redirect: false,
       email: values.email,
       password: values.password,
-      remember // pass to backend if needed
+      remember
     });
 
     if (result?.error) {

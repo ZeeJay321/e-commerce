@@ -10,6 +10,7 @@ import {
   Layout,
   MenuProps
 } from 'antd';
+
 import { signOut } from 'next-auth/react';
 
 import './navbar.css';
@@ -21,16 +22,13 @@ type NavBarProps = {
 };
 
 const NavBar = ({ authed }: NavBarProps) => {
-  const items: MenuProps['items'] = [
-    {
-      key: '1',
-      label: <a href="/orders">Orders</a>
-    },
-    {
-      key: '2',
-      label: <button type='button' onClick={() => signOut({ callbackUrl: '/' })}>Logout</button>
-    }
-  ];
+  const items: MenuProps['items'] = [{
+    key: '1',
+    label: <a href="/orders">Orders</a>
+  }, {
+    key: '2',
+    label: <button type='button' onClick={() => signOut({ callbackUrl: '/' })}>Logout</button>
+  }];
 
   return (
     <Header className="navigation-bar">

@@ -6,7 +6,8 @@ import type { FormProps } from 'antd';
 
 import AuthCard from '@/components/auth-card/auth-card-functionality';
 import LoadingSpinner from '@/components/loading/loading-spinner';
-import CustomNotification from '@/components/notifications/notifications-functionality'; // ✅ import
+import CustomNotification from '@/components/notifications/notifications-functionality';
+
 import { FieldConfig, FieldType } from '@/models';
 import './forgot-password.css';
 
@@ -15,10 +16,11 @@ const forgotFields: FieldConfig[] = [
     name: 'email',
     label: 'Enter your email address',
     placeholder: 'Please enter your email',
-    rules: [
-      { required: true, message: 'Please enter your email address' },
-      { type: 'email', message: 'Enter a valid email address' }
-    ]
+    rules: [{
+      required: true, message: 'Please enter your email address'
+    }, {
+      type: 'email', message: 'Enter a valid email address'
+    }]
   }
 ];
 
@@ -62,7 +64,6 @@ const Page = () => {
   const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
     console.log('Forgot Password Failed:', errorInfo);
 
-    // ✅ Error notification
     setNotif({
       type: 'error',
       message: 'Failed to send reset link'
@@ -81,7 +82,6 @@ const Page = () => {
 
   return (
     <div className="cover">
-      {/* ✅ Notification */}
       {notif && (
         <CustomNotification
           type={notif.type}

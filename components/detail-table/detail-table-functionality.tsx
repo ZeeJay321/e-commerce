@@ -10,10 +10,15 @@ import { useSelector } from 'react-redux';
 
 import { ProductItem } from '@/models';
 import { RootState } from '@/redux/store';
+
 import './detail-table.css';
 
 const DetailTable = () => {
-  const { products, loading, error } = useSelector((state: RootState) => state.orderDetail);
+  const {
+    products,
+    loading,
+    error
+  } = useSelector((state: RootState) => state.orderDetail);
 
   const columns: TableColumnsType<ProductItem> = [{
     title: <span className="table-span-head">Title</span>,
@@ -44,6 +49,7 @@ const DetailTable = () => {
   }];
 
   if (loading) return <Spin size="large" className="flex justify-center py-10" />;
+
   if (error) return <Alert type="error" message={error} showIcon className="mb-4" />;
 
   return (

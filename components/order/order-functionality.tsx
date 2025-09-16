@@ -16,12 +16,14 @@ import {
   Spin,
   Table
 } from 'antd';
+
 import { useSession } from 'next-auth/react';
 
 import { useDispatch, useSelector } from 'react-redux';
 
 import { fetchOrdersCount, fetchOrdersPaginated } from '@/redux/slice/orders-slice';
 import { AppDispatch, RootState } from '@/redux/store';
+
 import './order.css';
 
 import { OrderRow } from '@/models';
@@ -32,7 +34,11 @@ const OrdersTable = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const {
-    items: orders, total, loading, error
+    items:
+    orders,
+    total,
+    loading,
+    error
   } = useSelector(
     (state: RootState) => state.orders
   );
@@ -46,7 +52,12 @@ const OrdersTable = () => {
       if (total === 0) {
         dispatch(fetchOrdersCount(userId));
       }
-      dispatch(fetchOrdersPaginated({ userId, slice: pageSize, segment: current }));
+
+      dispatch(fetchOrdersPaginated({
+        userId,
+        slice: pageSize,
+        segment: current
+      }));
     }
   }, [
     session,
@@ -55,7 +66,6 @@ const OrdersTable = () => {
     total
   ]);
 
-  // ✅ Map orders into table rows
   const mappedOrders: OrderRow[] = useMemo(
     () => orders.map((order, idx) => ({
       key: idx + 1,

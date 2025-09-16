@@ -6,11 +6,14 @@ import { useParams } from 'next/navigation';
 
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { Divider } from 'antd';
+
 import { useSession } from 'next-auth/react';
+
 import { useDispatch, useSelector } from 'react-redux';
 
 import DetailTable from '@/components/detail-table/detail-table-functionality';
 import LoadingSpinner from '@/components/loading/loading-spinner';
+
 import { fetchOrderDetail } from '@/redux/slice/detail-slice';
 import { AppDispatch, RootState } from '@/redux/store';
 
@@ -23,7 +26,10 @@ const Page = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const {
-    products, orderInfo, loading, error
+    products,
+    orderInfo,
+    loading,
+    error
   } = useSelector(
     (state: RootState) => state.orderDetail
   );
@@ -32,7 +38,11 @@ const Page = () => {
     if (id && session?.user?.id) {
       dispatch(fetchOrderDetail({ orderId: Number(id), userId: Number(session.user.id) }));
     }
-  }, [id, session?.user?.id, dispatch]);
+  }, [
+    id,
+    session?.user?.id,
+    dispatch
+  ]);
 
   if (loading) return <LoadingSpinner />;
   if (error) return <div className="text-red-500 p-4">{error}</div>;

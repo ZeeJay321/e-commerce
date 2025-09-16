@@ -5,7 +5,8 @@ import type { FormProps } from 'antd';
 import {
   Button,
   Checkbox,
-  Form, Input
+  Form,
+  Input
 } from 'antd';
 
 import 'antd/dist/reset.css';
@@ -41,7 +42,6 @@ const AuthCard = ({
       onFinishFailed={onFinishFailed}
       className="ant-form-now"
     >
-      {/* Render all fields */}
       {fields.map((field) => (
         <Form.Item<FieldType>
           key={field.name}
@@ -57,7 +57,6 @@ const AuthCard = ({
         </Form.Item>
       ))}
 
-      {/* Confirm Password (optional) */}
       {confirmPassword && (
         <Form.Item<FieldType>
           label="Confirm Password"
@@ -70,6 +69,7 @@ const AuthCard = ({
                 if (!value || getFieldValue('password') === value) {
                   return Promise.resolve();
                 }
+
                 return Promise.reject(new Error('Passwords do not match'));
               }
             })
@@ -79,7 +79,6 @@ const AuthCard = ({
         </Form.Item>
       )}
 
-      {/* Checkbox (optional) */}
       {checkbox && (
         <Form.Item<FieldType> name={checkbox.name} valuePropName="checked">
           <Checkbox>{checkbox.label}</Checkbox>
@@ -92,7 +91,6 @@ const AuthCard = ({
         </Button>
       </Form.Item>
 
-      {/* Footer (login link / signup link etc.) */}
       {footer && <div className="form-options">{footer}</div>}
     </Form>
   </div>

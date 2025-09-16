@@ -1,6 +1,7 @@
 'use client';
 
 import { Input } from 'antd';
+
 import 'antd/dist/reset.css';
 import './search-bar.css';
 

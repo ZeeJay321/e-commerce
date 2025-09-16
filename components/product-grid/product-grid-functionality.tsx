@@ -26,13 +26,16 @@ type ProductGridProps = {
 const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const {
-    items: products, loading, hasMore, error
+    items:
+    products,
+    loading,
+    hasMore,
+    error
   } = useSelector((state: RootState) => state.products);
 
   const slice = 8;
   const [segment, setSegment] = useState(1);
 
-  // Reset products when search/sort changes
   useEffect(() => {
     dispatch(clearProducts());
     setSegment(1);
@@ -48,7 +51,6 @@ const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
     sortOption
   ]);
 
-  // Infinite scroll
   useEffect(() => {
     const onScroll = () => {
       if (
@@ -67,6 +69,7 @@ const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
     };
 
     window.addEventListener('scroll', onScroll);
+
     return () => window.removeEventListener('scroll', onScroll);
   }, [
     dispatch,

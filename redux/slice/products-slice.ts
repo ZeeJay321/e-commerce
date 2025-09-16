@@ -22,40 +22,62 @@ const initialState: ProductsState = {
 
 export const fetchProducts = createAsyncThunk<
   Product[],
-  { segment?: number; slice?: number; query?: string; sortOption?: string | null }
+  {
+    segment?: number;
+    slice?: number;
+    query?: string;
+    sortOption?: string | null
+  }
 >(
   'products/fetchProducts',
   async ({
-    segment, slice, query, sortOption
+    segment,
+    slice,
+    query,
+    sortOption
   }) => {
     const params = new URLSearchParams();
     if (segment) params.append('segment', segment.toString());
+
     if (slice) params.append('slice', slice.toString());
+
     if (query) params.append('query', query);
+
     if (sortOption) params.append('sortOption', sortOption);
 
     const res = await fetch(`/api/products?${params.toString()}`);
     if (!res.ok) throw new Error('Failed to fetch products');
+
     return res.json();
   }
 );
 
 export const fetchNextProducts = createAsyncThunk<
   Product[],
-  { segment: number; slice: number; query?: string; sortOption?: string | null }
+  {
+    segment: number;
+    slice: number;
+    query?: string;
+    sortOption?: string | null
+  }
 >(
   'products/fetchNextProducts',
   async ({
-    segment, slice, query, sortOption
+    segment,
+    slice,
+    query,
+    sortOption
   }) => {
     const params = new URLSearchParams();
     params.append('segment', segment.toString());
     params.append('slice', slice.toString());
     if (query) params.append('query', query);
+
     if (sortOption) params.append('sortOption', sortOption);
 
     const res = await fetch(`/api/products?${params.toString()}`);
     if (!res.ok) throw new Error('Failed to fetch next products');
+
     return res.json();
   }
 );

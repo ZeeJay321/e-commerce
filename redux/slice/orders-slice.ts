@@ -26,19 +26,24 @@ export const fetchOrdersAll = createAsyncThunk<Order[], number>(
   async (userId) => {
     const res = await fetch(`/api/orders/get-orders?userId=${userId}&slice=0&segment=0`);
     if (!res.ok) throw new Error('Failed to fetch orders');
+
     return res.json();
   }
 );
 
-// ✅ Fetch paginated orders
 export const fetchOrdersPaginated = createAsyncThunk<
   Order[],
-  { userId: number; slice: number; segment: number }
+  {
+    userId: number;
+    slice: number;
+    segment: number
+  }
 >('orders/fetchPaginated', async ({ userId, slice, segment }) => {
   const res = await fetch(
     `/api/orders/get-orders?userId=${userId}&slice=${slice}&segment=${segment}`
   );
   if (!res.ok) throw new Error('Failed to fetch paginated orders');
+
   return res.json();
 });
 
@@ -48,6 +53,7 @@ export const fetchOrdersCount = createAsyncThunk<number, number>(
   async (userId) => {
     const res = await fetch(`/api/orders/total-orders?userId=${userId}`);
     if (!res.ok) throw new Error('Failed to fetch order count');
+
     const data = await res.json();
     return data.totalOrders;
   }

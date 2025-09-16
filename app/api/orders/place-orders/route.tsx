@@ -62,7 +62,6 @@ export async function POST(req: Request) {
       where: { id: { in: productIds } }
     });
 
-    // Build order items and validate stock
     const orderItems = items.map((item) => {
       const product = products.find((p) => p.id === item.productId);
 
@@ -70,7 +69,11 @@ export async function POST(req: Request) {
 
       if (product.stock < item.quantity) throw new Error(`Not enough stock for product ${product.title}`);
 
-      return { productId: product.id, quantity: item.quantity, price: product.price };
+      return {
+        productId: product.id,
+        quantity: item.quantity,
+        price: product.price
+      };
     });
 
     const total = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);

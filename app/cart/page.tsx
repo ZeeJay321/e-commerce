@@ -8,6 +8,7 @@ import Link from 'next/link';
 
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
+
 import { useSession } from 'next-auth/react';
 
 import LoadingSpinner from '@/components/loading/loading-spinner';
@@ -17,16 +18,7 @@ import CartTable from '@/components/table/table-functionality';
 import 'antd/dist/reset.css';
 import './cart.css';
 
-interface CartItem {
-  img: string;
-  id: number;
-  product: string;
-  colorcode: string;
-  color: string;
-  size: string;
-  qty: number;
-  price: number;
-}
+import { CartItem } from '@/models';
 
 const Page = () => {
   const router = useRouter();
@@ -81,7 +73,6 @@ const Page = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        // Throw the error message from API
         throw new Error(data.error || 'Order placement failed');
       }
 

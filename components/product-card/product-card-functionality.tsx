@@ -9,6 +9,7 @@ import { Button, Card } from 'antd';
 import { CartItem, Product } from '@/models';
 
 import CustomNotification from '../notifications/notifications-functionality';
+
 import './card.css';
 
 const { Meta } = Card;

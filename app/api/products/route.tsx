@@ -28,7 +28,7 @@ export async function GET(req: Request) {
 
     const { error, value } = schema.validate(params, { abortEarly: false });
     if (error) {
-      return NextResponse.json({
+      NextResponse.json({
         error: error.details.map((d) => d.message)
       }, {
         status: 400
@@ -84,7 +84,7 @@ export async function GET(req: Request) {
       });
     }
 
-    return NextResponse.json(products, { status: 200 });
+    NextResponse.json(products, { status: 200 });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
 

@@ -9,55 +9,51 @@ import type { FormProps } from 'antd';
 import AuthCard from '@/components/auth-card/auth-card-functionality';
 import LoadingSpinner from '@/components/loading/loading-spinner';
 import CustomNotification from '@/components/notifications/notifications-functionality';
+
 import { FieldConfig, FieldType } from '@/models';
+
 import './signup.css';
 
-const signupFields: FieldConfig[] = [
-  {
-    name: 'fullname',
-    label: 'Full Name',
-    placeholder: 'Full Name',
-    rules: [{ required: true, message: 'Please enter your full name' }],
-    inputType: 'text'
-  },
-  {
-    name: 'email',
-    label: 'Email Address',
-    placeholder: 'Email Address',
-    rules: [
-      { required: true, message: 'Please enter your email' },
-      { type: 'email', message: 'Enter a valid email address' }
-    ],
-    inputType: 'text'
-  },
-  {
-    name: 'mobile',
-    label: 'Mobile',
-    placeholder: 'Mobile Number',
-    rules: [
-      { required: true, message: 'Please enter your mobile number' },
-      {
-        pattern: /^\+?[1-9]\d{1,14}$/,
-        message: 'Enter a valid mobile number (e.g. +923001234567)'
-      }
-    ],
-    inputType: 'text'
-  },
-  {
-    name: 'password',
-    label: 'Password',
-    placeholder: 'Password',
-    rules: [
-      { required: true, message: 'Password is required' },
-      {
-        pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-        message:
-          'Password must be at least 8 characters, include uppercase, lowercase, number, and special character'
-      }
-    ],
-    inputType: 'password'
-  }
-];
+const signupFields: FieldConfig[] = [{
+  name: 'fullname',
+  label: 'Full Name',
+  placeholder: 'Full Name',
+  rules: [{ required: true, message: 'Please enter your full name' }],
+  inputType: 'text'
+}, {
+  name: 'email',
+  label: 'Email Address',
+  placeholder: 'Email Address',
+  rules: [{
+    required: true, message: 'Please enter your email'
+  }, {
+    type: 'email', message: 'Enter a valid email address'
+  }],
+  inputType: 'text'
+}, {
+  name: 'mobile',
+  label: 'Mobile',
+  placeholder: 'Mobile Number',
+  rules: [{
+    required: true, message: 'Please enter your mobile number'
+  }, {
+    pattern: /^\+?[1-9]\d{1,14}$/,
+    message: 'Enter a valid mobile number (e.g. +923001234567)'
+  }],
+  inputType: 'text'
+}, {
+  name: 'password',
+  label: 'Password',
+  placeholder: 'Password',
+  rules: [{
+    required: true, message: 'Password is required'
+  }, {
+    pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+    message:
+      'Password must be at least 8 characters, include uppercase, lowercase, number, and special character'
+  }],
+  inputType: 'password'
+}];
 
 const Page = () => {
   const [isRendered, setIsRendered] = useState(false);
@@ -67,7 +63,7 @@ const Page = () => {
     description?: string;
   } | null>(null);
 
-  const router = useRouter(); // ✅ router hook
+  const router = useRouter();
 
   useEffect(() => {
     setIsRendered(true);
@@ -100,7 +96,6 @@ const Page = () => {
         message: 'Your account has been created successfully.'
       });
 
-      // ✅ Redirect after 2s
       setTimeout(() => {
         setNotif(null);
         router.push('/login');

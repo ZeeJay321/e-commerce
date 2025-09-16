@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Spin } from 'antd';
+
 import 'antd/dist/reset.css';
 
 const contentStyle: React.CSSProperties = {
