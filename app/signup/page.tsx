@@ -6,9 +6,9 @@ import { useRouter } from 'next/navigation';
 
 import type { FormProps } from 'antd';
 
-import AuthCard from '@/components/authcard/authcardfunctionality';
-import LoadingSpinner from '@/components/loading/loadingspinner';
-import CustomNotification from '@/components/notifications/notificationsfunctionality';
+import AuthCard from '@/components/auth-card/auth-card-functionality';
+import LoadingSpinner from '@/components/loading/loading-spinner';
+import CustomNotification from '@/components/notifications/notifications-functionality';
 import { FieldConfig, FieldType } from '@/models';
 import './signup.css';
 

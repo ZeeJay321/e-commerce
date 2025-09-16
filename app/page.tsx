@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react';
 
-import LoadingSpinner from '@/components/loading/loadingspinner';
-import ProductGrid from '@/components/productgrid/productgridfunctionality';
-import SearchBar from '@/components/searchbar/searchbarfunctionality';
-import Sort from '@/components/sort/sortfunctionality';
+import LoadingSpinner from '@/components/loading/loading-spinner';
+import ProductGrid from '@/components/product-grid/product-grid-functionality';
+import SearchBar from '@/components/search-bar/search-bar-functionality';
+import Sort from '@/components/sort/sort-functionality';
 
 import 'antd/dist/reset.css';
 import './globals.css';

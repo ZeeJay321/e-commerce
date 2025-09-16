@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt';
+
 import NextAuth, { DefaultSession, DefaultUser, NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GithubProvider from 'next-auth/providers/github';
@@ -36,6 +37,7 @@ export const authOptions: NextAuthOptions = {
       clientId: process.env.GITHUB_ID!,
       clientSecret: process.env.GITHUB_SECRET!
     }),
+
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
@@ -43,6 +45,7 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
         remember: { label: 'Remember Me', type: 'checkbox' }
       },
+
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
         const remember = credentials.remember === 'true';
@@ -75,13 +78,15 @@ export const authOptions: NextAuthOptions = {
       }
     })
   ],
+
   pages: {
-    signIn: '/login' // custom login page
+    signIn: '/login'
   },
+
   session: {
     strategy: 'jwt'
-    // maxAge: 60 * 60 * 2
   },
+
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -95,8 +100,10 @@ export const authOptions: NextAuthOptions = {
           token.exp = expires.toISOString();
         }
       }
+
       return token;
     },
+
     async session({ session, token }) {
       if (token) {
         session.user.id = token.id as string;
@@ -104,6 +111,7 @@ export const authOptions: NextAuthOptions = {
         session.user.rememberMe = token.rememberMe;
         session.expires = token.exp as string;
       }
+
       return session;
     }
   }

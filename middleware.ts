@@ -3,9 +3,9 @@ import { NextResponse } from 'next/server';
 
 import { getToken } from 'next-auth/jwt';
 
-const PUBLIC_PATHS = ['/', '/login', '/signup', '/forgotpassword', '/resetpassword'];
-const PRIVATE_PATHS = ['/', '/cart', '/orders', '/orderdetails'];
-const AUTH_PATHS = ['/login', '/signup', '/forgotpassword', '/resetpassword'];
+const PUBLIC_PATHS = ['/', '/login', '/signup', '/forgot-password', '/reset-password'];
+const PRIVATE_PATHS = ['/', '/cart', '/orders', '/order-details'];
+const AUTH_PATHS = ['/login', '/signup', '/forgot-password', '/reset-password'];
 
 export async function middleware(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });

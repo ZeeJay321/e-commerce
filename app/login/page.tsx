@@ -5,31 +5,29 @@ import { useEffect, useState } from 'react';
 import type { FormProps } from 'antd';
 import { signIn } from 'next-auth/react';
 
-import AuthCard from '@/components/authcard/authcardfunctionality';
-import LoadingSpinner from '@/components/loading/loadingspinner';
-import CustomNotification from '@/components/notifications/notificationsfunctionality';
+import AuthCard from '@/components/auth-card/auth-card-functionality';
+import LoadingSpinner from '@/components/loading/loading-spinner';
+import CustomNotification from '@/components/notifications/notifications-functionality';
+
 import './login.css';
 
 import { FieldConfig, FieldType } from '@/models';
 
-const loginFields: FieldConfig[] = [
-  {
-    name: 'email',
-    label: 'Enter email address',
-    placeholder: 'Please enter your email',
-    rules: [
-      { required: true, message: 'Email is required' },
-      { type: 'email', message: 'Please enter a valid email address' }
-    ]
-  },
-  {
-    name: 'password',
-    label: 'Password',
-    placeholder: 'Please enter password',
-    rules: [{ required: true, message: 'Please input your password' }],
-    inputType: 'password'
-  }
-];
+const loginFields: FieldConfig[] = [{
+  name: 'email',
+  label: 'Enter email address',
+  placeholder: 'Please enter your email',
+  rules: [
+    { required: true, message: 'Email is required' },
+    { type: 'email', message: 'Please enter a valid email address' }
+  ]
+}, {
+  name: 'password',
+  label: 'Password',
+  placeholder: 'Please enter password',
+  rules: [{ required: true, message: 'Please input your password' }],
+  inputType: 'password'
+}];
 
 const Page = () => {
   const [isRendered, setIsRendered] = useState(false);
@@ -105,7 +103,7 @@ const Page = () => {
               <p className="text-sm pb-4">
                 Forgot password?
                 {' '}
-                <a href="/forgotpassword" className="form-hrefs">
+                <a href="/forgot-password" className="form-hrefs">
                   Reset
                 </a>
               </p>

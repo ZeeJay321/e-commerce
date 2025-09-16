@@ -19,7 +19,6 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
 
-    // convert query string values into an object
     const params = {
       segment: searchParams.get('segment') ? Number(searchParams.get('segment')) : 0,
       slice: searchParams.get('slice') ? Number(searchParams.get('slice')) : 0,
@@ -27,13 +26,13 @@ export async function GET(req: Request) {
       sortOption: searchParams.get('sortOption')
     };
 
-    // ✅ validate using Joi
     const { error, value } = schema.validate(params, { abortEarly: false });
     if (error) {
-      return NextResponse.json(
-        { error: error.details.map((d) => d.message) },
-        { status: 400 }
-      );
+      return NextResponse.json({
+        error: error.details.map((d) => d.message)
+      }, {
+        status: 400
+      });
     }
 
     const {
@@ -88,9 +87,11 @@ export async function GET(req: Request) {
     return NextResponse.json(products, { status: 200 });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    return NextResponse.json(
-      { error: message },
-      { status: 500 }
-    );
+
+    return NextResponse.json({
+      error: message
+    }, {
+      status: 500
+    });
   }
 }

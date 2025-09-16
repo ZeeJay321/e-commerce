@@ -6,8 +6,8 @@ import Link from 'next/link';
 
 import { ArrowLeftOutlined } from '@ant-design/icons';
 
-import LoadingSpinner from '@/components/loading/loadingspinner';
-import OrdersTable from '@/components/order/orderfunctionality';
+import LoadingSpinner from '@/components/loading/loading-spinner';
+import OrdersTable from '@/components/order/order-functionality';
 
 import 'antd/dist/reset.css';
 import './orders.css';

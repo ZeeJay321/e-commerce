@@ -1,4 +1,3 @@
-// app/api/auth/signup/route.ts
 import { NextResponse } from 'next/server';
 
 import bcrypt from 'bcrypt';
@@ -8,7 +7,6 @@ import { PrismaClient } from '@/app/generated/prisma';
 
 const prisma = new PrismaClient();
 
-// Joi schema for validation
 const schema = Joi.object({
   fullName: Joi.string().min(3).required().messages({
     'string.empty': 'Full name is required',
@@ -42,8 +40,6 @@ const schema = Joi.object({
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-
-    // ✅ Validate input
     const { error, value } = schema.validate(body, { abortEarly: false });
     if (error) {
       return NextResponse.json(
@@ -59,11 +55,13 @@ export async function POST(req: Request) {
       password,
       confirmPassword
     } = value;
-    const emailLower = email.toLowerCase(); // normalize email
+    const emailLower = email.toLowerCase();
 
-    // ✅ Transaction
     const user = await prisma.$transaction(async (tx) => {
-      const existingUser = await tx.user.findUnique({ where: { email: emailLower } });
+      const existingUser = await tx.user.findUnique({
+        where: { email: emailLower }
+      });
+
       if (existingUser) {
         throw new Error('Email already registered');
       }
@@ -84,12 +82,18 @@ export async function POST(req: Request) {
       });
     });
 
-    return NextResponse.json(
-      { message: 'User created successfully', userId: user.id },
-      { status: 201 }
-    );
+    return NextResponse.json({
+      message: 'User created successfully', userId: user.id
+    }, {
+      status: 201
+    });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
-    return NextResponse.json({ error: message || 'Failed to create user' }, { status: 500 });
+
+    return NextResponse.json({
+      error: message || 'Failed to create user'
+    }, {
+      status: 500
+    });
   }
 }

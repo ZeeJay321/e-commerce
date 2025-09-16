@@ -10,9 +10,9 @@ import { ArrowLeftOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import { useSession } from 'next-auth/react';
 
-import LoadingSpinner from '@/components/loading/loadingspinner';
-import CustomNotification from '@/components/notifications/notificationsfunctionality';
-import CartTable from '@/components/table/tablefunctionality';
+import LoadingSpinner from '@/components/loading/loading-spinner';
+import CustomNotification from '@/components/notifications/notifications-functionality';
+import CartTable from '@/components/table/table-functionality';
 
 import 'antd/dist/reset.css';
 import './cart.css';
@@ -64,7 +64,7 @@ const Page = () => {
 
   const handlePlaceOrder = async () => {
     try {
-      const res = await fetch('/api/orders/placeorders', {
+      const res = await fetch('/api/orders/place-orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -11,9 +11,9 @@ import './globals.css';
 
 import { useSession } from 'next-auth/react';
 
-import { store } from '@/store/store';
+import { store } from '@/redux/store';
 
-import NavBar from '@/components/navbar/navbarfunctionality';
+import NavBar from '@/components/navbar/navbar-functionality';
 
 const BaseLayout = ({
   children
@@ -25,12 +25,13 @@ const BaseLayout = ({
   const hideNavBarRoutes = [
     '/login',
     '/signup',
-    '/forgotpassword',
-    '/resetpassword',
+    '/forgot-password',
+    '/reset-password',
     '/orders'
   ];
   const hideNavBar = hideNavBarRoutes.includes(pathname ?? '')
-    || pathname?.startsWith('/orderdetails');
+    || pathname?.startsWith('/order-details');
+
   return (
     <html lang='en'>
       <body>
