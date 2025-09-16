@@ -70,7 +70,7 @@ export async function POST(req: Request) {
       });
     });
 
-    const resetUrl = `${baseUrl}resetpassword?token=${token}`;
+    const resetUrl = `${baseUrl}/resetpassword?token=${token}`;
 
     const transporter = nodemailer.createTransport({
       host: 'smtp.yandex.com',
