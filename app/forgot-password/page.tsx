@@ -9,6 +9,7 @@ import LoadingSpinner from '@/components/loading/loading-spinner';
 import CustomNotification from '@/components/notifications/notifications-functionality';
 
 import { FieldConfig, FieldType } from '@/models';
+
 import './forgot-password.css';
 
 const forgotFields: FieldConfig[] = [
@@ -26,7 +27,7 @@ const forgotFields: FieldConfig[] = [
 
 const Page = () => {
   const [isRendered, setIsRendered] = useState(false);
-  const [notif, setNotif] = useState<{
+  const [notification, setNotification] = useState<{
     type: 'success' | 'error';
     message: string;
     description?: string;
@@ -46,30 +47,30 @@ const Page = () => {
         throw new Error(data.error || 'Failed to send reset link');
       }
 
-      setNotif({
+      setNotification({
         type: 'success',
         message: 'Reset Password Instructions have been sent to your email address.'
       });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
-      setNotif({
+      setNotification({
         type: 'error',
         message
       });
     } finally {
-      setTimeout(() => setNotif(null), 3000);
+      setTimeout(() => setNotification(null), 3000);
     }
   };
 
   const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
     console.log('Forgot Password Failed:', errorInfo);
 
-    setNotif({
+    setNotification({
       type: 'error',
       message: 'Failed to send reset link'
     });
 
-    setTimeout(() => setNotif(null), 3000);
+    setTimeout(() => setNotification(null), 3000);
   };
 
   useEffect(() => {
@@ -82,13 +83,13 @@ const Page = () => {
 
   return (
     <div className="cover">
-      {notif && (
+      {notification && (
         <CustomNotification
-          type={notif.type}
-          message={notif.message}
-          description={notif.description}
+          type={notification.type}
+          message={notification.message}
+          description={notification.description}
           placement="topRight"
-          onClose={() => setNotif(null)}
+          onClose={() => setNotification(null)}
         />
       )}
 

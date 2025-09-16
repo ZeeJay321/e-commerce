@@ -16,7 +16,7 @@ const { Meta } = Card;
 
 const ProductCard = ({ product }: { product: Product }) => {
   const [quantity, setQuantity] = useState(1);
-  const [notif, setNotif] = useState<{
+  const [notification, setNotification] = useState<{
     type: 'success' | 'error';
     message: string;
     description?: string;
@@ -49,12 +49,12 @@ const ProductCard = ({ product }: { product: Product }) => {
     }
 
     localStorage.setItem('cartData', JSON.stringify(cart));
-    setNotif({
+    setNotification({
       type: 'success',
       message: `${product.title} added to cart!`
     });
 
-    setTimeout(() => setNotif(null), 3000);
+    setTimeout(() => setNotification(null), 3000);
   };
 
   return (
@@ -74,13 +74,13 @@ const ProductCard = ({ product }: { product: Product }) => {
         body: { padding: 0 }
       }}
     >
-      {notif && (
+      {notification && (
         <CustomNotification
-          type={notif.type}
-          message={notif.message}
-          description={notif.description}
+          type={notification.type}
+          message={notification.message}
+          description={notification.description}
           placement="topRight"
-          onClose={() => setNotif(null)}
+          onClose={() => setNotification(null)}
         />
       )}
       <div className="meta-content">

@@ -57,7 +57,7 @@ const signupFields: FieldConfig[] = [{
 
 const Page = () => {
   const [isRendered, setIsRendered] = useState(false);
-  const [notif, setNotif] = useState<{
+  const [notification, setNotification] = useState<{
     type: 'success' | 'error';
     message: string;
     description?: string;
@@ -91,42 +91,42 @@ const Page = () => {
         throw new Error(data.error || 'Signup failed');
       }
 
-      setNotif({
+      setNotification({
         type: 'success',
         message: 'Your account has been created successfully.'
       });
 
       setTimeout(() => {
-        setNotif(null);
+        setNotification(null);
         router.push('/login');
       }, 2000);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
-      setNotif({
+      setNotification({
         type: 'error',
         message
       });
-      setTimeout(() => setNotif(null), 3000);
+      setTimeout(() => setNotification(null), 3000);
     }
   };
 
   const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = () => {
-    setNotif({
+    setNotification({
       type: 'error',
       message: 'Signup failed. Please check the form fields.'
     });
-    setTimeout(() => setNotif(null), 3000);
+    setTimeout(() => setNotification(null), 3000);
   };
 
   return (
     <div className="cover">
-      {notif && (
+      {notification && (
         <CustomNotification
-          type={notif.type}
-          message={notif.message}
-          description={notif.description}
+          type={notification.type}
+          message={notification.message}
+          description={notification.description}
           placement="topRight"
-          onClose={() => setNotif(null)}
+          onClose={() => setNotification(null)}
         />
       )}
 

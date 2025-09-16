@@ -33,7 +33,7 @@ const loginFields: FieldConfig[] = [{
 
 const Page = () => {
   const [isRendered, setIsRendered] = useState(false);
-  const [notif, setNotif] = useState<{
+  const [notification, setNotification] = useState<{
     type: 'success' | 'error';
     message: string;
     description?: string;
@@ -50,12 +50,12 @@ const Page = () => {
     });
 
     if (result?.error) {
-      setNotif({
+      setNotification({
         type: 'error',
         message: 'Wrong username password, please enter correct credentials'
       });
     } else {
-      setNotif({
+      setNotification({
         type: 'success',
         message: 'Login Successful'
       });
@@ -67,7 +67,7 @@ const Page = () => {
   };
 
   const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = () => {
-    setNotif({
+    setNotification({
       type: 'error',
       message: 'Please fill in all required fields correctly'
     });
@@ -83,13 +83,13 @@ const Page = () => {
 
   return (
     <div className="cover">
-      {notif && (
+      {notification && (
         <CustomNotification
-          type={notif.type}
-          message={notif.message}
-          description={notif.description}
+          type={notification.type}
+          message={notification.message}
+          description={notification.description}
           placement="topRight"
-          onClose={() => setNotif(null)}
+          onClose={() => setNotification(null)}
         />
       )}
       <div className="login-card">
