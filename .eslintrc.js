@@ -38,6 +38,7 @@ module.exports = {
       'never'
     ],
     quotes: ['error', 'single'],
+    '@next/next/no-html-link-for-pages': 'off',
     'no-trailing-spaces': 'error',
     'react/jsx-filename-extension': [1, { extensions: ['.js', '.jsx'] }],
     'no-param-reassign': 0,
