@@ -1,12 +1,12 @@
-import bcrypt from 'bcrypt';
-
-import NextAuth, { DefaultSession, DefaultUser, NextAuthOptions } from 'next-auth';
+import NextAuth, {
+  DefaultSession,
+  DefaultUser,
+  NextAuthOptions
+} from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GithubProvider from 'next-auth/providers/github';
 
-import { PrismaClient } from '@/app/generated/prisma';
-
-const prisma = new PrismaClient();
+import { findUserByEmailAndRole, validateUserPassword } from '@/helper/login-checker';
 
 declare module 'next-auth' {
   interface User extends DefaultUser {
@@ -50,24 +50,11 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) return null;
 
         const remember = credentials.remember === 'true';
+        const user = await findUserByEmailAndRole(credentials.email, 'user');
 
-        const emailLower = credentials.email.toLowerCase();
-
-        const user = await prisma.user.findFirst({
-          where: {
-            email: emailLower,
-            role: 'user'
-          }
-        });
-
-        if (!user) {
-          throw new Error('No user found with this email');
-        }
-
-        const isValid = await bcrypt.compare(credentials.password, user.password);
-        if (!isValid) {
-          throw new Error('Invalid password');
-        }
+        if (!user) throw new Error('No user found with this email');
+        const isValid = await validateUserPassword(user, credentials.password);
+        if (!isValid) throw new Error('Invalid password');
 
         return {
           id: user.id.toString(),
