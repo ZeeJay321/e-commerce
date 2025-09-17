@@ -42,10 +42,6 @@ const DetailTable = () => {
     title: <span className="table-span-head">Quantity</span>,
     dataIndex: 'quantity',
     render: (value: number) => <span className="table-span">{value}</span>
-  }, {
-    title: <span className="table-span-head">Stock</span>,
-    dataIndex: 'stock',
-    render: (value: number) => <span className="table-span">{value}</span>
   }];
 
   if (loading) return <Spin size="large" className="flex justify-center py-10" />;

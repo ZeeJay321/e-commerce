@@ -65,10 +65,6 @@
   @apply !p-0;
 }
 
-.ant-table-cell:nth-child(1) {
-  @apply !p-0 !w-240 !max-w-120;
-}
-
 .ant-table-content {
   @apply bg-white;
 }

@@ -22,18 +22,33 @@ const ProductCard = ({ product }: { product: Product }) => {
     description?: string;
   } | null>(null);
 
-  const increase = () => setQuantity((prev) => prev + 1);
+  const increase = () => {
+    setQuantity((prev) => (prev < product.stock ? prev + 1 : prev));
+  };
+
   const decrease = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
   const formattedQuantity = quantity.toString().padStart(2, '0');
 
   const addToCart = () => {
+    if (product.stock <= 0) {
+      setNotification({
+        type: 'error',
+        message: `${product.title} is out of stock!`
+      });
+      setTimeout(() => setNotification(null), 3000);
+      return;
+    }
+
     const existingCart = localStorage.getItem('cartData');
     const cart: CartItem[] = existingCart ? JSON.parse(existingCart) : [];
 
     const index = cart.findIndex((item) => item.id === product.id);
+
     if (index >= 0) {
-      cart[index].qty += quantity;
+      // prevent exceeding stock
+      const newQty = cart[index].qty + quantity;
+      cart[index].qty = Math.min(newQty, product.stock);
     } else {
       const newItem: CartItem = {
         img: product.img,
@@ -42,7 +57,7 @@ const ProductCard = ({ product }: { product: Product }) => {
         colorcode: product.colorCode,
         color: product.color,
         size: product.size,
-        qty: quantity,
+        qty: Math.min(quantity, product.stock),
         price: product.price
       };
       cart.push(newItem);
@@ -99,16 +114,24 @@ const ProductCard = ({ product }: { product: Product }) => {
         />
         <div className="card-buttons">
           <div className="card-buttons-div">
-            <Button size="small" onClick={decrease}>
+            <Button size="small" onClick={decrease} disabled={quantity <= 1}>
               -
             </Button>
             <span className="card-buttons-span">{formattedQuantity}</span>
-            <Button size="small" onClick={increase}>
+            <Button
+              size="small"
+              onClick={increase}
+              disabled={quantity >= product.stock}
+            >
               +
             </Button>
           </div>
-          <Button type="primary" onClick={addToCart}>
-            Add to Cart
+          <Button
+            type="primary"
+            onClick={addToCart}
+            disabled={product.stock <= 0}
+          >
+            {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
           </Button>
         </div>
       </div>
