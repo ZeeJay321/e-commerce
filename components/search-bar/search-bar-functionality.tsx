@@ -5,6 +5,8 @@ import { Input } from 'antd';
 import 'antd/dist/reset.css';
 import './search-bar.css';
 
+let searchTimeout: NodeJS.Timeout;
+
 type SearchBarProps = {
   onSearch: (value: string) => void;
 };
@@ -15,7 +17,12 @@ const SearchBar = ({ onSearch }: SearchBarProps) => (
     placeholder="Search by user & order ID"
     variant="filled"
     allowClear
-    onChange={(e) => onSearch(e.target.value)}
+    onChange={(e) => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        onSearch(e.target.value);
+      }, 600);
+    }}
     onSearch={onSearch}
   />
 );

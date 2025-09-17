@@ -24,6 +24,7 @@ const CartTable = () => {
 
   useEffect(() => {
     localStorage.setItem('cartData', JSON.stringify(cartData));
+    window.dispatchEvent(new Event('cartUpdated')); // 🔔 notify listeners
   }, [cartData]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);

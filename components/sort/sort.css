@@ -13,5 +13,5 @@
 
 
 .content-sort-by {
-  @apply !w-full mb-2 max-w-35;
+  @apply !w-full max-w-35;
 }

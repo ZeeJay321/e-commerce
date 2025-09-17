@@ -49,6 +49,7 @@ const ProductCard = ({ product }: { product: Product }) => {
     }
 
     localStorage.setItem('cartData', JSON.stringify(cart));
+    window.dispatchEvent(new Event('cartUpdated'));
     setNotification({
       type: 'success',
       message: `${product.title} added to cart!`

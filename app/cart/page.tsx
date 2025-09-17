@@ -35,26 +35,36 @@ const Page = () => {
 
   useEffect(() => {
     setIsRendered(true);
+    const updateCart = () => {
+      const cartData = localStorage.getItem('cartData');
+      if (cartData) {
+        const parsed: CartItem[] = JSON.parse(cartData);
+        setCartItems(parsed);
 
-    const cartData = localStorage.getItem('cartData');
-    if (cartData) {
-      const parsed: CartItem[] = JSON.parse(cartData);
-      setCartItems(parsed);
+        const subtotal = parsed.reduce(
+          (sum, item) => sum + item.price * item.qty,
+          0
+        );
+        const tax = subtotal * 0.1;
+        const total = subtotal + tax;
 
-      const subtotal = parsed.reduce(
-        (sum, item) => sum + item.price * item.qty,
-        0
-      );
-      const tax = subtotal * 0.1;
-      const total = subtotal + tax;
+        setTotals({ subtotal, tax, total });
+      } else {
+        setCartItems([]);
+        setTotals({ subtotal: 0, tax: 0, total: 0 });
+      }
+    };
 
-      setTotals({ subtotal, tax, total });
-    }
+    updateCart();
+
+    window.addEventListener('cartUpdated', updateCart);
+    return () => window.removeEventListener('cartUpdated', updateCart);
   }, []);
 
   if (!isRendered) return <LoadingSpinner />;
 
   const handlePlaceOrder = async () => {
+    const { total } = totals;
     try {
       const res = await fetch('/api/orders/place-orders', {
         method: 'POST',
@@ -66,7 +76,7 @@ const Page = () => {
             quantity: item.qty,
             price: item.price
           })),
-          amount: totals.total
+          amount: total
         })
       });
 

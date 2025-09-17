@@ -34,7 +34,7 @@
 }
 
 .content-div {
-  @apply flex flex-col justify-end gap-3 pt-6 pr-4 pl-4 items-start md:gap-2 md:justify-between md:items-center md:flex-row md:pr-14 md:pl-14 md:pt-8 lg:pr-15 lg:pl-15
+  @apply flex flex-col justify-end gap-3 pt-6 pr-4 pl-4 items-start md:gap-2 md:justify-between md:items-center md:flex-row md:pr-14 md:pl-14 md:pt-8 lg:pr-15 lg:pl-15;
 }
 
 /* content */

@@ -42,7 +42,7 @@ const Page = () => {
   const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
     const remember = values.remember ?? false;
 
-    const result = await signIn('User', {
+    const result = await signIn('Admin', {
       redirect: false,
       email: values.email,
       password: values.password,
@@ -61,7 +61,7 @@ const Page = () => {
       });
 
       setTimeout(() => {
-        window.location.href = result?.url ?? '/';
+        window.location.href = '/admin/home';
       }, 1200);
     }
   };
@@ -100,24 +100,6 @@ const Page = () => {
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
           submitText="Login"
-          footer={(
-            <>
-              <p className="text-sm pb-4">
-                Forgot password?
-                {' '}
-                <a href="/forgot-password" className="form-hrefs">
-                  Reset
-                </a>
-              </p>
-              <p className="text-sm">
-                I don’t have an account?
-                {' '}
-                <a href="/signup" className="form-hrefs">
-                  Signup
-                </a>
-              </p>
-            </>
-          )}
         />
       </div>
     </div>

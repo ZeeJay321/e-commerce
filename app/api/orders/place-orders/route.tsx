@@ -76,7 +76,7 @@ export async function POST(req: Request) {
       };
     });
 
-    const total = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const total = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0.10);
 
     const order = await prisma.$transaction(async (tx) => {
       await Promise.all(

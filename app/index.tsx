@@ -29,6 +29,14 @@ const BaseLayout = ({
     '/reset-password',
     '/orders'
   ];
+
+  const adminRoutes = [
+    '/admin/login',
+    '/admin/home'
+  ];
+
+  const isAdminRoute = adminRoutes.some((route) => pathname?.startsWith(route));
+
   const hideNavBar = hideNavBarRoutes.includes(pathname ?? '')
     || pathname?.startsWith('/order-details');
 
@@ -38,21 +46,21 @@ const BaseLayout = ({
         <div className='layout-cover'>
           <div className='cover'>
             <Layout className='layout-container'>
-              {session ? (
-                <>
-                  {!hideNavBar && <NavBar authed />}
-                  <Provider store={store}>
+              <Provider store={store}>
+                {isAdminRoute ? (
+                  children
+                ) : session ? (
+                  <>
+                    {!hideNavBar && <NavBar authed />}
                     {children}
-                  </Provider>
-                </>
-              ) : (
-                <>
-                  {!hideNavBar && <NavBar authed={false} />}
-                  <Provider store={store}>
+                  </>
+                ) : (
+                  <>
+                    {!hideNavBar && <NavBar authed={false} />}
                     {children}
-                  </Provider>
-                </>
-              )}
+                  </>
+                )}
+              </Provider>
             </Layout>
           </div>
         </div>

@@ -39,20 +39,20 @@ export const authOptions: NextAuthOptions = {
     }),
 
     CredentialsProvider({
-      name: 'Credentials',
+      id: 'User',
+      name: 'User Login',
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
         remember: { label: 'Remember Me', type: 'checkbox' }
       },
-
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
         const remember = credentials.remember === 'true';
         const user = await findUserByEmailAndRole(credentials.email, 'user');
 
-        if (!user) throw new Error('No user found with this email');
+        if (!user) throw new Error('No user found');
         const isValid = await validateUserPassword(user, credentials.password);
         if (!isValid) throw new Error('Invalid password');
 
@@ -61,6 +61,33 @@ export const authOptions: NextAuthOptions = {
           name: user.fullname,
           email: user.email,
           role: user.role,
+          rememberMe: remember
+        };
+      }
+    }),
+    CredentialsProvider({
+      id: 'Admin',
+      name: 'Admin Login',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
+        remember: { label: 'Remember Me', type: 'checkbox' }
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) return null;
+
+        const remember = credentials.remember === 'true';
+        const admin = await findUserByEmailAndRole(credentials.email, 'admin');
+
+        if (!admin) throw new Error('No admin found');
+        const isValid = await validateUserPassword(admin, credentials.password);
+        if (!isValid) throw new Error('Invalid password');
+
+        return {
+          id: admin.id.toString(),
+          name: admin.fullname,
+          email: admin.email,
+          role: admin.role,
           rememberMe: remember
         };
       }
