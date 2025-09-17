@@ -18,15 +18,13 @@ import {
 } from 'antd';
 
 import { useSession } from 'next-auth/react';
-
 import { useDispatch, useSelector } from 'react-redux';
 
-import { fetchOrdersCount, fetchOrdersPaginated } from '@/redux/slice/orders-slice';
+import { fetchOrders } from '@/redux/slice/orders-slice';
 import { AppDispatch, RootState } from '@/redux/store';
 
-import './order.css';
-
 import { OrderRow } from '@/models';
+import './order.css';
 
 const OrdersTable = () => {
   const router = useRouter();
@@ -34,11 +32,7 @@ const OrdersTable = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const {
-    items:
-    orders,
-    total,
-    loading,
-    error
+    items: orders, total, loading, error
   } = useSelector(
     (state: RootState) => state.orders
   );
@@ -49,11 +43,8 @@ const OrdersTable = () => {
   useEffect(() => {
     if (session?.user?.id) {
       const userId = parseInt(session.user.id, 10);
-      if (total === 0) {
-        dispatch(fetchOrdersCount(userId));
-      }
 
-      dispatch(fetchOrdersPaginated({
+      dispatch(fetchOrders({
         userId,
         slice: pageSize,
         segment: current
@@ -62,8 +53,7 @@ const OrdersTable = () => {
   }, [
     session,
     dispatch,
-    current,
-    total
+    current
   ]);
 
   const mappedOrders: OrderRow[] = useMemo(
@@ -95,7 +85,7 @@ const OrdersTable = () => {
       title: <span className="table-span-head">Product(s)</span>,
       dataIndex: 'products',
       key: 'products',
-      render: (products: { productId: number; quantity: number, price: number }[]) => (
+      render: (products: { productId: number; quantity: number; price: number }[]) => (
         <span className="table-span">
           {products.length}
           {' '}

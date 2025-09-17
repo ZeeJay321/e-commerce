@@ -36,21 +36,19 @@ export async function GET(req: Request) {
     const { error, value } = schema.validate(params, { abortEarly: false, convert: true });
 
     if (error) {
-      return NextResponse.json({
-        error: error.details.map((d) => d.message)
-      }, {
-        status: 400
-      });
+      return NextResponse.json(
+        { error: error.details.map((d) => d.message) },
+        { status: 400 }
+      );
     }
 
-    const {
-      userId,
-      slice,
-      segment
-    } = value;
+    const { userId, slice, segment } = value;
+
+    const totalOrders = await prisma.order.count({
+      where: { userId }
+    });
 
     let orders;
-
     if (slice === 0 || segment === 0) {
       orders = await prisma.order.findMany({
         where: { userId },
@@ -75,14 +73,20 @@ export async function GET(req: Request) {
       });
     }
 
-    return NextResponse.json(orders, { status: 200 });
+    return NextResponse.json(
+      {
+        userId,
+        totalOrders,
+        orders
+      },
+      { status: 200 }
+    );
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
 
-    return NextResponse.json({
-      error: message
-    }, {
-      status: 500
-    });
+    return NextResponse.json(
+      { error: message },
+      { status: 500 }
+    );
   }
 }

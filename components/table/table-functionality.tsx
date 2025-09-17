@@ -18,7 +18,6 @@ const CartTable = () => {
       const saved = localStorage.getItem('cartData');
       if (saved) return JSON.parse(saved);
     }
-
     return [];
   });
 
@@ -31,10 +30,12 @@ const CartTable = () => {
   const [deleteKey, setDeleteKey] = useState<number | null>(null);
 
   const [selectedKeys, setSelectedKeys] = useState<number[]>([]);
+  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
 
   const toggleSelect = (key: number) => {
     setSelectedKeys((prev) => (prev.includes(key)
-      ? prev.filter((k) => k !== key) : [...prev, key]));
+      ? prev.filter((k) => k !== key)
+      : [...prev, key]));
   };
 
   const toggleSelectAll = () => {
@@ -50,11 +51,16 @@ const CartTable = () => {
     setSelectedKeys((prev) => prev.filter((k) => k !== key));
   };
 
+  const handleBulkRemove = () => {
+    setCartData((prev) => prev.filter((item) => !selectedKeys.includes(item.id)));
+    setSelectedKeys([]);
+    setIsBulkDeleteOpen(false);
+  };
+
   const confirmDelete = () => {
     if (deleteKey !== null) {
       handleRemove(deleteKey);
     }
-
     setIsModalOpen(false);
     setDeleteKey(null);
   };
@@ -87,8 +93,7 @@ const CartTable = () => {
           <Checkbox
             checked={selectedKeys.length === cartData.length && cartData.length > 0}
             indeterminate={
-              selectedKeys.length > 0
-              && selectedKeys.length < cartData.length
+              selectedKeys.length > 0 && selectedKeys.length < cartData.length
             }
             onChange={toggleSelectAll}
           />
@@ -103,7 +108,7 @@ const CartTable = () => {
             onChange={() => toggleSelect(record.id)}
             className="mr-2"
           />
-          <div className='cart-product-div'>
+          <div className="cart-product-div">
             <img src={record.img} alt="" className="cart-product-image" />
             <span className="font-display text-xs whitespace-normal w-full max-w-78">
               {text}
@@ -113,7 +118,7 @@ const CartTable = () => {
       )
     },
     {
-      title: <span className='pl-3'>Color</span>,
+      title: <span className="pl-3">Color</span>,
       dataIndex: 'color',
       render: (_, record) => (
         <div className="cart-color">
@@ -126,14 +131,14 @@ const CartTable = () => {
       )
     },
     {
-      title: <span className='pl-3'>Size</span>,
+      title: <span className="pl-3">Size</span>,
       dataIndex: 'size',
       render: (value) => (
         <span className="font-display text-xs pl-3 py-4">{value}</span>
       )
     },
     {
-      title: <span className='pl-3'>Qty</span>,
+      title: <span className="pl-3">Qty</span>,
       dataIndex: 'qty',
       render: (value: number, record) => (
         <div className="card-buttons-div">
@@ -144,9 +149,7 @@ const CartTable = () => {
           >
             -
           </Button>
-          <span className="card-buttons-span">
-            {formattedQuantity(value)}
-          </span>
+          <span className="card-buttons-span">{formattedQuantity(value)}</span>
           <Button
             className="card-buttons-layout"
             size="small"
@@ -158,7 +161,7 @@ const CartTable = () => {
       )
     },
     {
-      title: <span className='pl-3'>Price</span>,
+      title: <span className="pl-3">Price</span>,
       dataIndex: 'price',
       render: (value: number) => (
         <span className="font-display text-xs pl-3 py-4">
@@ -168,7 +171,7 @@ const CartTable = () => {
       )
     },
     {
-      title: <span className='pl-3'>Actions</span>,
+      title: <span className="pl-3">Actions</span>,
       key: 'actions',
       render: (_, record) => (
         <DeleteOutlined
@@ -184,6 +187,21 @@ const CartTable = () => {
 
   return (
     <div className="cart-items-div">
+      {selectedKeys.length > 0 && (
+        <div className="mb-3 flex justify-end">
+          <Button
+            type="primary"
+            danger
+            icon={<DeleteOutlined />}
+            onClick={() => setIsBulkDeleteOpen(true)}
+          >
+            Delete Selected (
+            {selectedKeys.length}
+            )
+          </Button>
+        </div>
+      )}
+
       <Table<CartItem>
         columns={columns}
         dataSource={cartData}
@@ -192,13 +210,13 @@ const CartTable = () => {
         scroll={{ x: 'max-content' }}
       />
 
-      {/* Confirm Delete Modal */}
+      {/* Confirm Single Delete Modal */}
       <Modal
         open={isModalOpen}
         footer={(
-          <div className="flex justify-center space-x-4">
-            <Button onClick={cancelDelete}>No</Button>
-            <Button type="primary" danger onClick={confirmDelete}>
+          <div className="flex justify-center gap-8">
+            <Button className='max-w-20 w-full' onClick={cancelDelete}>No</Button>
+            <Button className='max-w-20 w-full' type="primary" danger onClick={confirmDelete}>
               Yes
             </Button>
           </div>
@@ -211,6 +229,33 @@ const CartTable = () => {
           <WarningOutlined className="delete-modal-icon" />
           <p className="delete-modal-text">
             Are you sure you want to delete this item?
+          </p>
+        </div>
+      </Modal>
+
+      {/* Confirm Bulk Delete Modal */}
+      <Modal
+        open={isBulkDeleteOpen}
+        footer={(
+          <div className="flex justify-center gap-8">
+            <Button className='max-w-20 w-full' onClick={() => setIsBulkDeleteOpen(false)}>No</Button>
+            <Button className='max-w-20 w-full' type="primary" danger onClick={handleBulkRemove}>
+              Yes
+            </Button>
+          </div>
+        )}
+        onCancel={() => setIsBulkDeleteOpen(false)}
+        centered
+      >
+        <div className="delete-modal-div">
+          <h2 className="delete-modal-title">Remove Selected Products</h2>
+          <WarningOutlined className="delete-modal-icon" />
+          <p className="delete-modal-text">
+            Are you sure you want to delete
+            {' '}
+            {selectedKeys.length}
+            {' '}
+            item(s)?
           </p>
         </div>
       </Modal>
