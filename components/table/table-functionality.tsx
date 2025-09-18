@@ -71,17 +71,24 @@ const CartTable = () => {
   };
 
   const updateQty = (key: number, type: 'increase' | 'decrease') => {
-    setCartData((prev) => prev.map((item) => (item.id === key
-      ? {
-        ...item,
-        qty:
-          type === 'increase'
-            ? item.qty + 1
-            : item.qty > 1
-              ? item.qty - 1
-              : 1
+    setCartData((prev) => prev.map((item) => {
+      if (item.id !== key) return item;
+
+      if (type === 'increase') {
+        // stop at stock
+        if (item.qty < item.stock) {
+          return { ...item, qty: item.qty + 1 };
+        }
+        return item;
       }
-      : item)));
+
+      if (type === 'decrease') {
+        // stop at 1
+        return { ...item, qty: item.qty > 1 ? item.qty - 1 : 1 };
+      }
+
+      return item;
+    }));
   };
 
   const formattedQuantity = (value: number) => value.toString().padStart(2, '0');
@@ -154,6 +161,7 @@ const CartTable = () => {
             className="card-buttons-layout"
             size="small"
             onClick={() => updateQty(record.id, 'increase')}
+            disabled={record.qty >= record.stock}
           >
             +
           </Button>

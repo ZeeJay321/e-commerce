@@ -58,6 +58,7 @@ const ProductCard = ({ product }: { product: Product }) => {
         color: product.color,
         size: product.size,
         qty: Math.min(quantity, product.stock),
+        stock: product.stock,
         price: product.price
       };
       cart.push(newItem);
