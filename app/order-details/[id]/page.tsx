@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import DetailTable from '@/components/detail-table/detail-table-functionality';
 import LoadingSpinner from '@/components/loading/loading-spinner';
 
-import { fetchOrderDetail } from '@/redux/slice/detail-slice';
+import { fetchOrderDetail } from '@/redux/slices/detail-slice';
 import { AppDispatch, RootState } from '@/redux/store';
 
 import 'antd/dist/reset.css';

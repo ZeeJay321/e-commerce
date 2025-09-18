@@ -3,7 +3,7 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
-    project: './tsconfig.json'
+    project: '/Users/zainulabidin/Documents/Qbatch/e-commerce-app/tsconfig.json'
   },
   plugins: ['@typescript-eslint'],
   env: {
@@ -52,6 +52,9 @@ module.exports = {
     'jsx-a11y/label-has-associated-control': 0,
     'react/prop-types': 0,
     'react/react-in-jsx-scope': 'off',
+
+    'eol-last': ['error', 'always'],
+    'no-multiple-empty-lines': ['error', { max: 1, maxEOF: 1 }],
 
     'import/extensions': 'off',
     'import/no-unresolved': 'off',

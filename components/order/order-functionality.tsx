@@ -20,7 +20,7 @@ import {
 import { useSession } from 'next-auth/react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { fetchOrders } from '@/redux/slice/orders-slice';
+import { fetchOrders } from '@/redux/slices/orders-slice';
 import { AppDispatch, RootState } from '@/redux/store';
 
 import { OrderRow } from '@/models';

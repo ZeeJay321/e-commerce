@@ -10,7 +10,7 @@ import {
   clearProducts,
   fetchNextProducts,
   fetchProducts
-} from '@/redux/slice/products-slice';
+} from '@/redux/slices/products-slice';
 import {
   type AppDispatch,
   type RootState
