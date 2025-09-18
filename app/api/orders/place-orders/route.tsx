@@ -76,7 +76,8 @@ export async function POST(req: Request) {
       };
     });
 
-    const total = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0.10);
+    const total = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const netTotal = total + total * 0.10;
 
     const order = await prisma.$transaction(async (tx) => {
       await Promise.all(
@@ -93,7 +94,7 @@ export async function POST(req: Request) {
       return tx.order.create({
         data: {
           userId,
-          amount: total,
+          amount: netTotal,
           date: moment().format('DD MMMM YYYY'),
           products: { create: orderItems },
           metadata: {}
