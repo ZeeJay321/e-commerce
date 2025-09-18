@@ -7,8 +7,17 @@ import { PrismaClient } from '@/app/generated/prisma';
 const prisma = new PrismaClient();
 
 const paramsSchema = Joi.object({
-  id: Joi.number().integer().positive().required(),
-  userId: Joi.number().integer().positive().required()
+  id: Joi.number().integer().positive().required()
+    .messages({
+      'number.base': 'Order number must be a number',
+      'number.integer': 'Order number must be an integer',
+      'number.positive': 'Order number must be positive',
+      'any.required': 'Order number is required'
+    }),
+  userId: Joi.string().uuid().required().messages({
+    'string.guid': 'User ID must be a valid UUID',
+    'any.required': 'User ID is required'
+  })
 });
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -16,9 +25,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const url = new URL(req.url);
   const userIdParam = url.searchParams.get('userId');
 
+  console.log(resolvedParams);
+
   const { error, value } = paramsSchema.validate({
     id: Number(resolvedParams.id),
-    userId: Number(userIdParam)
+    userId: userIdParam
   });
 
   if (error) {
@@ -29,7 +40,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   try {
     const order = await prisma.order.findFirst({
-      where: { id: orderId, userId },
+      where: { orderNumber: orderId, userId },
       include: { products: { include: { product: true } } }
     });
 

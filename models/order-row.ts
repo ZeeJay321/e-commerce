@@ -1,8 +1,8 @@
 export interface OrderRow {
   key: number;
-  id: number;
-  orderNumber: string;
-  products: { productId: number; quantity: number }[];
+  id: string;
+  orderNumber: number;
+  products: { productId: string; quantity: number }[];
   date: string;
   amount: number;
 }

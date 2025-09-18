@@ -7,7 +7,7 @@ import {
 import { Order } from '@/models';
 
 interface OrdersResponse {
-  userId: number;
+  userId: string;
   totalOrders: number;
   orders: Order[];
 }
@@ -28,7 +28,7 @@ const initialState: OrdersState = {
 
 export const fetchOrders = createAsyncThunk<
   OrdersResponse,
-  { userId: number; slice?: number; segment?: number }
+  { userId: string; slice?: number; segment?: number }
 >('orders/fetch', async ({ userId, slice = 0, segment = 0 }) => {
   const res = await fetch(
     `/api/orders/get-orders?userId=${userId}&slice=${slice}&segment=${segment}`

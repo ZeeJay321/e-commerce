@@ -36,7 +36,7 @@ const Page = () => {
 
   useEffect(() => {
     if (id && session?.user?.id) {
-      dispatch(fetchOrderDetail({ orderId: Number(id), userId: Number(session.user.id) }));
+      dispatch(fetchOrderDetail({ orderId: Number(id), userId: session.user.id }));
     }
   }, [
     id,

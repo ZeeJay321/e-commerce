@@ -70,7 +70,7 @@ const Page = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId: session?.user.id ? Number(session.user.id) : 1,
+          userId: session?.user.id,
           items: cartItems.map((item) => ({
             productId: item.id,
             quantity: item.qty,

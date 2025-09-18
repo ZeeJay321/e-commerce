@@ -4,39 +4,43 @@ import Joi from 'joi';
 import moment from 'moment';
 
 import { PrismaClient } from '@/app/generated/prisma';
-
 import { OrderItemInput } from '@/models';
 
 const prisma = new PrismaClient();
 
 const schema = Joi.object({
-  userId: Joi.number().integer().required().messages({
+  userId: Joi.string().uuid().required().messages({
     'any.required': 'userId is required',
-    'number.base': 'userId must be a number'
+    'string.base': 'userId must be a string',
+    'string.guid': 'userId must be a valid UUID'
   }),
   amount: Joi.number().precision(2).min(0).optional()
     .messages({
       'number.base': 'amount must be a number',
       'number.min': 'amount cannot be negative'
     }),
-  items: Joi.array().items(Joi.object({
-    productId: Joi.number().integer().required().messages({
-      'any.required': 'productId is required',
-      'number.base': 'productId must be a number'
-    }),
-    quantity: Joi.number().integer().min(1).required()
-      .messages({
-        'any.required': 'quantity is required',
-        'number.base': 'quantity must be a number',
-        'number.min': 'quantity must be at least 1'
-      }),
-    price: Joi.number().precision(2).min(0).required()
-      .messages({
-        'any.required': 'price is required',
-        'number.base': 'price must be a number',
-        'number.min': 'price cannot be negative'
+  items: Joi.array()
+    .items(
+      Joi.object({
+        productId: Joi.string().uuid().required().messages({
+          'any.required': 'productId is required',
+          'string.base': 'productId must be a string',
+          'string.guid': 'productId must be a valid UUID'
+        }),
+        quantity: Joi.number().integer().min(1).required()
+          .messages({
+            'any.required': 'quantity is required',
+            'number.base': 'quantity must be a number',
+            'number.min': 'quantity must be at least 1'
+          }),
+        price: Joi.number().precision(2).min(0).required()
+          .messages({
+            'any.required': 'price is required',
+            'number.base': 'price must be a number',
+            'number.min': 'price cannot be negative'
+          })
       })
-  }))
+    )
     .min(1)
     .required()
     .messages({
@@ -54,9 +58,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: error.details.map((d) => d.message) }, { status: 400 });
     }
 
-    const { userId, items } = value as { userId: number; items: OrderItemInput[] };
+    const { userId, items } = value as { userId: string; items: OrderItemInput[] };
 
-    // Fetch current product info
     const productIds = items.map((item) => item.productId);
     const products = await prisma.product.findMany({
       where: { id: { in: productIds } }
@@ -67,7 +70,9 @@ export async function POST(req: Request) {
 
       if (!product) throw new Error(`Product ${item.productId} not found`);
 
-      if (product.stock < item.quantity) throw new Error(`Not enough stock for product ${product.title}`);
+      if (product.stock < item.quantity) {
+        throw new Error(`Not enough stock for product ${product.title}`);
+      }
 
       return {
         productId: product.id,
@@ -77,18 +82,20 @@ export async function POST(req: Request) {
     });
 
     const total = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const netTotal = total + total * 0.10;
+    const netTotal = total + total * 0.1; // 10% tax/fee
 
     const order = await prisma.$transaction(async (tx) => {
       await Promise.all(
-        orderItems.map((item) => tx.product.updateMany({
-          where: { id: item.productId, stock: { gte: item.quantity } },
-          data: { stock: { decrement: item.quantity } }
-        }).then((result) => {
-          if (result.count === 0) {
-            throw new Error(`Stock not sufficient for product ${item.productId}`);
-          }
-        }))
+        orderItems.map((item) => tx.product
+          .updateMany({
+            where: { id: item.productId, stock: { gte: item.quantity } },
+            data: { stock: { decrement: item.quantity } }
+          })
+          .then((result) => {
+            if (result.count === 0) {
+              throw new Error(`Stock not sufficient for product ${item.productId}`);
+            }
+          }))
       );
 
       return tx.order.create({
@@ -107,10 +114,9 @@ export async function POST(req: Request) {
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
 
-    return NextResponse.json({
-      error: message || 'Failed to create an order'
-    }, {
-      status: 500
-    });
+    return NextResponse.json(
+      { error: message || 'Failed to create an order' },
+      { status: 500 }
+    );
   }
 }

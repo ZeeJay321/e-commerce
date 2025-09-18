@@ -7,9 +7,10 @@ import { PrismaClient } from '@/app/generated/prisma';
 const prisma = new PrismaClient();
 
 const schema = Joi.object({
-  userId: Joi.number().integer().required().messages({
+  userId: Joi.string().uuid().required().messages({
     'any.required': 'userId is required',
-    'number.base': 'userId must be a number'
+    'string.base': 'userId must be a string',
+    'string.guid': 'userId must be a valid UUID'
   }),
   slice: Joi.number().integer().min(0).default(0)
     .messages({
@@ -33,7 +34,10 @@ export async function GET(req: Request) {
       segment: searchParams.get('segment')
     };
 
-    const { error, value } = schema.validate(params, { abortEarly: false, convert: true });
+    const { error, value } = schema.validate(params, {
+      abortEarly: false,
+      convert: true
+    });
 
     if (error) {
       return NextResponse.json(
@@ -50,6 +54,7 @@ export async function GET(req: Request) {
 
     let orders;
     if (slice === 0 || segment === 0) {
+      // Return all orders if pagination not requested
       orders = await prisma.order.findMany({
         where: { userId },
         include: {
@@ -57,9 +62,10 @@ export async function GET(req: Request) {
             include: { product: true }
           }
         },
-        orderBy: { date: 'desc' }
+        orderBy: { createdAt: 'desc' }
       });
     } else {
+      // Paginated orders
       orders = await prisma.order.findMany({
         where: { userId },
         include: {
@@ -77,6 +83,8 @@ export async function GET(req: Request) {
       {
         userId,
         totalOrders,
+        slice,
+        segment,
         orders
       },
       { status: 200 }

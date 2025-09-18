@@ -9,23 +9,23 @@ datasource db {
 }
 
 model User {
-  id                Int       @id @default(autoincrement())
-  fullname          String
-  email             String    @unique
-  phoneNumber       String    @unique
-  password          String
-  role              String    @default("user") // admin, user, etc.
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  orders            Order[]
-  metadata          Json?
+  id                  String     @id @default(uuid())
+  fullname            String
+  email               String     @unique
+  phoneNumber         String     @unique
+  password            String
+  role                String     @default("user") // admin, user, etc.
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+  orders              Order[]
+  metadata            Json?
 
-  resetToken        String?   @unique
+  resetToken          String?    @unique
   resetTokenExpiresAt DateTime?
 }
 
 model Product {
-  id        Int         @id @default(autoincrement())
+  id        String      @id @default(uuid())
   title     String
   price     Float
   img       String
@@ -40,21 +40,22 @@ model Product {
 }
 
 model Order {
-  id        Int       @id @default(autoincrement())
-  userId    Int
-  amount    Float
-  metadata  Json
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  date      String
-  products  OrderItem[]
-  user      User      @relation(fields: [userId], references: [id])
+  id          String      @id @default(uuid())
+  orderNumber Int         @unique @default(autoincrement())
+  userId      String
+  amount      Float
+  metadata    Json
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  date        String
+  products    OrderItem[]
+  user        User        @relation(fields: [userId], references: [id])
 }
 
 model OrderItem {
-  id        Int      @id @default(autoincrement())
-  orderId   Int
-  productId Int
+  id        String   @id @default(uuid())
+  orderId   String
+  productId String
   quantity  Int      @default(1)
   price     Float
 

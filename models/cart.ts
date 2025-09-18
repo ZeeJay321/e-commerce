@@ -1,6 +1,6 @@
 export interface CartItem {
   img: string;
-  id: number;
+  id: string;
   product: string;
   colorcode: string;
   color: string;

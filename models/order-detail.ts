@@ -1,7 +1,7 @@
 export interface ProductItem {
   key: number;
-  id: number; // order item id
-  productId: number;
+  id: string; // order item id
+  productId: string;
   img: string;
   title: string;
   price: number;
@@ -13,8 +13,8 @@ export interface ProductItem {
 }
 
 export interface OrderInfo {
-  id: number;
-  userId: number;
+  id: string;
+  userId: string;
   amount: number;
   date: string;
   createdAt: string;

@@ -1,16 +1,17 @@
 import { Product } from './product';
 
 export interface OrderItem {
-  id: number;
-  productId: number;
+  id: string;
+  productId: string;
   quantity: number;
   price: number;
   product: Product;
 }
 
 export interface Order {
-  id: number;
-  userId: number;
+  id: string;
+  userId: string;
+  orderNumber: number;
   amount: number;
   date: string;
   createdAt: string;

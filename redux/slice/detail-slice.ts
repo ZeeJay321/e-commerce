@@ -26,7 +26,7 @@ const initialState: OrderDetailState = {
 
 interface FetchOrderDetailParams {
   orderId: number;
-  userId: number;
+  userId: string;
 }
 
 export const fetchOrderDetail = createAsyncThunk<
@@ -37,8 +37,8 @@ export const fetchOrderDetail = createAsyncThunk<
   if (!res.ok) throw new Error('Failed to fetch order details');
 
   const order: {
-    id: number;
-    userId: number;
+    id: string;
+    userId: string;
     amount: number;
     date: string;
     createdAt: string;

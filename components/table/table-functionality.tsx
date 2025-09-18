@@ -27,12 +27,12 @@ const CartTable = () => {
   }, [cartData]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [deleteKey, setDeleteKey] = useState<number | null>(null);
+  const [deleteKey, setDeleteKey] = useState<string | null>(null);
 
-  const [selectedKeys, setSelectedKeys] = useState<number[]>([]);
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
   const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
 
-  const toggleSelect = (key: number) => {
+  const toggleSelect = (key: string) => {
     setSelectedKeys((prev) => (prev.includes(key)
       ? prev.filter((k) => k !== key)
       : [...prev, key]));
@@ -46,7 +46,7 @@ const CartTable = () => {
     }
   };
 
-  const handleRemove = (key: number) => {
+  const handleRemove = (key: string) => {
     setCartData((prev) => prev.filter((item) => item.id !== key));
     setSelectedKeys((prev) => prev.filter((k) => k !== key));
   };
@@ -70,7 +70,7 @@ const CartTable = () => {
     setDeleteKey(null);
   };
 
-  const updateQty = (key: number, type: 'increase' | 'decrease') => {
+  const updateQty = (key: string, type: 'increase' | 'decrease') => {
     setCartData((prev) => prev.map((item) => {
       if (item.id !== key) return item;
 

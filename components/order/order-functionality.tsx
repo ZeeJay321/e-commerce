@@ -42,7 +42,7 @@ const OrdersTable = () => {
 
   useEffect(() => {
     if (session?.user?.id) {
-      const userId = parseInt(session.user.id, 10);
+      const userId = session.user.id;
 
       dispatch(fetchOrders({
         userId,
@@ -60,7 +60,7 @@ const OrdersTable = () => {
     () => orders.map((order, idx) => ({
       key: idx + 1,
       id: order.id,
-      orderNumber: order.id.toString(),
+      orderNumber: order.orderNumber,
       products: order.products,
       date: order.date,
       amount: order.amount
