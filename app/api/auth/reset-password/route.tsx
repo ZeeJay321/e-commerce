@@ -33,43 +33,45 @@ export async function POST(req: Request) {
 
     const { token, password } = value;
 
-    const result = await prisma.$transaction(async (tx) => {
-      const resetToken = await tx.passwordResetToken.findUnique({
-        where: { token },
-        include: { user: true }
-      });
-
-      if (!resetToken || resetToken.expires < new Date()) {
-        throw new Error('Reset token is invalid or expired');
+    const user = await prisma.user.findFirst({
+      where: {
+        resetToken: token,
+        resetTokenExpiresAt: {
+          gt: new Date()
+        }
       }
+    });
 
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Reset token is invalid or expired' },
+        { status: 400 }
+      );
+    }
+
+    await prisma.$transaction(async (tx) => {
       const hashedPassword = await bcrypt.hash(password, 10);
 
       await tx.user.update({
-        where: { id: resetToken.userId },
-        data: { password: hashedPassword }
+        where: { id: user.id },
+        data: {
+          password: hashedPassword,
+          resetToken: null,
+          resetTokenExpiresAt: null
+        }
       });
-
-      await tx.passwordResetToken.delete({
-        where: { id: resetToken.id }
-      });
-
-      return true;
     });
 
-    if (result) {
-      return NextResponse.json(
-        { message: 'Password has been reset successfully' },
-        { status: 200 }
-      );
-    }
+    return NextResponse.json(
+      { message: 'Password has been reset successfully' },
+      { status: 200 }
+    );
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
 
-    return NextResponse.json({
-      error: message || 'Something went wrong'
-    }, {
-      status: 500
-    });
+    return NextResponse.json(
+      { error: message || 'Something went wrong' },
+      { status: 500 }
+    );
   }
 }
