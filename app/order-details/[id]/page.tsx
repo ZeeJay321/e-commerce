@@ -48,6 +48,7 @@ const Page = () => {
   if (error) return <div className="text-red-500 p-4">{error}</div>;
 
   const totalAmount = products.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const netTotalAmount = totalAmount + totalAmount * 0.1;
 
   return (
     <div className="cover">
@@ -83,7 +84,7 @@ const Page = () => {
               <span className="order-info-label">Amount</span>
               <span className="order-info-value">
                 $
-                {totalAmount.toFixed(2)}
+                {netTotalAmount.toFixed(2)}
               </span>
             </div>
           </div>

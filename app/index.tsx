@@ -8,9 +8,13 @@ import { Layout } from 'antd';
 
 import { useSession } from 'next-auth/react';
 
+import { Content } from 'antd/es/layout/layout';
+
 import { store } from '@/redux/store';
 
+import AdminNavBar from '@/components/admin-navbar/admin-navbar-functionality';
 import NavBar from '@/components/navbar/navbar-functionality';
+import AdminSidebar from '@/components/side-bar/sider-bar-functionality';
 
 import 'antd/dist/reset.css';
 import './globals.css';
@@ -48,7 +52,13 @@ const BaseLayout = ({
             <Layout className='layout-container'>
               <Provider store={store}>
                 {isAdminRoute ? (
-                  children
+                  <>
+                    <AdminSidebar />
+                    <Content>
+                      <AdminNavBar />
+                      {children}
+                    </Content>
+                  </>
                 ) : session ? (
                   <>
                     {!hideNavBar && <NavBar authed />}

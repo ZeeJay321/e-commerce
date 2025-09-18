@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
 const USER_PUBLIC_PATHS = [
+  '/',
   '/login',
   '/signup',
   '/forgot-password',
