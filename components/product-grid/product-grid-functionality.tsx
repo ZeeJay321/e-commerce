@@ -52,25 +52,36 @@ const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
   ]);
 
   useEffect(() => {
+    const scrollContainer = document.querySelector('.page-scroll');
+    if (!scrollContainer) {
+      return undefined;
+    }
+
     const onScroll = () => {
       if (
-        window.innerHeight + window.scrollY >= document.body.offsetHeight - 800
-        && !loading && hasMore
+        scrollContainer.scrollTop + scrollContainer.clientHeight
+        >= scrollContainer.scrollHeight - 800
+        && !loading
+        && hasMore
       ) {
         const nextSegment = segment + 1;
         setSegment(nextSegment);
-        dispatch(fetchNextProducts({
-          segment: nextSegment,
-          slice,
-          query: search,
-          sortOption
-        }));
+        dispatch(
+          fetchNextProducts({
+            segment: nextSegment,
+            slice,
+            query: search,
+            sortOption
+          })
+        );
       }
     };
 
-    window.addEventListener('scroll', onScroll);
+    scrollContainer.addEventListener('scroll', onScroll);
 
-    return () => window.removeEventListener('scroll', onScroll);
+    return () => {
+      scrollContainer.removeEventListener('scroll', onScroll);
+    };
   }, [
     dispatch,
     loading,

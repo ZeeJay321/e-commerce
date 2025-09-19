@@ -14,7 +14,7 @@
 }
 
 .sidebar-background {
-  @apply bg-white h-screen shadow-md w-0 max-w-200;
+  @apply posi bg-white shadow-md w-0 max-w-200;
 }
 
 .sidebar-div {

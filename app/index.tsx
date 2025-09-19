@@ -27,7 +27,8 @@ const BaseLayout = ({
     '/signup',
     '/forgot-password',
     '/reset-password',
-    '/orders'
+    '/orders',
+    '/cart'
   ];
 
   const hideNavBar = hideNavBarRoutes.includes(pathname ?? '')
@@ -42,12 +43,12 @@ const BaseLayout = ({
               <Provider store={store}>
                 {session ? (
                   <>
-                    {!hideNavBar && <NavBar authed />}
+                    {!hideNavBar && <div className='navbar-fixed'><NavBar authed /></div>}
                     {children}
                   </>
                 ) : (
                   <>
-                    {!hideNavBar && <NavBar authed={false} />}
+                    {!hideNavBar && <div className='navbar-fixed'><NavBar authed={false} /></div>}
                     {children}
                   </>
                 )}

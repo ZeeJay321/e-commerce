@@ -24,7 +24,7 @@ const Page = () => {
   }
 
   return (
-    <div className="cover">
+    <div className="page-scroll">
       <div className="content-div">
         <span className="content-paragraph">Our Products</span>
         <div className="content-features w-full">
@@ -32,6 +32,7 @@ const Page = () => {
           <Sort onChange={setSortOption} />
         </div>
       </div>
+
       <ProductGrid search={search} sortOption={sortOption} />
     </div>
   );

@@ -24,7 +24,7 @@ const BaseLayout = ({
   return (
     <>
       <AdminSidebar />
-      <Content>
+      <Content className=''>
         <AdminNavBar />
         {children}
       </Content>
