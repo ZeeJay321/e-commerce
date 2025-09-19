@@ -26,14 +26,13 @@ const initialState: OrderDetailState = {
 
 interface FetchOrderDetailParams {
   orderId: number;
-  userId: string;
 }
 
 export const fetchOrderDetail = createAsyncThunk<
   { orderInfo: OrderInfo; products: ProductItem[] },
   FetchOrderDetailParams
->('orderDetail/fetch', async ({ orderId, userId }) => {
-  const res = await fetch(`/api/orders/get-detail/${orderId}?userId=${userId}`);
+>('orderDetail/fetch', async ({ orderId }) => {
+  const res = await fetch(`/api/orders/get-detail/${orderId}`);
   if (!res.ok) throw new Error('Failed to fetch order details');
 
   const order: {

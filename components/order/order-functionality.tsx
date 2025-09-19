@@ -17,7 +17,6 @@ import {
   Table
 } from 'antd';
 
-import { useSession } from 'next-auth/react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { fetchOrders } from '@/redux/slices/orders-slice';
@@ -28,33 +27,24 @@ import './order.css';
 
 const OrdersTable = () => {
   const router = useRouter();
-  const { data: session } = useSession();
   const dispatch = useDispatch<AppDispatch>();
 
   const {
-    items: orders, total, loading, error
-  } = useSelector(
-    (state: RootState) => state.orders
-  );
+    items: orders,
+    total,
+    loading,
+    error
+  } = useSelector((state: RootState) => state.orders);
 
   const [current, setCurrent] = useState(1);
   const pageSize = 8;
 
   useEffect(() => {
-    if (session?.user?.id) {
-      const userId = session.user.id;
-
-      dispatch(fetchOrders({
-        userId,
-        slice: pageSize,
-        segment: current
-      }));
-    }
-  }, [
-    session,
-    dispatch,
-    current
-  ]);
+    dispatch(fetchOrders({
+      slice: pageSize,
+      segment: current
+    }));
+  }, [dispatch, current]);
 
   const mappedOrders: OrderRow[] = useMemo(
     () => orders.map((order, idx) => ({

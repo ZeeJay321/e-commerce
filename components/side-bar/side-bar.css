@@ -10,14 +10,15 @@
   --color-search-bg: #E2E8F0;
   --color-search-icon: #00364B;
   --color-sidebar-text: #343A40;
+  --color-logout-text: #EF1014;
 }
 
 .sidebar-background {
-  @apply bg-white h-screen shadow-md w-0 max-w-65;
+  @apply bg-white h-screen shadow-md w-0 max-w-200;
 }
 
 .sidebar-div {
-  @apply flex flex-col pt-3 pb-4 px-5;
+  @apply flex flex-col pt-3 pb-4 px-5 h-full max-w-200;
 }
 
 .sidebar-text {
@@ -26,4 +27,20 @@
 
 .sidebar-buttons {
   @apply flex flex-col gap-3
+}
+
+.sidebar-button {
+  @apply flex justify-start items-center gap-2.5 px-6 py-3.5;
+}
+
+.sider-button-span {
+  @apply font-display font-semibold text-base;
+}
+
+.sidebar-span-div {
+  @apply flex text-logout-text justify-start items-center gap-2.5 px-6 py-3.5 hover:text-red-300 cursor-pointer;
+}
+
+.sidebar-main-div {
+  @apply flex flex-col justify-between h-full;
 }

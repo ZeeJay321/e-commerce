@@ -1,17 +1,15 @@
 import { NextResponse } from 'next/server';
 
+import { getServerSession } from 'next-auth';
+
 import Joi from 'joi';
 
 import { PrismaClient } from '@/app/generated/prisma';
+import { authOptions } from '@/lib/auth'; // your NextAuth options
 
 const prisma = new PrismaClient();
 
 const schema = Joi.object({
-  userId: Joi.string().uuid().required().messages({
-    'any.required': 'userId is required',
-    'string.base': 'userId must be a string',
-    'string.guid': 'userId must be a valid UUID'
-  }),
   slice: Joi.number().integer().min(0).default(0)
     .messages({
       'number.base': 'slice must be a number',
@@ -26,10 +24,14 @@ const schema = Joi.object({
 
 export async function GET(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
+    const session = await getServerSession(authOptions);
 
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
     const params = {
-      userId: searchParams.get('userId'),
       slice: searchParams.get('slice'),
       segment: searchParams.get('segment')
     };
@@ -46,7 +48,8 @@ export async function GET(req: Request) {
       );
     }
 
-    const { userId, slice, segment } = value;
+    const { slice, segment } = value;
+    const userId = session.user.id;
 
     const totalOrders = await prisma.order.count({
       where: { userId }

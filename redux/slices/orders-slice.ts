@@ -28,10 +28,11 @@ const initialState: OrdersState = {
 
 export const fetchOrders = createAsyncThunk<
   OrdersResponse,
-  { userId: string; slice?: number; segment?: number }
->('orders/fetch', async ({ userId, slice = 0, segment = 0 }) => {
+  { slice?: number; segment?: number }
+>('orders/fetch', async ({ slice = 0, segment = 0 }) => {
   const res = await fetch(
-    `/api/orders/get-orders?userId=${userId}&slice=${slice}&segment=${segment}`
+    `/api/orders/get-orders?slice=${slice}&segment=${segment}`,
+    { credentials: 'include' }
   );
 
   if (!res.ok) throw new Error('Failed to fetch orders');
@@ -52,7 +53,6 @@ const ordersSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // fetchOrders (all + paginated + total)
       .addCase(fetchOrders.pending, (state) => {
         state.loading = true;
         state.error = null;
