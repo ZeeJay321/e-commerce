@@ -8,13 +8,9 @@ import { Layout } from 'antd';
 
 import { useSession } from 'next-auth/react';
 
-import { Content } from 'antd/es/layout/layout';
-
 import { store } from '@/redux/store';
 
-import AdminNavBar from '@/components/admin-navbar/admin-navbar-functionality';
 import NavBar from '@/components/navbar/navbar-functionality';
-import AdminSidebar from '@/components/side-bar/sider-bar-functionality';
 
 import 'antd/dist/reset.css';
 import './globals.css';
@@ -34,15 +30,8 @@ const BaseLayout = ({
     '/orders'
   ];
 
-  const adminRoutes = [
-    '/admin/login',
-    '/admin/home'
-  ];
-
-  const isAdminRoute = adminRoutes.some((route) => pathname?.startsWith(route));
-
   const hideNavBar = hideNavBarRoutes.includes(pathname ?? '')
-    || pathname?.startsWith('/order-details');
+    || pathname?.startsWith('/order-details') || pathname?.startsWith('/admin');
 
   return (
     <html lang='en'>
@@ -51,15 +40,7 @@ const BaseLayout = ({
           <div className='cover'>
             <Layout className='layout-container'>
               <Provider store={store}>
-                {isAdminRoute ? (
-                  <>
-                    <AdminSidebar />
-                    <Content>
-                      <AdminNavBar />
-                      {children}
-                    </Content>
-                  </>
-                ) : session ? (
+                {session ? (
                   <>
                     {!hideNavBar && <NavBar authed />}
                     {children}
