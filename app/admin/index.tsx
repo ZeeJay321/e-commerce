@@ -7,6 +7,8 @@ import { Content } from 'antd/es/layout/layout';
 import AdminNavBar from '@/components/admin-navbar/admin-navbar-functionality';
 import AdminSidebar from '@/components/side-bar/sider-bar-functionality';
 
+import './admin-layout.css';
+
 const BaseLayout = ({
   children
 }: Readonly<{
@@ -23,9 +25,13 @@ const BaseLayout = ({
 
   return (
     <>
-      <AdminSidebar />
-      <Content className=''>
-        <AdminNavBar />
+      <div className="admin-sidebar">
+        <AdminSidebar active='products' />
+      </div>
+      <Content className="admin-content">
+        <div className="admin-navbar">
+          <AdminNavBar />
+        </div>
         {children}
       </Content>
     </>

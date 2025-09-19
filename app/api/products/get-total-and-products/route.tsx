@@ -11,7 +11,13 @@ const schema = Joi.object({
   slice: Joi.number().integer().min(0).optional(),
   query: Joi.string().allow('').optional(),
   sortOption: Joi.string()
-    .valid('priceLowHigh', 'priceHighLow', 'nameAZ', 'nameZA', null)
+    .valid(
+      'priceLowHigh',
+      'priceHighLow',
+      'nameAZ',
+      'nameZA',
+      null
+    )
     .optional()
 });
 
@@ -69,22 +75,22 @@ export async function GET(req: Request) {
         break;
     }
 
-    let products;
-    if (segment !== 0 && slice !== 0) {
-      products = await prisma.product.findMany({
-        skip,
-        take,
-        where,
-        orderBy
-      });
-    } else {
-      products = await prisma.product.findMany({
-        where,
-        orderBy
-      });
-    }
+    const products = await prisma.product.findMany({
+      skip,
+      take,
+      where,
+      orderBy
+    });
 
-    return NextResponse.json(products, { status: 200 });
+    const total = await prisma.product.count({ where });
+
+    return NextResponse.json(
+      {
+        products,
+        total
+      },
+      { status: 200 }
+    );
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
 

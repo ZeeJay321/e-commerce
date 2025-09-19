@@ -17,7 +17,7 @@ const USER_PRIVATE_PATHS = [
 ];
 
 const ADMIN_PUBLIC_PATHS = ['/admin/login'];
-const ADMIN_PRIVATE_PATHS = ['/admin/home'];
+const ADMIN_PRIVATE_PATHS = ['/admin/products'];
 
 const AUTH_PATHS = [
   '/login',

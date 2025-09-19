@@ -13,12 +13,16 @@
   --color-logout-text: #EF1014;
 }
 
+.ant-layout-sider {
+  @apply !w-full !max-w-[256px];
+}
+
 .sidebar-background {
-  @apply posi bg-white shadow-md w-0 max-w-200;
+  @apply bg-white shadow-md w-0 max-w-[256px] !h-full;
 }
 
 .sidebar-div {
-  @apply flex flex-col pt-3 pb-4 px-5 h-full max-w-200;
+  @apply flex flex-col pt-3 pb-4 px-5 h-full !max-w-64;
 }
 
 .sidebar-text {
@@ -26,11 +30,11 @@
 }
 
 .sidebar-buttons {
-  @apply flex flex-col gap-3
+  @apply flex flex-col gap-3;
 }
 
 .sidebar-button {
-  @apply flex justify-start items-center gap-2.5 px-6 py-3.5;
+  @apply flex justify-start items-center h-full max-h-10.5 gap-2.5 pl-6 py-3.5 pr-25;
 }
 
 .sider-button-span {

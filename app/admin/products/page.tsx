@@ -6,8 +6,9 @@ import { Button } from 'antd';
 
 import LoadingSpinner from '@/components/loading/loading-spinner';
 
+import AdminDetailTable from '@/components/admin-details-table/admin-detail-table-functionality';
 import 'antd/dist/reset.css';
-import './globals.css';
+import './home.css';
 
 const Page = () => {
   const [isRendered, setIsRendered] = useState(false);
@@ -33,6 +34,7 @@ const Page = () => {
           </Button>
         </div>
       </div>
+      <AdminDetailTable />
     </div>
   );
 };

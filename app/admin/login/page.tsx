@@ -61,7 +61,7 @@ const Page = () => {
       });
 
       setTimeout(() => {
-        window.location.href = '/admin/home';
+        window.location.href = '/admin/products';
       }, 1200);
     }
   };
