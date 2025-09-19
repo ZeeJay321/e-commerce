@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from 'react';
 
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, WarningOutlined } from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
 import {
   Alert,
+  Button,
+  Modal,
   Spin,
   Table
 } from 'antd';
@@ -21,6 +23,10 @@ import { AppDispatch, RootState } from '@/redux/store';
 import './admin-detail-table.css';
 
 const AdminDetailTable = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deleteKey, setDeleteKey] = useState<string | null>(null);
+  const [reload, setReload] = useState(false);
+
   const dispatch = useDispatch<AppDispatch>();
   const {
     items: products, total, loading, error
@@ -30,6 +36,39 @@ const AdminDetailTable = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
+
+  const deleteProduct = async (deleteId: string | null) => {
+    if (!deleteId) return;
+
+    try {
+      const res = await fetch(`/api/products/delete-product/${deleteId}`, {
+        method: 'DELETE'
+      });
+
+      const data = await res.json();
+      console.log(data);
+
+      setIsModalOpen(false);
+      setDeleteKey(null);
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      console.log(errorMsg);
+    }
+  };
+
+  const confirmDelete = () => {
+    if (deleteKey !== null) {
+      deleteProduct(deleteKey);
+    }
+    setReload((prev) => !prev);
+    setIsModalOpen(false);
+    setDeleteKey(null);
+  };
+
+  const cancelDelete = () => {
+    setIsModalOpen(false);
+    setDeleteKey(null);
+  };
 
   useEffect(() => {
     dispatch(clearProducts());
@@ -41,7 +80,7 @@ const AdminDetailTable = () => {
         sortOption: null
       })
     );
-  }, [dispatch, currentPage]);
+  }, [dispatch, currentPage, reload]);
 
   const columns: TableColumnsType<Product> = [
     {
@@ -74,10 +113,16 @@ const AdminDetailTable = () => {
     {
       title: <span className="table-span-head">Actions</span>,
       key: 'actions',
-      render: () => (
+      render: (record) => (
         <div className="table-div">
           <EditOutlined className="edit-button" />
-          <DeleteOutlined className="delete-button" />
+          <DeleteOutlined
+            onClick={() => {
+              setDeleteKey(record.id);
+              setIsModalOpen(true);
+            }}
+            className="delete-button"
+          />
         </div>
       )
     }
@@ -99,12 +144,33 @@ const AdminDetailTable = () => {
         pagination={{
           current: currentPage,
           pageSize,
-          total, // ✅ comes from API
+          total,
           onChange: (page) => setCurrentPage(page)
         }}
         bordered
         rowKey="id"
       />
+      <Modal
+        open={isModalOpen}
+        footer={(
+          <div className="flex justify-center gap-8">
+            <Button className='max-w-20 w-full' onClick={cancelDelete}>No</Button>
+            <Button className='max-w-20 w-full' type="primary" danger onClick={confirmDelete}>
+              Yes
+            </Button>
+          </div>
+        )}
+        onCancel={cancelDelete}
+        centered
+      >
+        <div className="delete-modal-div">
+          <h2 className="delete-modal-title">Remove Product</h2>
+          <WarningOutlined className="delete-modal-icon" />
+          <p className="delete-modal-text">
+            Are you sure you want to delete this item?
+          </p>
+        </div>
+      </Modal>
     </div>
   );
 };

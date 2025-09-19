@@ -92,3 +92,19 @@
 .delete-button {
   @apply cursor-pointer text-red-500;
 }
+
+.delete-modal-div {
+  @apply flex flex-col items-center justify-between text-center space-y-10 py-6 font-display;
+}
+
+.delete-modal-title {
+  @apply text-2xl font-medium text-nav-text;
+}
+
+.delete-modal-icon {
+  @apply text-yellow-500 text-9xl;
+}
+
+.delete-modal-text {
+  @apply text-base font-bold text-modal-text font-display;
+}

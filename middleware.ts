@@ -32,7 +32,7 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   if (token && AUTH_PATHS.includes(pathname)) {
-    if (token.role === 'admin') return NextResponse.redirect(new URL('/admin/home', req.url));
+    if (token.role === 'admin') return NextResponse.redirect(new URL('/admin/products', req.url));
 
     if (token.role === 'user') return NextResponse.redirect(new URL('/', req.url));
   }
@@ -75,7 +75,7 @@ export async function middleware(req: NextRequest) {
       USER_PRIVATE_PATHS.some((path) => pathname.startsWith(path))
       || USER_PUBLIC_PATHS.includes(pathname)
     ) {
-      return NextResponse.redirect(new URL('/admin/home', req.url));
+      return NextResponse.redirect(new URL('/admin/products', req.url));
     }
     return NextResponse.next();
   }
