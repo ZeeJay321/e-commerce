@@ -23,10 +23,18 @@ const BaseLayout = ({
     return <Content>{children}</Content>;
   }
 
+  // Determine active menu based on pathname
+  let activeMenu: 'products' | 'orders' = 'orders'; // default
+  if (pathname?.startsWith('/admin/products')) {
+    activeMenu = 'products';
+  } else if (pathname?.startsWith('/admin/orders')) {
+    activeMenu = 'orders';
+  }
+
   return (
     <>
       <div className="admin-sidebar">
-        <AdminSidebar active='products' />
+        <AdminSidebar active={activeMenu} />
       </div>
       <Content className="admin-content">
         <div className="admin-navbar">

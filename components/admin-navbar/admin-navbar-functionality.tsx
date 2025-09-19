@@ -2,10 +2,29 @@
 
 import { useEffect, useState } from 'react';
 
-import { Layout } from 'antd';
+import {
+  Dropdown,
+  Layout,
+  MenuProps
+} from 'antd';
+import { signOut } from 'next-auth/react';
 import './admin-navbar.css';
 
 const { Header } = Layout;
+
+const items: MenuProps['items'] = [
+  {
+    key: '1',
+    label: (
+      <button
+        type="button"
+        onClick={() => signOut({ callbackUrl: '/admin/login' })}
+      >
+        Logout
+      </button>
+    )
+  }
+];
 
 const AdminNavBar = () => {
   const [adminName, setAdminName] = useState<string>('Loading...');
@@ -38,7 +57,14 @@ const AdminNavBar = () => {
 
   return (
     <Header className="navigation-bar">
-      <p className="top-right-nav-tag">{adminName}</p>
+      <Dropdown
+        menu={{ items }}
+        placement="bottomLeft"
+        arrow
+        trigger={['click']}
+      >
+        <p className="top-right-nav-tag cursor-pointer">{adminName}</p>
+      </Dropdown>
     </Header>
   );
 };

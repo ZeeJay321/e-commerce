@@ -154,7 +154,9 @@ const AdminDetailTable = () => {
         open={isModalOpen}
         footer={(
           <div className="flex justify-center gap-8">
-            <Button className='max-w-20 w-full' onClick={cancelDelete}>No</Button>
+            <Button className='max-w-20 w-full' onClick={cancelDelete}>
+              No
+            </Button>
             <Button className='max-w-20 w-full' type="primary" danger onClick={confirmDelete}>
               Yes
             </Button>
