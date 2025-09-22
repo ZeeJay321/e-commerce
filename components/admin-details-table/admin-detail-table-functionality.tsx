@@ -2,12 +2,10 @@
 
 import { useEffect, useState } from 'react';
 
-import { DeleteOutlined, EditOutlined, WarningOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
 import {
   Alert,
-  Button,
-  Modal,
   Spin,
   Table
 } from 'antd';
@@ -20,12 +18,17 @@ import {
 } from '@/redux/slices/products-slice';
 import { AppDispatch, RootState } from '@/redux/store';
 
+import EditProductModal from '@/components/admin-modal/admin-modal';
+
+import ConfirmDeleteModal from '../delete-modal/delete-modal';
 import './admin-detail-table.css';
 
 const AdminDetailTable = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteKey, setDeleteKey] = useState<string | null>(null);
   const [reload, setReload] = useState(false);
+
+  const [editProduct, setEditProduct] = useState<Product | null>(null);
 
   const dispatch = useDispatch<AppDispatch>();
   const {
@@ -48,7 +51,7 @@ const AdminDetailTable = () => {
       const data = await res.json();
       console.log(data);
 
-      setIsModalOpen(false);
+      setIsDeleteModalOpen(false);
       setDeleteKey(null);
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : String(err);
@@ -61,12 +64,12 @@ const AdminDetailTable = () => {
       deleteProduct(deleteKey);
     }
     setReload((prev) => !prev);
-    setIsModalOpen(false);
+    setIsDeleteModalOpen(false);
     setDeleteKey(null);
   };
 
   const cancelDelete = () => {
-    setIsModalOpen(false);
+    setIsDeleteModalOpen(false);
     setDeleteKey(null);
   };
 
@@ -115,11 +118,14 @@ const AdminDetailTable = () => {
       key: 'actions',
       render: (record) => (
         <div className="table-div">
-          <EditOutlined className="edit-button" />
+          <EditOutlined
+            className="edit-button"
+            onClick={() => setEditProduct(record)}
+          />
           <DeleteOutlined
             onClick={() => {
               setDeleteKey(record.id);
-              setIsModalOpen(true);
+              setIsDeleteModalOpen(true);
             }}
             className="delete-button"
           />
@@ -150,29 +156,34 @@ const AdminDetailTable = () => {
         bordered
         rowKey="id"
       />
-      <Modal
-        open={isModalOpen}
-        footer={(
-          <div className="flex justify-center gap-8">
-            <Button className='max-w-20 w-full' onClick={cancelDelete}>
-              No
-            </Button>
-            <Button className='max-w-20 w-full' type="primary" danger onClick={confirmDelete}>
-              Yes
-            </Button>
-          </div>
-        )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmDeleteModal
+        open={isDeleteModalOpen}
+        title="Remove Product"
+        text="Are you sure you want to delete this item?"
         onCancel={cancelDelete}
-        centered
-      >
-        <div className="delete-modal-div">
-          <h2 className="delete-modal-title">Remove Product</h2>
-          <WarningOutlined className="delete-modal-icon" />
-          <p className="delete-modal-text">
-            Are you sure you want to delete this item?
-          </p>
-        </div>
-      </Modal>
+        onConfirm={confirmDelete}
+      />
+
+      {/* Edit Product Modal */}
+      {editProduct && (
+        <EditProductModal
+          open={!!editProduct}
+          onClose={() => setEditProduct(null)}
+          product={{
+            id: editProduct.id,
+            name: editProduct.title,
+            price: editProduct.price,
+            quantity: editProduct.stock,
+            image: editProduct.img,
+            color: editProduct.color,
+            colorCode: editProduct.colorCode
+          }}
+          showImage
+          title="Edit a Single Product"
+        />
+      )}
     </div>
   );
 };

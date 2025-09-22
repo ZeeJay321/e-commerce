@@ -2,15 +2,18 @@
 
 import { useEffect, useState } from 'react';
 
-import { DeleteOutlined, WarningOutlined } from '@ant-design/icons';
+import { DeleteOutlined } from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
 import {
-  Button, Checkbox, Modal, Table
+  Button, Checkbox,
+  Table
 } from 'antd';
 
 import './table.css';
 
 import { CartItem } from '@/models';
+
+import ConfirmDeleteModal from '../delete-modal/delete-modal';
 
 const CartTable = () => {
   const [cartData, setCartData] = useState<CartItem[]>(() => {
@@ -219,54 +222,22 @@ const CartTable = () => {
       />
 
       {/* Confirm Single Delete Modal */}
-      <Modal
+      <ConfirmDeleteModal
         open={isModalOpen}
-        footer={(
-          <div className="flex justify-center gap-8">
-            <Button className='max-w-20 w-full' onClick={cancelDelete}>No</Button>
-            <Button className='max-w-20 w-full' type="primary" danger onClick={confirmDelete}>
-              Yes
-            </Button>
-          </div>
-        )}
+        title="Remove Product"
+        text="Are you sure you want to delete this item?"
         onCancel={cancelDelete}
-        centered
-      >
-        <div className="delete-modal-div">
-          <h2 className="delete-modal-title">Remove Product</h2>
-          <WarningOutlined className="delete-modal-icon" />
-          <p className="delete-modal-text">
-            Are you sure you want to delete this item?
-          </p>
-        </div>
-      </Modal>
+        onConfirm={confirmDelete}
+      />
 
       {/* Confirm Bulk Delete Modal */}
-      <Modal
+      <ConfirmDeleteModal
         open={isBulkDeleteOpen}
-        footer={(
-          <div className="flex justify-center gap-8">
-            <Button className='max-w-20 w-full' onClick={() => setIsBulkDeleteOpen(false)}>No</Button>
-            <Button className='max-w-20 w-full' type="primary" danger onClick={handleBulkRemove}>
-              Yes
-            </Button>
-          </div>
-        )}
+        title="Remove Selected Products"
+        text={`Are you sure you want to delete ${selectedKeys.length} item(s)?`}
         onCancel={() => setIsBulkDeleteOpen(false)}
-        centered
-      >
-        <div className="delete-modal-div">
-          <h2 className="delete-modal-title">Remove Selected Products</h2>
-          <WarningOutlined className="delete-modal-icon" />
-          <p className="delete-modal-text">
-            Are you sure you want to delete
-            {' '}
-            {selectedKeys.length}
-            {' '}
-            item(s)?
-          </p>
-        </div>
-      </Modal>
+        onConfirm={handleBulkRemove}
+      />
     </div>
   );
 };
