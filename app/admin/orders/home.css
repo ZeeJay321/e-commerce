@@ -13,6 +13,7 @@
   --color-card-text: #212529;
   --color-card-price: #868E96;
   --color-login-background: #E9ECEF;
+  --color-box-color: #E0E0E0;
 }
 
 /* Nav-Bar */
@@ -33,7 +34,11 @@
 }
 
 .content-div {
-  @apply pt-6 pr-4 pl-4 block justify-between items-center md:flex md:pr-14 md:pl-14 md:pt-8 lg:px-8 lg:pt-9;
+  @apply pt-6 pr-4 pl-4 block justify-between items-center md:flex md:pr-14 md:pl-14 md:pt-8 lg:px-8 lg:pt-6;
+}
+
+.content-boxes {
+  @apply pt-6 pr-4 pl-4 block justify-between gap-8 items-center md:flex md:pr-14 md:pl-14 md:pt-8 lg:px-8 lg:pt-9;
 }
 
 /* content */

@@ -133,13 +133,6 @@ const AdminOrdersTable = () => {
             bordered
           />
           <div className="orders-footer-div">
-            <div>
-              <span className="orders-footer-span">
-                {total}
-                {' '}
-                Total Count
-              </span>
-            </div>
             <div className="orders-footer-pagination">
               <Pagination
                 current={current}

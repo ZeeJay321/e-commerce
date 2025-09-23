@@ -15,11 +15,11 @@
 }
 
 .orders-items-div {
-  @apply pt-8 px-4 md:px-14 lg:px-8 pt-6;
+  @apply px-4 md:px-14 lg:px-8 pt-6;
 }
 
 .orders-footer-div {
-  @apply flex justify-between items-center pt-8;
+  @apply flex justify-end items-center pt-8;
 }
 
 .orders-footer-span {

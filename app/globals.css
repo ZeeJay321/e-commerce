@@ -43,7 +43,7 @@
 }
 
 .content-features {
-  @apply flex justify-end items-center gap-6;
+  @apply flex !justify-end items-center gap-6;
 }
 
 .ant-input-group-wrapper {

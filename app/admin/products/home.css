@@ -29,7 +29,7 @@
 }
 
 .content-paragraph {
-  @apply text-[24px] text-nav-text font-display text-nowrap;
+  @apply text-[24px] !text-nav-text font-display text-nowrap;
 }
 
 .content-features {
