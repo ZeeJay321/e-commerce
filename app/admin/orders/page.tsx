@@ -21,6 +21,8 @@ const Page = () => {
     return <LoadingSpinner />;
   }
 
+  console.log(search);
+
   return (
     <div className="cover">
       <div className="content-div">
