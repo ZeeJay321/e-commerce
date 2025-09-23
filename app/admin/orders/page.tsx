@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from 'react';
 
-import { CheckSquareOutlined } from '@ant-design/icons';
+import {
+  CheckSquareOutlined,
+  CodeSandboxOutlined,
+  PayCircleOutlined
+} from '@ant-design/icons';
 
 import LoadingSpinner from '@/components/loading/loading-spinner';
 
@@ -29,31 +33,31 @@ const Page = () => {
   return (
     <div className="cover">
       <div className='content-boxes'>
-        <div className='flex p-4 border w-full max-w-200 text-box-color'>
-          <p className='flex flex-col justify-between gap-2 w-full max-w-150 h-full max-h-22 !m-0'>
-            <span className='text-black font-medium text-[14px]'>Total Orders:</span>
-            <span className='text-nav-text font-bold text-xl'>12</span>
+        <div className='box-div'>
+          <p className='box-paragraph'>
+            <span className='box-first-span'>Total Orders:</span>
+            <span className='box-second-span'>12</span>
           </p>
-          <div className="flex items-center justify-center w-12 h-12 rounded-3xl bg-blue-100">
-            <CheckSquareOutlined className="!text-nav-text text-lg" />
+          <div className="icon-div">
+            <CheckSquareOutlined className="icon-inside" />
           </div>
         </div>
-        <div className='flex p-4 border w-full max-w-200 text-box-color'>
-          <p className='flex flex-col !justify-between gap-2 w-full max-w-150 h-full max-h-22 !m-0'>
-            <span className='text-black font-medium text-[14px]'>Total Unit:</span>
-            <span className='text-nav-text font-bold text-xl'>43</span>
+        <div className='box-div'>
+          <p className='box-paragraph'>
+            <span className='box-first-span'>Total Unit:</span>
+            <span className='box-second-span'>43</span>
           </p>
-          <div className="flex items-center justify-center w-12 h-12 rounded-3xl bg-blue-100">
-            <CheckSquareOutlined className="!text-nav-text text-lg" />
+          <div className="icon-div">
+            <CodeSandboxOutlined className="icon-inside" />
           </div>
         </div>
-        <div className='flex p-4 border w-full max-w-200 text-box-color'>
-          <p className='flex flex-col justify-between gap-2 w-full max-w-150 h-full max-h-22 !m-0'>
-            <span className='text-black font-medium text-[14px]'>Total Amount:</span>
-            <span className='text-nav-text font-bold text-xl'>$100,000</span>
+        <div className='box-div'>
+          <p className='box-paragraph'>
+            <span className='box-first-span'>Total Amount:</span>
+            <span className='box-second-span'>$100,000</span>
           </p>
-          <div className="flex items-center justify-center w-12 h-12 rounded-3xl bg-blue-100">
-            <CheckSquareOutlined className="!text-nav-text text-lg" />
+          <div className="icon-div">
+            <PayCircleOutlined className="icon-inside" />
           </div>
         </div>
       </div>
