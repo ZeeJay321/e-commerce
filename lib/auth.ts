@@ -5,6 +5,7 @@ import {
 } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GithubProvider from 'next-auth/providers/github';
+import GoogleProvider from 'next-auth/providers/google';
 
 import { findUserByEmailAndRole, validateUserPassword } from '@/helper/login-checker';
 
@@ -15,6 +16,7 @@ declare module 'next-auth' {
   }
 
   interface Session {
+    accessToken?: string;
     user: {
       id: string;
       role?: string;
@@ -28,12 +30,23 @@ declare module 'next-auth/jwt' {
     id?: string;
     role?: string;
     rememberMe?: boolean;
+    accessToken?: string;
     exp?: string;
   }
 }
 
 export const authOptions: NextAuthOptions = {
   providers: [
+    GoogleProvider({
+      clientId: process.env.DRIVE_ID!,
+      clientSecret: process.env.DRIVE_SECRET!,
+      authorization: {
+        params: {
+          scope: 'openid email profile https://www.googleapis.com/auth/drive.readonly'
+        }
+      }
+    }),
+
     GithubProvider({
       clientId: process.env.GITHUB_ID!,
       clientSecret: process.env.GITHUB_SECRET!
@@ -94,6 +107,7 @@ export const authOptions: NextAuthOptions = {
         };
       }
     })
+
   ],
 
   pages: {
@@ -105,7 +119,10 @@ export const authOptions: NextAuthOptions = {
   },
 
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
+      if (account) {
+        token.accessToken = account.access_token;
+      }
       if (user) {
         token.id = user.id;
         token.role = user.role;
@@ -126,6 +143,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
         session.user.rememberMe = token.rememberMe;
+        session.accessToken = token.accessToken as string;
         session.expires = token.exp as string;
       }
 
