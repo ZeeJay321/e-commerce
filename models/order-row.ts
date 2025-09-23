@@ -6,3 +6,13 @@ export interface OrderRow {
   date: string;
   amount: number;
 }
+
+export interface OrderRowAdmin {
+  key: number;
+  id: string;
+  orderNumber: number;
+  products: { productId: string; quantity: number }[];
+  userid: string;
+  date: string;
+  amount: number;
+}

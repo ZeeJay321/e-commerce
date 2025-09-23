@@ -2,16 +2,16 @@
 
 import { useEffect, useState } from 'react';
 
-import { Button } from 'antd';
-
 import LoadingSpinner from '@/components/loading/loading-spinner';
 
-import AdminDetailTable from '@/components/admin-details-table/admin-detail-table-functionality';
+import AdminOrdersTable from '@/components/admin-orders/admin-order-functionality';
+import SearchBar from '@/components/search-bar/search-bar-functionality';
 import 'antd/dist/reset.css';
 import './home.css';
 
 const Page = () => {
   const [isRendered, setIsRendered] = useState(false);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     setIsRendered(true);
@@ -24,17 +24,12 @@ const Page = () => {
   return (
     <div className="cover">
       <div className="content-div">
-        <span className="content-paragraph">Our Products</span>
+        <span className="content-paragraph">Orders</span>
         <div className="content-features w-full">
-          <Button type="default" className="px-4 py-1.5">
-            + Add a Single Product
-          </Button>
-          <Button type="primary" className="px-4 py-1.5">
-            + Add Multiple Products
-          </Button>
+          <SearchBar onSearch={setSearch} />
         </div>
       </div>
-      <AdminDetailTable />
+      <AdminOrdersTable />
     </div>
   );
 };
