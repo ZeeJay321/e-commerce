@@ -111,7 +111,7 @@ const AdminOrdersTable = () => {
     render: (_, record) => (
       <ArrowsAltOutlined
         className="cursor-pointer hover:text-blue-600 py-4 pl-3"
-        onClick={() => router.push(`/order-details/${record.orderNumber}`)}
+        onClick={() => router.push(`/admin/order-details/${record.orderNumber}`)}
       />
     )
   }];

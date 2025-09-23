@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import Joi from 'joi';
-
 import { getServerSession } from 'next-auth';
 
 import { PrismaClient } from '@/app/generated/prisma';
@@ -16,11 +15,7 @@ const paramsSchema = Joi.object({
       'number.integer': 'Order number must be an integer',
       'number.positive': 'Order number must be positive',
       'any.required': 'Order number is required'
-    }),
-  userId: Joi.string().uuid().required().messages({
-    'string.guid': 'User ID must be a valid UUID',
-    'any.required': 'User ID is required'
-  })
+    })
 });
 
 export async function GET(
@@ -35,9 +30,9 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // ✅ validate order number only (userId check depends on role)
     const { error, value } = paramsSchema.validate({
-      id: Number(resolvedParams.id),
-      userId: session.user.id
+      id: Number(resolvedParams.id)
     });
 
     if (error) {
@@ -47,11 +42,15 @@ export async function GET(
       );
     }
 
-    const { id: orderId, userId } = value;
+    const { id: orderId } = value;
+    const isAdmin = session.user.role === 'admin';
 
-    // ✅ fetch order belonging to this user
+    const whereCondition = isAdmin
+      ? { orderNumber: orderId }
+      : { orderNumber: orderId, userId: session.user.id };
+
     const order = await prisma.order.findFirst({
-      where: { orderNumber: orderId, userId },
+      where: whereCondition,
       include: { products: { include: { product: true } } }
     });
 
@@ -65,7 +64,6 @@ export async function GET(
     return NextResponse.json(order, { status: 200 });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
