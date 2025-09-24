@@ -34,26 +34,11 @@ export const fetchOrders = createAsyncThunk<
   { slice?: number; segment?: number }
 >('orders/fetch', async ({ slice = 0, segment = 0 }) => {
   const res = await fetch(
-    `/api/orders/get-orders?slice=${slice}&segment=${segment}`,
-    { credentials: 'include' }
-  );
-
-  if (!res.ok) throw new Error('Failed to fetch user orders');
-
-  return res.json();
-});
-
-// ✅ Fetch all orders (admin only)
-export const fetchAllOrders = createAsyncThunk<
-  OrdersResponse,
-  { slice?: number; segment?: number }
->('orders/fetchAll', async ({ slice = 0, segment = 0 }) => {
-  const res = await fetch(
     `/api/orders/get-all-orders?slice=${slice}&segment=${segment}`,
     { credentials: 'include' }
   );
 
-  if (!res.ok) throw new Error('Failed to fetch all orders (admin only)');
+  if (!res.ok) throw new Error('Failed to fetch user orders');
 
   return res.json();
 });
@@ -84,22 +69,6 @@ const ordersSlice = createSlice({
       .addCase(fetchOrders.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to load user orders';
-      });
-
-    // 🔹 admin all orders
-    builder
-      .addCase(fetchAllOrders.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchAllOrders.fulfilled, (state, action: PayloadAction<OrdersResponse>) => {
-        state.items = action.payload.orders;
-        state.total = action.payload.totalOrders;
-        state.loading = false;
-      })
-      .addCase(fetchAllOrders.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || 'Failed to load all orders';
       });
   }
 });

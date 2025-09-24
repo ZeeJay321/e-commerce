@@ -19,7 +19,7 @@ import {
 
 import { useDispatch, useSelector } from 'react-redux';
 
-import { fetchAllOrders } from '@/redux/slices/orders-slice';
+import { fetchOrders } from '@/redux/slices/orders-slice';
 import { AppDispatch, RootState } from '@/redux/store';
 
 import { OrderRow } from '@/models';
@@ -42,7 +42,7 @@ const AdminOrdersTable = () => {
   const pageSize = 12;
 
   useEffect(() => {
-    dispatch(fetchAllOrders({
+    dispatch(fetchOrders({
       slice: pageSize,
       segment: current
     }));

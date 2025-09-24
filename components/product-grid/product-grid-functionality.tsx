@@ -8,8 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import ProductCard from '@/components/product-card/product-card-functionality';
 import {
   clearProducts,
-  fetchNextProducts,
-  fetchProducts
+  fetchNextProducts
 } from '@/redux/slices/products-slice';
 import {
   type AppDispatch,
@@ -39,7 +38,7 @@ const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
   useEffect(() => {
     dispatch(clearProducts());
     setSegment(1);
-    dispatch(fetchProducts({
+    dispatch(fetchNextProducts({
       segment: 1,
       slice,
       query: search,

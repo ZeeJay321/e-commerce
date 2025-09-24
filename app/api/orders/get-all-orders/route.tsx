@@ -4,7 +4,7 @@ import Joi from 'joi';
 import { getServerSession } from 'next-auth';
 
 import { PrismaClient } from '@/app/generated/prisma';
-import { authOptions } from '@/lib/auth'; // your NextAuth options
+import { authOptions } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
@@ -25,7 +25,7 @@ export async function GET(req: Request) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session?.user?.id || session.user.role !== 'admin') {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -49,11 +49,16 @@ export async function GET(req: Request) {
 
     const { slice, segment } = value;
 
-    const totalOrders = await prisma.order.count();
+    const whereCondition = session.user.role === 'admin' ? {} : { userId: session.user.id };
+
+    const totalOrders = await prisma.order.count({
+      where: whereCondition
+    });
 
     let orders;
     if (slice === 0 || segment === 0) {
       orders = await prisma.order.findMany({
+        where: whereCondition,
         include: {
           products: {
             include: { product: true }
@@ -62,8 +67,8 @@ export async function GET(req: Request) {
         orderBy: { createdAt: 'desc' }
       });
     } else {
-      // Paginated orders
       orders = await prisma.order.findMany({
+        where: whereCondition,
         include: {
           products: {
             include: { product: true }

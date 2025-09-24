@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Product } from '@/models';
 import {
   clearProducts,
-  fetchProductsWithTotal
+  fetchProducts
 } from '@/redux/slices/products-slice';
 import { AppDispatch, RootState } from '@/redux/store';
 
@@ -76,7 +76,7 @@ const AdminDetailTable = () => {
   useEffect(() => {
     dispatch(clearProducts());
     dispatch(
-      fetchProductsWithTotal({
+      fetchProducts({
         segment: currentPage,
         slice: pageSize,
         query: '',
