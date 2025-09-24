@@ -47,7 +47,7 @@ export async function GET(
 
     const whereCondition = isAdmin
       ? { orderNumber: orderId }
-      : { orderNumber: orderId, userId: session.user.id };
+      : { userId: session.user.id, orderNumber: orderId };
 
     const order = await prisma.order.findFirst({
       where: whereCondition,
