@@ -9,7 +9,7 @@ const RootLayout = ({
 }: Readonly<{
   children: React.ReactNode;
 }>) => (
-  <SessionProvider refetchInterval={60 * 30}>
+  <SessionProvider>
     <BaseLayout>
       {children}
     </BaseLayout>

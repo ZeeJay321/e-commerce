@@ -58,10 +58,11 @@ export async function POST(req: Request) {
 
     await sendResetLink(baseUrl, email, token);
 
-    return NextResponse.json(
-      { message: 'If that email exists, reset instructions were sent.' },
-      { status: 200 }
-    );
+    return NextResponse.json({
+      message: 'If that email exists, reset instructions were sent.'
+    }, {
+      status: 200
+    });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
 
