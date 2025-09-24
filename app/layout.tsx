@@ -2,6 +2,8 @@
 
 import { SessionProvider } from 'next-auth/react';
 
+import RouteLoader from '@/components/route-loader/route-loader';
+
 import BaseLayout from './index';
 
 const RootLayout = ({
@@ -11,6 +13,7 @@ const RootLayout = ({
 }>) => (
   <SessionProvider>
     <BaseLayout>
+      <RouteLoader />
       {children}
     </BaseLayout>
   </SessionProvider>

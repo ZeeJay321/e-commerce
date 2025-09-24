@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
+
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-display: Inter, sans-serif;
+
+  --color-nav: #F8F9FA;
+  --color-nav-text: #007BFF;
+  --color-site-text: #343A40;
+  --color-card-text: #212529;
+  --color-card-price: #868E96;
+  --color-login-background: #E9ECEF;
+  --color-search-bg: #E2E8F0;
+}
+
+.route-div {
+  @apply fixed inset-0 z-50 flex items-center justify-center bg-white/70;
+}
+
+.route-div-inner {
+  @apply animate-spin rounded-full h-12 w-12 border-4 border-nav-text border-t-transparent;
+}
