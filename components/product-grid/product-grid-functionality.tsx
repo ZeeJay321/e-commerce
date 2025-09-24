@@ -29,6 +29,7 @@ const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
     products,
     loading,
     hasMore,
+    total,
     error
   } = useSelector((state: RootState) => state.products);
 
@@ -62,6 +63,7 @@ const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
         >= scrollContainer.scrollHeight - 800
         && !loading
         && hasMore
+        && products.length !== total
       ) {
         const nextSegment = segment + 1;
         setSegment(nextSegment);
