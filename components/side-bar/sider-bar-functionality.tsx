@@ -50,7 +50,7 @@ const AdminSidebar = ({ active }: AdminSidebarProps) => {
 
           <button
             type="button"
-            onClick={() => signOut({ callbackUrl: '/admin/login' })}
+            onClick={() => signOut({ callbackUrl: '/login' })}
             className="sidebar-span-div"
           >
             {/* Icon */}

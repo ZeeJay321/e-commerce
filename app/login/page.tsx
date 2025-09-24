@@ -42,7 +42,7 @@ const Page = () => {
   const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
     const remember = values.remember ?? false;
 
-    const result = await signIn('User', {
+    const result = await signIn('credentials', {
       redirect: false,
       email: values.email,
       password: values.password,
@@ -60,8 +60,11 @@ const Page = () => {
         message: 'Login Successful'
       });
 
-      setTimeout(() => {
-        window.location.href = result?.url ?? '/';
+      setTimeout(async () => {
+        const res = await fetch('/api/auth/session');
+        const session = await res.json();
+
+        window.location.href = session?.user?.role === 'admin' ? '/admin/products' : '/';
       }, 1200);
     }
   };

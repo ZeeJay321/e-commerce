@@ -60,7 +60,7 @@ const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
     const onScroll = () => {
       if (
         scrollContainer.scrollTop + scrollContainer.clientHeight
-        >= scrollContainer.scrollHeight - 800
+        >= scrollContainer.scrollHeight - 1200
         && !loading
         && hasMore
         && products.length !== total
@@ -89,6 +89,8 @@ const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
     hasMore,
     segment,
     search,
+    products.length,
+    total,
     sortOption
   ]);
 

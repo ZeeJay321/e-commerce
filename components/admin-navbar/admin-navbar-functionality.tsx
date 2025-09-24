@@ -18,7 +18,7 @@ const items: MenuProps['items'] = [
     label: (
       <button
         type="button"
-        onClick={() => signOut({ callbackUrl: '/admin/login' })}
+        onClick={() => signOut({ callbackUrl: '/login' })}
       >
         Logout
       </button>
