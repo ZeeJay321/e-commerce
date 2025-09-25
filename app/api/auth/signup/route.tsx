@@ -58,7 +58,7 @@ export async function POST(req: Request) {
     const emailLower = email.toLowerCase();
 
     const user = await prisma.$transaction(async (tx) => {
-      const existingUser = await tx.user.findUnique({
+      const existingUser = await tx.user.findFirst({
         where: { email: emailLower }
       });
 

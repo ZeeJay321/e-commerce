@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     const token = crypto.randomBytes(32).toString('hex');
     const tokenExpiry = new Date(Date.now() + 1000 * 60 * 10);
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user.findFirst({
       where: { email }
     });
 

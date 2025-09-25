@@ -41,7 +41,7 @@ export const fetchProducts = createAsyncThunk<
     if (query) params.append('query', query);
     if (sortOption) params.append('sortOption', sortOption);
 
-    const res = await fetch(`/api/products/get-total-and-products?${params.toString()}`);
+    const res = await fetch(`/api/products/get-products?${params.toString()}`);
     if (!res.ok) throw new Error('Failed to fetch products');
 
     return res.json();
@@ -67,7 +67,7 @@ export const fetchNextProducts = createAsyncThunk<
     if (query) params.append('query', query);
     if (sortOption) params.append('sortOption', sortOption);
 
-    const res = await fetch(`/api/products/get-total-and-products?${params.toString()}`);
+    const res = await fetch(`/api/products/get-products?${params.toString()}`);
     if (!res.ok) throw new Error('Failed to fetch next products');
 
     return res.json();
