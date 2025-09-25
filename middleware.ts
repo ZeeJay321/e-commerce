@@ -1,7 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-import dayjs from 'dayjs';
 import { getToken } from 'next-auth/jwt';
 
 const USER_PUBLIC_PATHS = [
@@ -30,7 +29,10 @@ const AUTH_PATHS = [
 
 export async function middleware(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-  console.log('token', token);
+  const sessionCookie = req.cookies.get('next-auth.session-token');
+  console.log('Session Cookie', { sessionCookie });
+  console.log('token in middle');
+
   const { pathname } = req.nextUrl;
 
   if (token && AUTH_PATHS.includes(pathname)) {
@@ -39,22 +41,10 @@ export async function middleware(req: NextRequest) {
     if (token.role === 'user') return NextResponse.redirect(new URL('/', req.url));
   }
 
-  if (!token || (token.exp && dayjs(new Date()).isAfter(new Date(token.exp)))) {
+  if (!token) {
     console.log('Token Expired here');
 
-    console.log('Token Expired here');
-
-    // Create response to delete cookies
     const response = NextResponse.next();
-    const expiredDate = new Date(0).toUTCString();
-    response.headers.set(
-      'Set-Cookie',
-      `next-auth.session-token=; Path=/; Expires=${expiredDate}; HttpOnly; Secure; SameSite=Lax`
-    );
-    response.headers.append(
-      'Set-Cookie',
-      `__Secure-next-auth.session-token=; Path=/; Expires=${expiredDate}; HttpOnly; Secure; SameSite=Lax`
-    );
 
     if (USER_PUBLIC_PATHS.includes(pathname) || ADMIN_PUBLIC_PATHS.includes(pathname)) {
       return response;

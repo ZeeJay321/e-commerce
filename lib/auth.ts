@@ -3,6 +3,7 @@ import {
   DefaultUser,
   NextAuthOptions
 } from 'next-auth';
+import { decode as jwtDecode, encode as jwtEncode } from 'next-auth/jwt';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GithubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
@@ -94,6 +95,20 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: 'jwt'
     // maxAge: 10
+  },
+  jwt: {
+    async encode({ token, secret, maxAge }) {
+      if (!token) return '';
+
+      const newMaxAge = token.exp
+        ? token.exp - Math.floor(Date.now() / 1000)
+        : maxAge;
+
+      return jwtEncode({ token, secret, maxAge: newMaxAge });
+    },
+    async decode({ token, secret }) {
+      return jwtDecode({ token, secret });
+    }
   },
 
   callbacks: {
