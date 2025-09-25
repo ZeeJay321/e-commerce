@@ -31,7 +31,7 @@ declare module 'next-auth/jwt' {
     role?: string;
     rememberMe?: boolean;
     accessToken?: string;
-    exp?: string;
+    exp?: number;
   }
 }
 
@@ -93,6 +93,7 @@ export const authOptions: NextAuthOptions = {
 
   session: {
     strategy: 'jwt'
+    // maxAge: 10
   },
 
   callbacks: {
@@ -104,24 +105,23 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.role = user.role;
         token.rememberMe = user.rememberMe;
-
-        if (!token.exp) {
-          const expires = new Date();
-          expires.setDate(expires.getDate() + (user.rememberMe ? 30 : 1));
-          token.exp = expires.toISOString();
-        }
+        const maxAge = user.rememberMe ? 30 * 24 * 60 * 60 : 30 * 60;
+        token.exp = Math.floor(Date.now() / 1000 + maxAge);
+        console.log('Token After Update', token);
       }
 
+      console.log({ token, user });
       return token;
     },
 
     async session({ session, token }) {
       if (token) {
+        console.log('in session', { token });
         session.user.id = token.id as string;
         session.user.role = token.role as string;
         session.user.rememberMe = token.rememberMe;
         session.accessToken = token.accessToken as string;
-        session.expires = token.exp as string;
+        session.expires = new Date((token.exp as number) * 1000).toISOString();
       }
 
       return session;
