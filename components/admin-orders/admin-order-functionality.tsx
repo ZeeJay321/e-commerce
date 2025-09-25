@@ -25,7 +25,7 @@ import { AppDispatch, RootState } from '@/redux/store';
 import { OrderRow } from '@/models';
 import './admin-order.css';
 
-type AdminOrderRow = OrderRow & { userId: string };
+type AdminOrderRow = OrderRow & { user: string };
 
 const AdminOrdersTable = () => {
   const router = useRouter();
@@ -53,7 +53,7 @@ const AdminOrdersTable = () => {
       key: idx + 1,
       id: order.id,
       orderNumber: order.orderNumber,
-      userId: order.userId, // ✅ required
+      user: order.user ?? 'Unknown',
       products: order.products,
       date: order.date,
       amount: order.amount
@@ -81,7 +81,7 @@ const AdminOrdersTable = () => {
     key: 'orderNumber',
     render: (_: string, record) => (
       <div className="flex flex-col">
-        <span className="table-span">{record.userId}</span>
+        <span className="table-span">{record.user}</span>
       </div>
     )
   }, {
@@ -126,7 +126,7 @@ const AdminOrdersTable = () => {
       {error && <Alert type="error" message={error} showIcon className="mb-4" />}
       {!loading && !error && (
         <>
-          <Table<OrderRow & { userId: string }>
+          <Table<OrderRow & { user: string }>
             columns={columns}
             dataSource={mappedOrders}
             pagination={false}

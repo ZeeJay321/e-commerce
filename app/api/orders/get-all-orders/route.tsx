@@ -60,6 +60,7 @@ export async function GET(req: Request) {
       orders = await prisma.order.findMany({
         where: whereCondition,
         include: {
+          user: { select: { fullname: true } },
           products: {
             include: { product: true }
           }
@@ -70,6 +71,7 @@ export async function GET(req: Request) {
       orders = await prisma.order.findMany({
         where: whereCondition,
         include: {
+          user: { select: { fullname: true } },
           products: {
             include: { product: true }
           }
@@ -87,7 +89,7 @@ export async function GET(req: Request) {
         segment,
         orders: orders.map((order) => ({
           ...order,
-          userId: order.userId
+          user: order.user.fullname
         }))
       },
       { status: 200 }

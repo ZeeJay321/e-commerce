@@ -11,6 +11,7 @@ export interface OrderItem {
 export interface Order {
   id: string;
   userId: string;
+  user?: string;
   orderNumber: number;
   amount: number;
   date: string;

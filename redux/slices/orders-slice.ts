@@ -7,7 +7,7 @@ import {
 import { Order } from '@/models';
 
 interface OrdersResponse {
-  userId?: string; // returned in user-specific API
+  user?: string; // returned in user-specific API
   totalOrders: number;
   orders: Order[];
   slice?: number;
