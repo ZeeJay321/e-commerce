@@ -54,7 +54,7 @@ const NavBar = ({ authed }: NavBarProps) => {
       label: (
         <button
           type="button"
-          onClick={() => signOut({ callbackUrl: '/' })}
+          onClick={() => signOut({ redirect: false })}
         >
           Logout
         </button>

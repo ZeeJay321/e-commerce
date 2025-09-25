@@ -2,23 +2,49 @@
 
 import { useEffect, useState } from 'react';
 
-import { usePathname } from 'next/navigation';
-
+import { useRouter } from 'next/navigation';
 import './route-loader.css';
 
 export default function RouteLoader() {
-  const pathname = usePathname();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
+    // Store originals
+    const originalPush = router.push;
+    const originalReplace = router.replace;
 
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
+    // Patch push
+    router.push = async (
+      href: Parameters<typeof originalPush>[0],
+      options?: Parameters<typeof originalPush>[1]
+    ) => {
+      setLoading(true);
+      try {
+        await originalPush(href, options);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    return () => clearTimeout(timer);
-  }, [pathname]);
+    // Patch replace
+    router.replace = async (
+      href: Parameters<typeof originalReplace>[0],
+      options?: Parameters<typeof originalReplace>[1]
+    ) => {
+      setLoading(true);
+      try {
+        await originalReplace(href, options);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    return () => {
+      router.push = originalPush;
+      router.replace = originalReplace;
+    };
+  }, [router]);
 
   if (!loading) return null;
 
