@@ -70,10 +70,9 @@ const EditProductModal = ({
     }
   };
 
-  // default fallback update logic
   const handleUpdate = async (formData: FormData) => {
     try {
-      const res = await fetch(`/api/products/update/${product?.id}`, {
+      const res = await fetch(`/api/products/edit-product/${product?.id}`, {
         method: 'PUT',
         body: formData
       });

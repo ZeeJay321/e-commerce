@@ -57,7 +57,7 @@ export async function middleware(req: NextRequest) {
     }
 
     if (ADMIN_PRIVATE_PATHS.some((path) => pathname.startsWith(path))) {
-      const url = new URL('/admin/login', req.url);
+      const url = new URL('/login', req.url);
       url.searchParams.set('callbackUrl', pathname);
       return NextResponse.redirect(url);
     }

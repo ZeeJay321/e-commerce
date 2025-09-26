@@ -5,12 +5,15 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import type { FormProps } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
 
 import AuthCard from '@/components/auth-card/auth-card-functionality';
 import LoadingSpinner from '@/components/loading/loading-spinner';
 import CustomNotification from '@/components/notifications/notifications-functionality';
 
 import { FieldConfig, FieldType } from '@/models';
+import { signupUser } from '@/redux/slices/user-slice';
+import { AppDispatch, RootState } from '@/redux/store';
 
 import './signup.css';
 
@@ -24,11 +27,10 @@ const signupFields: FieldConfig[] = [{
   name: 'email',
   label: 'Email Address',
   placeholder: 'Email Address',
-  rules: [{
-    required: true, message: 'Please enter your email'
-  }, {
-    type: 'email', message: 'Enter a valid email address'
-  }],
+  rules: [
+    { required: true, message: 'Please enter your email' },
+    { type: 'email', message: 'Enter a valid email address' }
+  ],
   inputType: 'text'
 }, {
   name: 'mobile',
@@ -36,6 +38,7 @@ const signupFields: FieldConfig[] = [{
   placeholder: 'Mobile Number',
   rules: [{
     required: true, message: 'Please enter your mobile number'
+
   }, {
     pattern: /^\+?[1-9]\d{1,14}$/,
     message: 'Enter a valid mobile number (e.g. +923001234567)'
@@ -48,7 +51,8 @@ const signupFields: FieldConfig[] = [{
   rules: [{
     required: true, message: 'Password is required'
   }, {
-    pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+    pattern:
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
     message:
       'Password must be at least 8 characters, include uppercase, lowercase, number, and special character'
   }],
@@ -64,6 +68,8 @@ const Page = () => {
   } | null>(null);
 
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading } = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
     setIsRendered(true);
@@ -73,38 +79,42 @@ const Page = () => {
 
   const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
     try {
-      const res = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      if (
+        !values.fullname
+        || !values.email
+        || !values.mobile
+        || !values.password
+        || !values.confirmPassword
+      ) {
+        setNotification({
+          type: 'error',
+          message: 'All fields are required'
+        });
+        return;
+      }
+      const user = dispatch(
+        signupUser({
           fullName: values.fullname,
           email: values.email,
           phoneNumber: values.mobile,
           password: values.password,
           confirmPassword: values.confirmPassword
         })
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Signup failed');
-      }
+      ).unwrap();
 
       setNotification({
         type: 'success',
-        message: 'Your account has been created successfully.'
+        message: `Welcome, ${(await user).name || 'User'}! Your account has been created.`
       });
 
       setTimeout(() => {
         setNotification(null);
         router.push('/login');
       }, 2000);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
+    } catch (error) {
       setNotification({
         type: 'error',
-        message
+        message: typeof error === 'string' ? error : 'Signup failed'
       });
       setTimeout(() => setNotification(null), 3000);
     }
@@ -128,6 +138,12 @@ const Page = () => {
           placement="topRight"
           onClose={() => setNotification(null)}
         />
+      )}
+
+      {loading && (
+        <div className="fixed inset-0 bg-white bg-opacity-70 z-50 flex items-center justify-center">
+          <LoadingSpinner />
+        </div>
       )}
 
       <div className="signup-card">

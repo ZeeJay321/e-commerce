@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 
 import type { FormProps } from 'antd';
 
-import { signIn } from 'next-auth/react';
+import { useDispatch, useSelector } from 'react-redux';
 
 import AuthCard from '@/components/auth-card/auth-card-functionality';
 import LoadingSpinner from '@/components/loading/loading-spinner';
@@ -13,6 +13,8 @@ import CustomNotification from '@/components/notifications/notifications-functio
 import './login.css';
 
 import { FieldConfig, FieldType } from '@/models';
+import { loginUser } from '@/redux/slices/user-slice';
+import { AppDispatch, RootState } from '@/redux/store';
 
 const loginFields: FieldConfig[] = [{
   name: 'email',
@@ -39,20 +41,30 @@ const Page = () => {
     description?: string;
   } | null>(null);
 
+  const dispatch = useDispatch<AppDispatch>();
+
+  const { loading } = useSelector((state: RootState) => state.user);
   const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
-    const remember = values.remember ?? false;
-
-    const result = await signIn('credentials', {
-      redirect: false,
-      email: values.email,
-      password: values.password,
-      remember
-    });
-
-    if (result?.error) {
+    if (!values.email || !values.password) {
       setNotification({
         type: 'error',
-        message: 'Wrong username password, please enter correct credentials'
+        message: 'Email and password are required'
+      });
+      return;
+    }
+
+    const result = dispatch(
+      loginUser({
+        email: values.email,
+        password: values.password,
+        remember: values.remember ?? false
+      })
+    ).unwrap();
+
+    if (loginUser.rejected.match(result)) {
+      setNotification({
+        type: 'error',
+        message: 'Wrong username or password, please enter correct credentials'
       });
     } else {
       setNotification({
@@ -60,11 +72,9 @@ const Page = () => {
         message: 'Login Successful'
       });
 
-      setTimeout(async () => {
-        const res = await fetch('/api/auth/session');
-        const session = await res.json();
-
-        window.location.href = session?.user?.role === 'admin' ? '/admin/products' : '/';
+      const user = (await result).role;
+      setTimeout(() => {
+        window.location.href = user === 'admin' ? '/admin/products' : '/';
       }, 1200);
     }
   };
@@ -94,6 +104,11 @@ const Page = () => {
           placement="topRight"
           onClose={() => setNotification(null)}
         />
+      )}
+      {loading && (
+        <div className="fixed inset-0 bg-white bg-opacity-70 z-50 flex items-center justify-center">
+          <LoadingSpinner />
+        </div>
       )}
       <div className="login-card">
         <p className="login-card-text">Login</p>

@@ -10,6 +10,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 import type { FormProps } from 'antd';
 
+import { useDispatch, useSelector } from 'react-redux';
+
 import AuthCard from '@/components/auth-card/auth-card-functionality';
 import LoadingSpinner from '@/components/loading/loading-spinner';
 import CustomNotification from '@/components/notifications/notifications-functionality';
@@ -17,6 +19,9 @@ import CustomNotification from '@/components/notifications/notifications-functio
 import { FieldConfig, FieldType } from '@/models';
 
 import './reset-password.css';
+
+import { resetPassword } from '@/redux/slices/user-slice';
+import { AppDispatch, RootState } from '@/redux/store';
 
 const resetFields: FieldConfig[] = [{
   name: 'password',
@@ -34,7 +39,7 @@ const resetFields: FieldConfig[] = [{
 
 function ResetPasswordPage() {
   const [isRendered, setIsRendered] = useState(false);
-  const [notif, setNotif] = useState<{
+  const [notification, setNotification] = useState<{
     type: 'success' | 'error';
     message: string;
     description?: string;
@@ -44,49 +49,51 @@ function ResetPasswordPage() {
   const router = useRouter();
   const token = searchParams.get('token');
 
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading } = useSelector((state: RootState) => state.user);
+
   const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
     try {
-      const res = await fetch('/api/auth/reset-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      if (
+        !token
+        || !values.password
+        || !values.confirmPassword
+      ) {
+        setNotification({
+          type: 'error',
+          message: 'Both fields are required'
+        });
+        return;
+      }
+      const message = await dispatch(
+        resetPassword({
           token,
           password: values.password,
           confirmPassword: values.confirmPassword
         })
-      });
+      ).unwrap();
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Password reset failed');
-      }
-
-      setNotif({
-        type: 'success',
-        message: 'Your password has been updated. You can now log in.'
-      });
+      setNotification({ type: 'success', message });
 
       setTimeout(() => {
-        setNotif(null);
+        setNotification(null);
         router.push('/login');
       }, 3000);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      setNotif({
+    } catch (err) {
+      setNotification({
         type: 'error',
-        message
+        message: typeof err === 'string' ? err : 'Password reset failed'
       });
-      setTimeout(() => setNotif(null), 3000);
+      setTimeout(() => setNotification(null), 3000);
     }
   };
 
   const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = () => {
-    setNotif({
+    setNotification({
       type: 'error',
       message: 'Password reset failed. Please check fields.'
     });
-    setTimeout(() => setNotif(null), 3000);
+    setTimeout(() => setNotification(null), 3000);
   };
 
   useEffect(() => {
@@ -97,14 +104,20 @@ function ResetPasswordPage() {
 
   return (
     <div className="cover">
-      {notif && (
+      {notification && (
         <CustomNotification
-          type={notif.type}
-          message={notif.message}
-          description={notif.description}
+          type={notification.type}
+          message={notification.message}
+          description={notification.description}
           placement="topRight"
-          onClose={() => setNotif(null)}
+          onClose={() => setNotification(null)}
         />
+      )}
+
+      {loading && (
+        <div className="fixed inset-0 bg-white bg-opacity-70 z-50 flex items-center justify-center">
+          <LoadingSpinner />
+        </div>
       )}
 
       <div className="forgot-card">

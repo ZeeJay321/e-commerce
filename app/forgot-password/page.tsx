@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 
 import type { FormProps } from 'antd';
 
+import { useDispatch, useSelector } from 'react-redux';
+
 import AuthCard from '@/components/auth-card/auth-card-functionality';
 import LoadingSpinner from '@/components/loading/loading-spinner';
 import CustomNotification from '@/components/notifications/notifications-functionality';
@@ -11,6 +13,9 @@ import CustomNotification from '@/components/notifications/notifications-functio
 import { FieldConfig, FieldType } from '@/models';
 
 import './forgot-password.css';
+
+import { forgotPassword } from '@/redux/slices/user-slice';
+import { AppDispatch, RootState } from '@/redux/store';
 
 const forgotFields: FieldConfig[] = [
   {
@@ -33,29 +38,29 @@ const Page = () => {
     description?: string;
   } | null>(null);
 
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading } = useSelector((state: RootState) => state.user);
+
   const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
     try {
-      const res = await fetch('/api/auth/forget-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: values.email })
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to send reset link');
+      if (!values.email
+      ) {
+        setNotification({
+          type: 'error',
+          message: 'Email is required'
+        });
+        return;
       }
+      const message = await dispatch(forgotPassword({ email: values.email })).unwrap();
 
       setNotification({
         type: 'success',
-        message: 'Reset Password Instructions have been sent to your email address.'
+        message
       });
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
+    } catch (err) {
       setNotification({
         type: 'error',
-        message
+        message: typeof err === 'string' ? err : 'Failed to send reset link'
       });
     } finally {
       setTimeout(() => setNotification(null), 3000);
@@ -91,6 +96,12 @@ const Page = () => {
           placement="topRight"
           onClose={() => setNotification(null)}
         />
+      )}
+
+      {loading && (
+        <div className="fixed inset-0 bg-white bg-opacity-70 z-50 flex items-center justify-center">
+          <LoadingSpinner />
+        </div>
       )}
 
       <div className="forgot-card">

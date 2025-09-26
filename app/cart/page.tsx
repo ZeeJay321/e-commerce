@@ -8,8 +8,11 @@ import Link from 'next/link';
 
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { useSession } from 'next-auth/react';
+
+import type { AppDispatch, RootState } from '@/redux/store';
 
 import LoadingSpinner from '@/components/loading/loading-spinner';
 import CustomNotification from '@/components/notifications/notifications-functionality';
@@ -19,10 +22,13 @@ import 'antd/dist/reset.css';
 import './cart.css';
 
 import { CartItem } from '@/models';
+import { placeOrder } from '@/redux/slices/orders-slice';
 
 const Page = () => {
   const router = useRouter();
   const { data: session } = useSession();
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading } = useSelector((state: RootState) => state.orders);
 
   const [isRendered, setIsRendered] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -64,33 +70,34 @@ const Page = () => {
   if (!isRendered) return <LoadingSpinner />;
 
   const handlePlaceOrder = async () => {
-    const { total } = totals;
+    if (!session?.user?.id) {
+      setNotification({
+        type: 'error',
+        message: 'You must be logged in to place an order'
+      });
+      return;
+    }
+
     try {
-      const res = await fetch('/api/orders/place-orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: session?.user.id,
+      dispatch(
+        placeOrder({
+          userId: session.user.id,
           items: cartItems.map((item) => ({
             productId: item.id,
             quantity: item.qty,
             price: item.price
           })),
-          amount: total
+          amount: totals.total
         })
-      });
+      ).unwrap();
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Order placement failed');
-      }
-
+      // Success UI
       setNotification({
         type: 'success',
         message: 'Awesome, Your order has been placed successfully!'
       });
 
+      // Reset cart
       localStorage.removeItem('cartData');
       setCartItems([]);
       setTotals({ subtotal: 0, tax: 0, total: 0 });
@@ -99,8 +106,8 @@ const Page = () => {
         setNotification(null);
         router.push('/orders');
       }, 2000);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
+    } catch (err) {
+      const message = typeof err === 'string' ? err : 'Order placement failed';
 
       setNotification({
         type: 'error',
@@ -121,6 +128,12 @@ const Page = () => {
           placement="topRight"
           onClose={() => setNotification(null)}
         />
+      )}
+
+      {loading && (
+        <div className="fixed inset-0 bg-white bg-opacity-70 z-50 flex items-center justify-center">
+          <LoadingSpinner />
+        </div>
       )}
 
       <div className="content-div">

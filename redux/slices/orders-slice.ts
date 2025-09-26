@@ -1,11 +1,8 @@
-import {
-  createAsyncThunk,
-  createSlice,
-  PayloadAction
-} from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { Order } from '@/models';
+import { Order, PlaceOrderInput } from '@/models';
 
+// === Types ===
 interface OrdersResponse {
   user?: string; // returned in user-specific API
   totalOrders: number;
@@ -28,11 +25,35 @@ const initialState: OrdersState = {
   error: null
 };
 
-// ✅ Fetch current user's orders
+export const placeOrder = createAsyncThunk<
+  Order, // return type
+  PlaceOrderInput, // argument type
+  { rejectValue: string }
+>('orders/placeOrder', async (orderData, { rejectWithValue }) => {
+  try {
+    const res = await fetch('/api/orders/place-orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderData),
+      credentials: 'include'
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      return rejectWithValue(data.error || 'Order placement failed');
+    }
+
+    return data as Order;
+  } catch (err) {
+    return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
+  }
+});
+
 export const fetchOrders = createAsyncThunk<
   OrdersResponse,
   { slice?: number; segment?: number }
->('orders/fetch', async ({ slice = 0, segment = 0 }) => {
+>('orders/fetchOrders', async ({ slice = 0, segment = 0 }) => {
   const res = await fetch(
     `/api/orders/get-all-orders?slice=${slice}&segment=${segment}`,
     { credentials: 'include' }
@@ -43,6 +64,7 @@ export const fetchOrders = createAsyncThunk<
   return res.json();
 });
 
+// === Slice ===
 const ordersSlice = createSlice({
   name: 'orders',
   initialState,
@@ -55,7 +77,7 @@ const ordersSlice = createSlice({
     }
   },
   extraReducers: (builder) => {
-    // 🔹 user orders
+    // 🔹 Fetch orders
     builder
       .addCase(fetchOrders.pending, (state) => {
         state.loading = true;
@@ -69,6 +91,22 @@ const ordersSlice = createSlice({
       .addCase(fetchOrders.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to load user orders';
+      });
+
+    builder
+      .addCase(placeOrder.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(placeOrder.fulfilled, (state, action: PayloadAction<Order>) => {
+        state.loading = false;
+        // push new order to list
+        state.items = [action.payload, ...state.items];
+        state.total += 1;
+      })
+      .addCase(placeOrder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to place order';
       });
   }
 });
