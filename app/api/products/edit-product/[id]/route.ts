@@ -44,6 +44,7 @@ export async function PUT(
 
     const expressRes: MulterLikeResponse = {};
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await runMiddleware(expressReq as any, expressRes as any, upload.single('image'));
 
     const { body, file } = expressReq;
