@@ -53,29 +53,31 @@ const Page = () => {
       return;
     }
 
-    const result = dispatch(
-      loginUser({
-        email: values.email,
-        password: values.password,
-        remember: values.remember ?? false
-      })
-    ).unwrap();
+    try {
+      const user = await dispatch(
+        loginUser({
+          email: values.email,
+          password: values.password,
+          remember: values.remember ?? false
+        })
+      ).unwrap(); // throws if rejected
 
-    if (loginUser.rejected.match(result)) {
-      setNotification({
-        type: 'error',
-        message: 'Wrong username or password, please enter correct credentials'
-      });
-    } else {
       setNotification({
         type: 'success',
         message: 'Login Successful'
       });
 
-      const user = (await result).role;
       setTimeout(() => {
-        window.location.href = user === 'admin' ? '/admin/products' : '/';
+        window.location.href = user.role === 'admin' ? '/admin/products' : '/';
       }, 1200);
+    } catch (err) {
+      setNotification({
+        type: 'error',
+        message:
+          err instanceof Error
+            ? err.message
+            : 'Wrong username or password, please enter correct credentials'
+      });
     }
   };
 
