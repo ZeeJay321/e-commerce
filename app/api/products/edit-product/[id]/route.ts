@@ -5,6 +5,8 @@ import { IncomingHttpHeaders } from 'http';
 
 import { NextRequest, NextResponse } from 'next/server';
 
+import type { Response } from 'express';
+
 import { PrismaClient } from '@/app/generated/prisma';
 import { runMiddleware, upload } from '@/lib/multer';
 
@@ -17,11 +19,6 @@ interface MulterLikeRequest extends Readable {
   body: Record<string, string>;
   file?: Express.Multer.File;
   files?: Express.Multer.File[];
-}
-
-interface MulterLikeResponse {
-  statusCode?: number;
-  end?: (chunk?: string | Buffer | Uint8Array) => void;
 }
 
 export async function PUT(
@@ -42,10 +39,17 @@ export async function PUT(
       body: { id }
     });
 
-    const expressRes: MulterLikeResponse = {};
+    const expressRes = {} as unknown as Response;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await runMiddleware(expressReq as any, expressRes as any, upload.single('image'));
+    await runMiddleware(
+      expressReq,
+      expressRes,
+      upload.single('image') as unknown as (
+        request: MulterLikeRequest,
+        response: Response,
+        cb: (err?: unknown) => void
+      ) => void
+    );
 
     const { body, file } = expressReq;
 

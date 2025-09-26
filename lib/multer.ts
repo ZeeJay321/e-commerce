@@ -1,13 +1,30 @@
 import fs from 'fs';
 import path from 'path';
 
+import { IncomingHttpHeaders } from 'http';
+
+import { Readable } from 'stream';
+
 import type { Request } from 'express';
 import multer from 'multer';
 
-// Extend Express Request so Multer can add `file` / `files`
 export interface MulterRequest extends Request {
   file?: Express.Multer.File;
   files?: Express.Multer.File[];
+}
+
+interface MulterLikeRequest extends Readable {
+  headers: IncomingHttpHeaders;
+  method: string;
+  url: string;
+  body: Record<string, string>;
+  file?: Express.Multer.File;
+  files?: Express.Multer.File[];
+}
+
+interface MulterLikeResponse {
+  statusCode?: number;
+  end?: (chunk?: string | Buffer | Uint8Array) => void;
 }
 
 // Configure Multer storage
@@ -39,12 +56,12 @@ const storage = multer.diskStorage({
 export const upload = multer({ storage });
 
 export function runMiddleware<
-  Req extends Request,
-  Res extends Response
+  Req extends MulterLikeRequest,
+  Res extends MulterLikeResponse
 >(
   outerReq: Req,
   outerRes: Res,
-  fn: (req: Req, res: Res, cb: (err?: unknown) => void) => void
+  fn: (request: Req, response: Res, cb: (err?: unknown) => void) => void
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     fn(outerReq, outerRes, (result?: unknown) => {
