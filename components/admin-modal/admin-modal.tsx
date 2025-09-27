@@ -30,6 +30,7 @@ type EditProductModalProps = {
     image: string;
     color: string;
     colorCode: string;
+    size: string;
   };
   showImage?: boolean;
   title?: string;
@@ -54,6 +55,7 @@ const EditProductModal = ({
   const [color, setColor] = useState(product?.color || '');
   const [colorCode, setColorCode] = useState(product?.colorCode || '');
   const [image, setImage] = useState(product?.image || '');
+  const [size, setSize] = useState(product?.size || '');
   const [file, setFile] = useState<File | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -70,23 +72,6 @@ const EditProductModal = ({
     }
   };
 
-  const handleUpdate = async (formData: FormData) => {
-    try {
-      const res = await fetch(`/api/products/edit-product/${product?.id}`, {
-        method: 'PUT',
-        body: formData
-      });
-
-      if (!res.ok) throw new Error('Failed to update product');
-      const data = await res.json();
-      console.log('✅ Updated product:', data);
-
-      onClose();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   // build form data once before action
   const buildFormData = () => {
     const formData = new FormData();
@@ -95,6 +80,7 @@ const EditProductModal = ({
     formData.append('quantity', quantity.toString());
     formData.append('color', color);
     formData.append('colorCode', colorCode);
+    formData.append('size', size);
     if (file) formData.append('image', file);
     return formData;
   };
@@ -289,6 +275,14 @@ const EditProductModal = ({
                     className="edit-field-sub-input"
                   />
                 </div>
+                <div className="flex-1">
+                  <label className="edit-field">Size</label>
+                  <Input
+                    value={size}
+                    onChange={(e) => setSize(e.target.value)}
+                    className="edit-field-sub-input"
+                  />
+                </div>
               </div>
 
               <Button
@@ -298,8 +292,6 @@ const EditProductModal = ({
                   const formData = buildFormData();
                   if (onAction) {
                     await onAction(formData);
-                  } else {
-                    await handleUpdate(formData);
                   }
                 }}
               >

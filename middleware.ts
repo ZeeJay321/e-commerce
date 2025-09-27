@@ -29,9 +29,6 @@ const AUTH_PATHS = [
 
 export async function middleware(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-  const sessionCookie = req.cookies.get('next-auth.session-token');
-  console.log('Session Cookie', { sessionCookie });
-  console.log('token in middle');
 
   const { pathname } = req.nextUrl;
 
@@ -42,8 +39,6 @@ export async function middleware(req: NextRequest) {
   }
 
   if (!token) {
-    console.log('Token Expired here');
-
     const response = NextResponse.next();
 
     if (USER_PUBLIC_PATHS.includes(pathname) || ADMIN_PUBLIC_PATHS.includes(pathname)) {

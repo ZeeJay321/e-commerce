@@ -122,16 +122,13 @@ export const authOptions: NextAuthOptions = {
         token.rememberMe = user.rememberMe;
         const maxAge = user.rememberMe ? 30 * 24 * 60 * 60 : 30 * 60;
         token.exp = Math.floor(Date.now() / 1000 + maxAge);
-        console.log('Token After Update', token);
       }
 
-      console.log({ token, user });
       return token;
     },
 
     async session({ session, token }) {
       if (token) {
-        console.log('in session', { token });
         session.user.id = token.id as string;
         session.user.role = token.role as string;
         session.user.rememberMe = token.rememberMe;

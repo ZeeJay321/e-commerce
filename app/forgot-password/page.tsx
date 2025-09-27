@@ -68,8 +68,6 @@ const Page = () => {
   };
 
   const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
-    console.log('Forgot Password Failed:', errorInfo);
-
     setNotification({
       type: 'error',
       message: 'Failed to send reset link'

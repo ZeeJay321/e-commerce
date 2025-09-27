@@ -36,7 +36,8 @@ export async function PUT(
       headers: Object.fromEntries(req.headers) as IncomingHttpHeaders,
       method: req.method ?? 'PUT',
       url: req.url,
-      body: { id }
+      body: {},
+      query: { id }
     });
 
     const expressRes = {} as unknown as Response;
@@ -59,9 +60,8 @@ export async function PUT(
     if (body.quantity) updateData.stock = parseInt(body.quantity, 10);
     if (body.color) updateData.color = body.color;
     if (body.colorCode) updateData.colorCode = body.colorCode;
+    if (body.size) updateData.size = body.size;
     if (file) updateData.img = `/home/images/${file.filename}`;
-
-    console.log(body);
 
     const updated = await prisma.product.update({
       where: { id },
@@ -70,7 +70,6 @@ export async function PUT(
 
     return NextResponse.json(updated);
   } catch (err) {
-    console.error('❌ Product update failed:', err);
     return NextResponse.json({ error: (err as Error).message }, { status: 500 });
   }
 }

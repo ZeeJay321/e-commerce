@@ -4,8 +4,13 @@ import { useEffect, useState } from 'react';
 
 import { Button } from 'antd';
 
+import { useDispatch } from 'react-redux';
+
+import { addProduct } from '@/redux/slices/products-slice';
+import { AppDispatch } from '@/redux/store';
+
 import AdminDetailTable from '@/components/admin-details-table/admin-detail-table-functionality';
-import EditProductModal from '@/components/admin-modal/admin-modal'; // ✅ import your modal
+import EditProductModal from '@/components/admin-modal/admin-modal';
 import LoadingSpinner from '@/components/loading/loading-spinner';
 import 'antd/dist/reset.css';
 import './home.css';
@@ -13,7 +18,13 @@ import './home.css';
 const Page = () => {
   const [isRendered, setIsRendered] = useState(false);
   const [addProductOpen, setAddProductOpen] = useState(false);
-  const [addMultipleOpen, setAddMultipleOpen] = useState(false); // 👈 new state
+  const [addMultipleOpen, setAddMultipleOpen] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+
+  const handleAddProduct = async (formData: FormData) => {
+    await dispatch(addProduct(formData));
+    setAddProductOpen(false);
+  };
 
   useEffect(() => {
     setIsRendered(true);
@@ -55,7 +66,7 @@ const Page = () => {
         <EditProductModal
           open={addProductOpen}
           onClose={() => setAddProductOpen(false)}
-          mode="edit" // single product edit mode
+          mode="edit"
           product={{
             id: '',
             name: '',
@@ -63,11 +74,14 @@ const Page = () => {
             quantity: 0,
             image: '',
             color: '',
-            colorCode: ''
+            colorCode: '',
+            size: ''
           }}
           showImage={false}
           title="Add a New Product"
           actionLabel="Save"
+          onAction={handleAddProduct}
+
         />
       )}
 

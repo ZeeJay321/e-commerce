@@ -14,7 +14,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Product } from '@/models';
 import {
   clearProducts,
-  fetchProducts
+  deleteProduct,
+  fetchProducts,
+  updateProduct
 } from '@/redux/slices/products-slice';
 import { AppDispatch, RootState } from '@/redux/store';
 
@@ -40,28 +42,14 @@ const AdminDetailTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
 
-  const deleteProduct = async (deleteId: string | null) => {
+  const handleDeleteProduct = (deleteId: string | null) => {
     if (!deleteId) return;
-
-    try {
-      const res = await fetch(`/api/products/delete-product/${deleteId}`, {
-        method: 'DELETE'
-      });
-
-      const data = await res.json();
-      console.log(data);
-
-      setIsDeleteModalOpen(false);
-      setDeleteKey(null);
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : String(err);
-      console.log(errorMsg);
-    }
+    dispatch(deleteProduct(deleteId));
   };
 
   const confirmDelete = () => {
     if (deleteKey !== null) {
-      deleteProduct(deleteKey);
+      handleDeleteProduct(deleteKey);
     }
     setReload((prev) => !prev);
     setIsDeleteModalOpen(false);
@@ -165,8 +153,6 @@ const AdminDetailTable = () => {
         onCancel={cancelDelete}
         onConfirm={confirmDelete}
       />
-
-      {/* Edit Product Modal */}
       {editProduct && (
         <EditProductModal
           open={!!editProduct}
@@ -178,10 +164,16 @@ const AdminDetailTable = () => {
             quantity: editProduct.stock,
             image: editProduct.img,
             color: editProduct.color,
-            colorCode: editProduct.colorCode
+            colorCode: editProduct.colorCode,
+            size: editProduct.size
           }}
           showImage
           title="Edit a Single Product"
+          actionLabel="Update"
+          onAction={async (formData) => {
+            await dispatch(updateProduct({ id: editProduct.id, formData }));
+            setEditProduct(null); // close modal after success
+          }}
         />
       )}
     </div>

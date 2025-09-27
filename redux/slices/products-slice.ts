@@ -74,6 +74,77 @@ export const fetchNextProducts = createAsyncThunk<
   }
 );
 
+export const deleteProduct = createAsyncThunk<
+  string,
+  string,
+  { rejectValue: string }
+>('products/deleteProduct', async (productId, { rejectWithValue }) => {
+  try {
+    const res = await fetch(`/api/products/delete-product/${productId}`, {
+      method: 'DELETE',
+      credentials: 'include'
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      return rejectWithValue(data.error || 'Failed to delete product');
+    }
+
+    return productId;
+  } catch (err) {
+    return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
+  }
+});
+
+export const updateProduct = createAsyncThunk<
+  Product, // return type
+  { id: string; formData: FormData }, // arg type
+  { rejectValue: string }
+>('products/updateProduct', async ({ id, formData }, { rejectWithValue }) => {
+  try {
+    const res = await fetch(`/api/products/edit-product/${id}`, {
+      method: 'PUT',
+      body: formData,
+      credentials: 'include'
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      return rejectWithValue(data.error || 'Failed to update product');
+    }
+
+    return data as Product;
+  } catch (err) {
+    return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
+  }
+});
+
+export const addProduct = createAsyncThunk<
+  Product,
+  FormData,
+  { rejectValue: string }
+>('products/addProduct', async (formData, { rejectWithValue }) => {
+  try {
+    const res = await fetch('/api/products/add-product', {
+      method: 'POST',
+      body: formData,
+      credentials: 'include'
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      return rejectWithValue(data.error || 'Failed to add product');
+    }
+
+    return data as Product;
+  } catch (err) {
+    return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
+  }
+});
+
 const productsSlice = createSlice({
   name: 'products',
   initialState,
@@ -88,7 +159,6 @@ const productsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // === fetchProducts (old)
       .addCase(fetchProducts.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -107,7 +177,6 @@ const productsSlice = createSlice({
         state.error = action.error.message || 'Something went wrong';
       })
 
-      // === fetchNextProducts (old)
       .addCase(fetchNextProducts.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -124,6 +193,50 @@ const productsSlice = createSlice({
       .addCase(fetchNextProducts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Something went wrong';
+      });
+
+    builder
+      .addCase(deleteProduct.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteProduct.fulfilled, (state, action: PayloadAction<string>) => {
+        state.loading = false;
+        state.items = state.items.filter((p) => p.id !== action.payload); // remove from state
+        state.total -= 1;
+      })
+      .addCase(deleteProduct.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to delete product';
+      });
+
+    builder
+      .addCase(updateProduct.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateProduct.fulfilled, (state, action: PayloadAction<Product>) => {
+        state.loading = false;
+        state.items = state.items.map((p) => (p.id === action.payload.id ? action.payload : p));
+      })
+      .addCase(updateProduct.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to update product';
+      });
+
+    builder
+      .addCase(addProduct.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addProduct.fulfilled, (state, action: PayloadAction<Product>) => {
+        state.loading = false;
+        state.items = [action.payload, ...state.items]; // add new product to top of list
+        state.total += 1;
+      })
+      .addCase(addProduct.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to add product';
       });
   }
 });

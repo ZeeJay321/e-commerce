@@ -22,13 +22,11 @@ const Page = () => {
 
   useEffect(() => {
     setIsRendered(true);
-  }, []);
+  }, [search]);
 
   if (!isRendered) {
     return <LoadingSpinner />;
   }
-
-  console.log(search);
 
   return (
     <div className="cover">
