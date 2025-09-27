@@ -52,7 +52,7 @@ const signupFields: FieldConfig[] = [{
     required: true, message: 'Password is required'
   }, {
     pattern:
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])[A-Za-z\d\S]{8,}$/,
     message:
       'Password must be at least 8 characters, include uppercase, lowercase, number, and special character'
   }],
