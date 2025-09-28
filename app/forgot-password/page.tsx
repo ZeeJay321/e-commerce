@@ -70,7 +70,7 @@ const Page = () => {
   const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
     setNotification({
       type: 'error',
-      message: 'Failed to send reset link'
+      message: `Failed to send reset link ${errorInfo}`
     });
 
     setTimeout(() => setNotification(null), 3000);

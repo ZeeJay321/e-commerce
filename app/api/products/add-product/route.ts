@@ -34,6 +34,8 @@ export async function POST(req: NextRequest) {
       }
     });
 
+    console.log(created);
+
     return NextResponse.json(created);
   } catch (err) {
     return NextResponse.json(
