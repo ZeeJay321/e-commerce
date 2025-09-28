@@ -52,12 +52,16 @@ export const placeOrder = createAsyncThunk<
 
 export const fetchOrders = createAsyncThunk<
   OrdersResponse,
-  { slice?: number; segment?: number }
->('orders/fetchOrders', async ({ slice = 0, segment = 0 }) => {
-  const res = await fetch(
-    `/api/orders/get-all-orders?slice=${slice}&segment=${segment}`,
-    { credentials: 'include' }
-  );
+  { slice?: number; segment?: number; query?: string }
+>('orders/fetchOrders', async ({ slice = 0, segment = 0, query = '' }) => {
+  const params = new URLSearchParams();
+  params.set('slice', String(slice));
+  params.set('segment', String(segment));
+  if (query) params.set('query', query);
+
+  const res = await fetch(`/api/orders/get-orders?${params.toString()}`, {
+    credentials: 'include'
+  });
 
   if (!res.ok) throw new Error('Failed to fetch user orders');
 

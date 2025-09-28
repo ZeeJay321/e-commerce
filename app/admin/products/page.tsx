@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react';
 
 import { Button } from 'antd';
 
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { addProduct } from '@/redux/slices/products-slice';
-import { AppDispatch } from '@/redux/store';
+import { AppDispatch, RootState } from '@/redux/store';
 
 import AdminDetailTable from '@/components/admin-details-table/admin-detail-table-functionality';
 import EditProductModal from '@/components/admin-modal/admin-modal';
@@ -20,6 +20,7 @@ const Page = () => {
   const [addProductOpen, setAddProductOpen] = useState(false);
   const [addMultipleOpen, setAddMultipleOpen] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
+  const { loading } = useSelector((state: RootState) => state.products);
 
   const handleAddProduct = async (formData: FormData) => {
     await dispatch(addProduct(formData));
@@ -36,6 +37,11 @@ const Page = () => {
 
   return (
     <div className="cover">
+      {loading && (
+        <div className="fixed inset-0 bg-white bg-opacity-70 z-50 flex items-center justify-center">
+          <LoadingSpinner />
+        </div>
+      )}
       <div className="content-div">
         <span className="content-paragraph">Our Products</span>
         <div className="content-features w-full">

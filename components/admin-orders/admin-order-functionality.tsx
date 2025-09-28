@@ -27,7 +27,11 @@ import './admin-order.css';
 
 type AdminOrderRow = OrderRow & { user: string };
 
-const AdminOrdersTable = () => {
+interface AdminOrdersTableProps {
+  search: string;
+}
+
+const AdminOrdersTable = ({ search }: AdminOrdersTableProps) => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
 
@@ -44,9 +48,14 @@ const AdminOrdersTable = () => {
   useEffect(() => {
     dispatch(fetchOrders({
       slice: pageSize,
-      segment: current
+      segment: current,
+      query: search
     }));
-  }, [dispatch, current]);
+  }, [dispatch, current, search]);
+
+  useEffect(() => {
+    setCurrent(1);
+  }, [search]);
 
   const mappedOrders: AdminOrderRow[] = useMemo(
     () => orders.map((order, idx) => ({
@@ -61,60 +70,67 @@ const AdminOrdersTable = () => {
     [orders]
   );
 
-  const columns: TableColumnsType<AdminOrderRow> = [{
-    title: <span className="table-span-head">Date</span>,
-    dataIndex: 'date',
-    key: 'date',
-    render: (text: string) => <span className="table-span">{text}</span>
-  }, {
-    title: <span className="table-span-head">Order #</span>,
-    dataIndex: 'orderNumber',
-    key: 'orderNumber',
-    render: (_: string, record) => (
-      <div className="flex flex-col">
-        <span className="table-span">{record.orderNumber}</span>
-      </div>
-    )
-  }, {
-    title: <span className="table-span-head">User</span>,
-    dataIndex: 'orderNumber',
-    key: 'orderNumber',
-    render: (_: string, record) => (
-      <div className="flex flex-col">
-        <span className="table-span">{record.user}</span>
-      </div>
-    )
-  }, {
-    title: <span className="table-span-head">Product(s)</span>,
-    dataIndex: 'products',
-    key: 'products',
-    render: (products: { productId: number; quantity: number; price: number }[]) => (
-      <span className="table-span">
-        {products.length}
-        {' '}
-        item(s)
-      </span>
-    )
-  }, {
-    title: <span className="table-span-head">Amount</span>,
-    dataIndex: 'amount',
-    key: 'amount',
-    render: (amount: number) => (
-      <span className="table-span">
-        $
-        {amount.toFixed(2)}
-      </span>
-    )
-  }, {
-    title: <span className="table-span-head">Actions</span>,
-    key: 'actions',
-    render: (_, record) => (
-      <ArrowsAltOutlined
-        className="cursor-pointer hover:text-blue-600 py-4 pl-3"
-        onClick={() => router.push(`/admin/order-details/${record.orderNumber}`)}
-      />
-    )
-  }];
+  const columns: TableColumnsType<AdminOrderRow> = [
+    {
+      title: <span className="table-span-head">Date</span>,
+      dataIndex: 'date',
+      key: 'date',
+      render: (text: string) => <span className="table-span">{text}</span>
+    },
+    {
+      title: <span className="table-span-head">Order #</span>,
+      dataIndex: 'orderNumber',
+      key: 'orderNumber',
+      render: (_: string, record) => (
+        <div className="flex flex-col">
+          <span className="table-span">{record.orderNumber}</span>
+        </div>
+      )
+    },
+    {
+      title: <span className="table-span-head">User</span>,
+      dataIndex: 'orderNumber',
+      key: 'orderNumber',
+      render: (_: string, record) => (
+        <div className="flex flex-col">
+          <span className="table-span">{record.user}</span>
+        </div>
+      )
+    },
+    {
+      title: <span className="table-span-head">Product(s)</span>,
+      dataIndex: 'products',
+      key: 'products',
+      render: (products: { productId: number; quantity: number; price: number }[]) => (
+        <span className="table-span">
+          {products.length}
+          {' '}
+          item(s)
+        </span>
+      )
+    },
+    {
+      title: <span className="table-span-head">Amount</span>,
+      dataIndex: 'amount',
+      key: 'amount',
+      render: (amount: number) => (
+        <span className="table-span">
+          $
+          {amount.toFixed(2)}
+        </span>
+      )
+    },
+    {
+      title: <span className="table-span-head">Actions</span>,
+      key: 'actions',
+      render: (_, record) => (
+        <ArrowsAltOutlined
+          className="cursor-pointer hover:text-blue-600 py-4 pl-3"
+          onClick={() => router.push(`/admin/order-details/${record.orderNumber}`)}
+        />
+      )
+    }
+  ];
 
   return (
     <div className="orders-items-div">

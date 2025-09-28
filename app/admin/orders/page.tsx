@@ -65,7 +65,7 @@ const Page = () => {
           <SearchBar onSearch={setSearch} />
         </div>
       </div>
-      <AdminOrdersTable />
+      <AdminOrdersTable search={search} />
     </div>
   );
 };

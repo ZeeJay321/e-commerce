@@ -18,7 +18,8 @@ const schema = Joi.object({
     .messages({
       'number.base': 'segment must be a number',
       'number.min': 'segment must be at least 0'
-    })
+    }),
+  query: Joi.string().optional().allow('', null)
 });
 
 export async function GET(req: Request) {
@@ -32,7 +33,8 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const params = {
       slice: searchParams.get('slice'),
-      segment: searchParams.get('segment')
+      segment: searchParams.get('segment'),
+      query: searchParams.get('query')
     };
 
     const { error, value } = schema.validate(params, {
@@ -47,46 +49,68 @@ export async function GET(req: Request) {
       );
     }
 
-    const { slice, segment } = value;
+    const { slice, segment, query } = value as {
+      slice: number;
+      segment: number;
+      query?: string | null;
+    };
 
-    const whereCondition = session.user.role === 'admin' ? {} : { userId: session.user.id };
+    // Base condition (role restriction)
+    const baseCondition = session.user.role === 'admin'
+      ? {}
+      : { userId: session.user.id };
 
-    const totalOrders = await prisma.order.count({
-      where: whereCondition
-    });
+    let whereCondition: Record<string, unknown> = { ...baseCondition };
 
-    let orders;
-    if (slice === 0 || segment === 0) {
-      orders = await prisma.order.findMany({
-        where: whereCondition,
-        include: {
-          user: { select: { fullname: true } },
-          products: {
-            include: { product: true }
+    // Apply search filter
+    if (query && query.trim() !== '') {
+      const conditions: object[] = [];
+
+      // Add orderNumber condition if numeric
+      if (/^\d+$/.test(query)) {
+        conditions.push({ orderNumber: Number(query) });
+      }
+
+      // Always add fullname condition
+      conditions.push({
+        user: {
+          fullname: {
+            contains: query,
+            mode: 'insensitive'
           }
-        },
-        orderBy: { createdAt: 'desc' }
+        }
       });
-    } else {
-      orders = await prisma.order.findMany({
-        where: whereCondition,
-        include: {
-          user: { select: { fullname: true } },
-          products: {
-            include: { product: true }
+
+      whereCondition = {
+        AND: [
+          baseCondition,
+          {
+            OR: conditions
           }
-        },
-        orderBy: { createdAt: 'desc' },
-        skip: (segment - 1) * slice,
-        take: slice
-      });
+        ]
+      };
     }
+
+    const totalOrders = await prisma.order.count({ where: whereCondition });
+
+    const orders = await prisma.order.findMany({
+      where: whereCondition,
+      include: {
+        user: { select: { fullname: true } },
+        products: { include: { product: true } }
+      },
+      orderBy: { createdAt: 'desc' },
+      ...(slice && segment
+        ? { skip: (segment - 1) * slice, take: slice }
+        : {})
+    });
 
     return NextResponse.json(
       {
         totalOrders,
         slice,
         segment,
+        query,
         orders: orders.map((order) => ({
           ...order,
           user: order.user.fullname
