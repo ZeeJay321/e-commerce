@@ -12,7 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import DetailTable from '@/components/detail-table/detail-table-functionality';
 import LoadingSpinner from '@/components/loading/loading-spinner';
 
-import { fetchOrderDetail } from '@/redux/slices/detail-slice';
+import { fetchOrderDetail } from '@/redux/slices/orders-slice';
 import { AppDispatch, RootState } from '@/redux/store';
 
 import 'antd/dist/reset.css';
@@ -27,7 +27,7 @@ const Page = () => {
     orderInfo,
     loading,
     error
-  } = useSelector((state: RootState) => state.orderDetail);
+  } = useSelector((state: RootState) => state.orders);
 
   useEffect(() => {
     if (id) {
@@ -38,15 +38,15 @@ const Page = () => {
   if (loading) return <LoadingSpinner />;
   if (error) return <div className="text-red-500 p-4">{error}</div>;
 
-  const totalAmount = products.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const netTotalAmount = totalAmount + totalAmount * 0.1;
+  let totalAmount = products.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  totalAmount += totalAmount * 0.1;
 
   return (
     <div className="cover">
       <div className="content-div">
         <div className="page-section">
-          <a href="/orders" className="content-paragraph">
-            <span className="text-nav-text hover:text-blue-700 transition-colors">
+          <a href="/admin/orders" className="content-paragraph">
+            <span className="!text-nav-text hover:text-blue-700 transition-colors">
               <ArrowLeftOutlined />
             </span>
             {' '}
@@ -80,7 +80,7 @@ const Page = () => {
               <span className="order-info-label">Amount</span>
               <span className="order-info-value">
                 $
-                {netTotalAmount.toFixed(2)}
+                {totalAmount.toFixed(2)}
               </span>
             </div>
           </div>

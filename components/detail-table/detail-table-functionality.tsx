@@ -18,7 +18,7 @@ const DetailTable = () => {
     products,
     loading,
     error
-  } = useSelector((state: RootState) => state.orderDetail);
+  } = useSelector((state: RootState) => state.orders);
 
   const columns: TableColumnsType<ProductItem> = [{
     title: <span className="table-span-head">Title</span>,
