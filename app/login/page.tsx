@@ -35,6 +35,8 @@ const loginFields: FieldConfig[] = [{
 
 const Page = () => {
   const [isRendered, setIsRendered] = useState(false);
+  const [isNextPage, setIsNextPage] = useState(false);
+
   const [notification, setNotification] = useState<{
     type: 'success' | 'error';
     message: string;
@@ -66,6 +68,8 @@ const Page = () => {
         type: 'success',
         message: 'Login Successful'
       });
+
+      setIsNextPage(true);
 
       setTimeout(() => {
         window.location.href = user.role === 'admin' ? '/admin/products' : '/';
@@ -107,7 +111,7 @@ const Page = () => {
           onClose={() => setNotification(null)}
         />
       )}
-      {loading && (
+      {(loading || isNextPage) && (
         <div className="fixed inset-0 bg-white bg-opacity-70 z-50 flex items-center justify-center">
           <LoadingSpinner />
         </div>

@@ -40,7 +40,7 @@ const signupFields: FieldConfig[] = [{
     required: true, message: 'Please enter your mobile number'
 
   }, {
-    pattern: /^\+?[1-9]\d{1,14}$/,
+    pattern: /^\+?[1-9]\d{9,14}$/,
     message: 'Enter a valid mobile number (e.g. +923001234567)'
   }],
   inputType: 'text'
@@ -61,6 +61,7 @@ const signupFields: FieldConfig[] = [{
 
 const Page = () => {
   const [isRendered, setIsRendered] = useState(false);
+  const [isNextPage, setIsNextPage] = useState(false);
   const [notification, setNotification] = useState<{
     type: 'success' | 'error';
     message: string;
@@ -107,6 +108,8 @@ const Page = () => {
         message: `Welcome, ${(await user).name || 'User'}! Your account has been created.`
       });
 
+      setIsNextPage(true);
+
       setTimeout(() => {
         setNotification(null);
         router.push('/login');
@@ -140,7 +143,7 @@ const Page = () => {
         />
       )}
 
-      {loading && (
+      {(loading || isNextPage) && (
         <div className="fixed inset-0 bg-white bg-opacity-70 z-50 flex items-center justify-center">
           <LoadingSpinner />
         </div>

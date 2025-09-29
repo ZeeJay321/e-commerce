@@ -33,6 +33,8 @@ const Page = () => {
   const [isRendered, setIsRendered] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [totals, setTotals] = useState({ subtotal: 0, tax: 0, total: 0 });
+  const [isLoadPage, setIsLoadPage] = useState(false);
+
   const [notification, setNotification] = useState<{
     type: 'success' | 'error';
     message: string;
@@ -97,6 +99,8 @@ const Page = () => {
         message: 'Awesome, Your order has been placed successfully!'
       });
 
+      setIsLoadPage(true);
+
       // Reset cart
       localStorage.removeItem('cartData');
       setCartItems([]);
@@ -130,7 +134,7 @@ const Page = () => {
         />
       )}
 
-      {loading && (
+      {(loading || isLoadPage) && (
         <div className="fixed inset-0 bg-white bg-opacity-70 z-50 flex items-center justify-center">
           <LoadingSpinner />
         </div>

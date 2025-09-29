@@ -30,7 +30,7 @@ const resetFields: FieldConfig[] = [{
   rules: [{
     required: true, message: 'Please enter your new password'
   }, {
-    pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+    pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])[A-Za-z\d\S]{8,}$/,
     message:
       'Password must be at least 8 characters, include uppercase, lowercase, number, and special character'
   }],
@@ -39,6 +39,7 @@ const resetFields: FieldConfig[] = [{
 
 function ResetPasswordPage() {
   const [isRendered, setIsRendered] = useState(false);
+  const [isNextPage, setIsNextPage] = useState(false);
   const [notification, setNotification] = useState<{
     type: 'success' | 'error';
     message: string;
@@ -74,6 +75,8 @@ function ResetPasswordPage() {
       ).unwrap();
 
       setNotification({ type: 'success', message });
+
+      setIsNextPage(true);
 
       setTimeout(() => {
         setNotification(null);
@@ -114,7 +117,7 @@ function ResetPasswordPage() {
         />
       )}
 
-      {loading && (
+      {(loading || isNextPage) && (
         <div className="fixed inset-0 bg-white bg-opacity-70 z-50 flex items-center justify-center">
           <LoadingSpinner />
         </div>
