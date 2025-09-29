@@ -44,10 +44,18 @@ const ProductCard = ({ product }: { product: Product }) => {
     const cart: CartItem[] = existingCart ? JSON.parse(existingCart) : [];
 
     const index = cart.findIndex((item) => item.id === product.id);
-
     if (index >= 0) {
       const newQty = cart[index].qty + quantity;
-      cart[index].qty = Math.min(newQty, product.stock);
+
+      if (newQty > product.stock) {
+        setNotification({
+          type: 'error',
+          message: `You cannot add more of this item: ${product.title}`
+        });
+        setTimeout(() => setNotification(null), 3000);
+        return;
+      }
+      cart[index].qty = newQty;
     } else {
       const newItem: CartItem = {
         img: product.img,

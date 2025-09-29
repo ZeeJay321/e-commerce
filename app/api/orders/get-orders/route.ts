@@ -49,29 +49,29 @@ export async function GET(req: Request) {
       );
     }
 
-    const { limit, skip, query } = value as {
+    const {
+      limit,
+      skip,
+      query
+    } = value as {
       limit: number;
       skip: number;
       query?: string | null;
     };
 
-    // Base condition (role restriction)
     const baseCondition = session.user.role === 'admin'
       ? {}
       : { userId: session.user.id };
 
     let whereCondition: Record<string, unknown> = { ...baseCondition };
 
-    // Apply search filter
     if (query && query.trim() !== '') {
       const conditions: object[] = [];
 
-      // Add orderNumber condition if numeric
       if (/^\d+$/.test(query)) {
         conditions.push({ orderNumber: Number(query) });
       }
 
-      // Always add fullname condition
       conditions.push({
         user: {
           fullname: {
@@ -91,9 +91,7 @@ export async function GET(req: Request) {
       };
     }
 
-    const totalOrders = await prisma.order.count({
-      where: baseCondition
-    });
+    const totalOrders = await prisma.order.count({ where: baseCondition });
 
     const amountAgg = await prisma.order.aggregate({
       _sum: { amount: true },
@@ -103,9 +101,7 @@ export async function GET(req: Request) {
 
     const productsAgg = await prisma.orderItem.aggregate({
       _sum: { quantity: true },
-      where: {
-        order: baseCondition
-      }
+      where: { order: baseCondition }
     });
     const totalProducts = productsAgg._sum.quantity || 0;
 
@@ -113,12 +109,10 @@ export async function GET(req: Request) {
       where: whereCondition,
       include: {
         user: { select: { fullname: true } },
-        products: { include: { product: true } }
+        _count: { select: { products: true } }
       },
       orderBy: { createdAt: 'desc' },
-      ...(limit && skip
-        ? { skip: (skip - 1) * limit, take: limit }
-        : {})
+      ...(limit && skip ? { skip: (skip - 1) * limit, take: limit } : {})
     });
 
     return NextResponse.json(
@@ -131,7 +125,8 @@ export async function GET(req: Request) {
         query,
         orders: orders.map((order) => ({
           ...order,
-          user: order.user.fullname
+          user: order.user.fullname,
+          productsCount: order._count.products
         }))
       },
       { status: 200 }

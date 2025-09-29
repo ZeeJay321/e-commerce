@@ -30,7 +30,6 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // ✅ validate order number only (userId check depends on role)
     const { error, value } = paramsSchema.validate({
       id: Number(resolvedParams.id)
     });
@@ -51,7 +50,10 @@ export async function GET(
 
     const order = await prisma.order.findFirst({
       where: whereCondition,
-      include: { products: { include: { product: true } } }
+      include: {
+        products: { include: { product: true } },
+        user: { select: { fullname: true } }
+      }
     });
 
     if (!order) {

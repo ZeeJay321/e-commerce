@@ -25,7 +25,7 @@ import { AppDispatch, RootState } from '@/redux/store';
 import { OrderRow } from '@/models';
 import './admin-order.css';
 
-type AdminOrderRow = OrderRow & { user: string };
+type AdminOrderRow = OrderRow & { user: string; productsCount: number };
 
 interface AdminOrdersTableProps {
   search: string;
@@ -63,7 +63,7 @@ const AdminOrdersTable = ({ search }: AdminOrdersTableProps) => {
       id: order.id,
       orderNumber: order.orderNumber,
       user: order.user ?? 'Unknown',
-      products: order.products,
+      productsCount: order.productsCount || 0,
       date: order.date,
       amount: order.amount
     })),
@@ -89,21 +89,21 @@ const AdminOrdersTable = ({ search }: AdminOrdersTableProps) => {
     },
     {
       title: <span className="table-span-head">User</span>,
-      dataIndex: 'orderNumber',
-      key: 'orderNumber',
-      render: (_: string, record) => (
+      dataIndex: 'user',
+      key: 'user',
+      render: (text: string) => (
         <div className="flex flex-col">
-          <span className="table-span">{record.user}</span>
+          <span className="table-span">{text}</span>
         </div>
       )
     },
     {
       title: <span className="table-span-head">Product(s)</span>,
-      dataIndex: 'products',
-      key: 'products',
-      render: (products: { productId: number; quantity: number; price: number }[]) => (
+      dataIndex: 'productsCount',
+      key: 'productsCount',
+      render: (count: number) => (
         <span className="table-span">
-          {products.length}
+          {count}
           {' '}
           item(s)
         </span>
@@ -142,7 +142,7 @@ const AdminOrdersTable = ({ search }: AdminOrdersTableProps) => {
       {error && <Alert type="error" message={error} showIcon className="mb-4" />}
       {!loading && !error && (
         <>
-          <Table<OrderRow & { user: string }>
+          <Table<AdminOrderRow>
             columns={columns}
             dataSource={mappedOrders}
             pagination={false}

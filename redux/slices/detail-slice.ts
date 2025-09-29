@@ -38,6 +38,7 @@ export const fetchOrderDetail = createAsyncThunk<
   const order: {
     id: string;
     userId: string;
+    user: { fullname: string };
     amount: number;
     date: string;
     createdAt: string;
@@ -62,6 +63,7 @@ export const fetchOrderDetail = createAsyncThunk<
   const orderInfo: OrderInfo = {
     id: order.id,
     userId: order.userId,
+    fullname: order.user.fullname,
     amount: order.amount,
     date: order.date,
     createdAt: order.createdAt,

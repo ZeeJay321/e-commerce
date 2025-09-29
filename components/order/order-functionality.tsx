@@ -51,7 +51,7 @@ const OrdersTable = () => {
       key: idx + 1,
       id: order.id,
       orderNumber: order.orderNumber,
-      products: order.products,
+      productsCount: order.productsCount || 0, // ✅ use productsCount
       date: order.date,
       amount: order.amount
     })),
@@ -73,11 +73,11 @@ const OrdersTable = () => {
     },
     {
       title: <span className="table-span-head">Product(s)</span>,
-      dataIndex: 'products',
-      key: 'products',
-      render: (products: { productId: number; quantity: number; price: number }[]) => (
+      dataIndex: 'productsCount',
+      key: 'productsCount',
+      render: (count: number) => (
         <span className="table-span">
-          {products.length}
+          {count}
           {' '}
           item(s)
         </span>

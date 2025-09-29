@@ -67,6 +67,11 @@ const Page = () => {
             </div>
 
             <div className="order-info-block">
+              <span className="order-info-label">User</span>
+              <span className="order-info-value">{orderInfo?.fullname}</span>
+            </div>
+
+            <div className="order-info-block">
               <span className="order-info-label">Products</span>
               <span className="order-info-value">{products.length}</span>
             </div>

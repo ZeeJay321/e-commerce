@@ -15,8 +15,10 @@ export interface ProductItem {
 export interface OrderInfo {
   id: string;
   userId: string;
+  fullname: string;
   amount: number;
   date: string;
   createdAt: string;
   updatedAt: string;
 }
+

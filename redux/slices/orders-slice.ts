@@ -6,7 +6,6 @@ import {
 
 import { Order, PlaceOrderInput } from '@/models';
 
-// === Types ===
 interface OrdersResponse {
   user?: string;
   totalOrders?: number;
@@ -127,10 +126,7 @@ const ordersSlice = createSlice({
         state.items = [order, ...state.items];
         state.total += 1;
         state.totalAmount += order.amount;
-        state.totalProducts += order.products.reduce(
-          (sum, product) => sum + product.quantity,
-          0
-        );
+        state.totalProducts += order.productsCount || 0;
       })
       .addCase(placeOrder.rejected, (state, action) => {
         state.loading = false;

@@ -2,7 +2,7 @@ export interface OrderRow {
   key: number;
   id: string;
   orderNumber: number;
-  products: { productId: string; quantity: number }[];
+  productsCount: number;
   date: string;
   amount: number;
 }
