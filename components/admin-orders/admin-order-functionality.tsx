@@ -47,8 +47,8 @@ const AdminOrdersTable = ({ search }: AdminOrdersTableProps) => {
 
   useEffect(() => {
     dispatch(fetchOrders({
-      slice: pageSize,
-      segment: current,
+      limit: pageSize,
+      skip: current,
       query: search
     }));
   }, [dispatch, current, search]);

@@ -9,15 +9,15 @@ import { authOptions } from '@/lib/auth';
 const prisma = new PrismaClient();
 
 const schema = Joi.object({
-  slice: Joi.number().integer().min(0).default(0)
+  limit: Joi.number().integer().min(0).default(0)
     .messages({
-      'number.base': 'slice must be a number',
-      'number.min': 'slice must be at least 0'
+      'number.base': 'limit must be a number',
+      'number.min': 'limit must be at least 0'
     }),
-  segment: Joi.number().integer().min(0).default(0)
+  skip: Joi.number().integer().min(0).default(0)
     .messages({
-      'number.base': 'segment must be a number',
-      'number.min': 'segment must be at least 0'
+      'number.base': 'skip must be a number',
+      'number.min': 'skip must be at least 0'
     }),
   query: Joi.string().optional().allow('', null)
 });
@@ -32,8 +32,8 @@ export async function GET(req: Request) {
 
     const { searchParams } = new URL(req.url);
     const params = {
-      slice: searchParams.get('slice'),
-      segment: searchParams.get('segment'),
+      limit: searchParams.get('limit'),
+      skip: searchParams.get('skip'),
       query: searchParams.get('query')
     };
 
@@ -49,9 +49,9 @@ export async function GET(req: Request) {
       );
     }
 
-    const { slice, segment, query } = value as {
-      slice: number;
-      segment: number;
+    const { limit, skip, query } = value as {
+      limit: number;
+      skip: number;
       query?: string | null;
     };
 
@@ -100,16 +100,16 @@ export async function GET(req: Request) {
         products: { include: { product: true } }
       },
       orderBy: { createdAt: 'desc' },
-      ...(slice && segment
-        ? { skip: (segment - 1) * slice, take: slice }
+      ...(limit && skip
+        ? { skip: (skip - 1) * limit, take: limit }
         : {})
     });
 
     return NextResponse.json(
       {
         totalOrders,
-        slice,
-        segment,
+        limit,
+        skip,
         query,
         orders: orders.map((order) => ({
           ...order,

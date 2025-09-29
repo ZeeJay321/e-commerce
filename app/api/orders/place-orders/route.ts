@@ -54,6 +54,7 @@ export async function POST(req: Request) {
     const body = await req.json();
 
     const { error, value } = schema.validate(body, { abortEarly: false, convert: true });
+
     if (error) {
       return NextResponse.json({ error: error.details.map((d) => d.message) }, { status: 400 });
     }
@@ -81,8 +82,8 @@ export async function POST(req: Request) {
       };
     });
 
-    const total = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const netTotal = total + total * 0.1; // 10% tax/fee
+    let total = orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    total += (total * 0.1); // 10% tax/fee
 
     const order = await prisma.$transaction(async (tx) => {
       await Promise.all(
@@ -101,7 +102,7 @@ export async function POST(req: Request) {
       return tx.order.create({
         data: {
           userId,
-          amount: netTotal,
+          amount: total,
           date: moment().format('DD MMMM YYYY'),
           products: { create: orderItems },
           metadata: {}

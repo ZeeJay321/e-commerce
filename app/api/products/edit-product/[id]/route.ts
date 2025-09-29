@@ -7,6 +7,8 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import type { Response } from 'express';
 
+import Joi from 'joi';
+
 import { PrismaClient } from '@/app/generated/prisma';
 import { runMiddleware, upload } from '@/lib/multer';
 
@@ -20,6 +22,15 @@ interface MulterLikeRequest extends Readable {
   file?: Express.Multer.File;
   files?: Express.Multer.File[];
 }
+
+const updateSchema = Joi.object({
+  name: Joi.string().min(2).max(100),
+  price: Joi.number().positive(),
+  quantity: Joi.number().integer().min(1),
+  color: Joi.string(),
+  colorCode: Joi.string().pattern(/^#([0-9A-Fa-f]{6})$/),
+  size: Joi.string()
+}).min(1);
 
 export async function PUT(
   req: NextRequest,
@@ -54,13 +65,22 @@ export async function PUT(
 
     const { body, file } = expressReq;
 
+    const { error, value } = updateSchema.validate(body, { abortEarly: false });
+
+    if (error) {
+      return NextResponse.json(
+        { error: error.details.map((d) => d.message) },
+        { status: 400 }
+      );
+    }
+
     const updateData: Record<string, unknown> = {};
-    if (body.name) updateData.title = body.name;
-    if (body.price) updateData.price = parseFloat(body.price);
-    if (body.quantity) updateData.stock = parseInt(body.quantity, 10);
-    if (body.color) updateData.color = body.color;
-    if (body.colorCode) updateData.colorCode = body.colorCode;
-    if (body.size) updateData.size = body.size;
+    if (value.name) updateData.title = value.name;
+    if (value.price) updateData.price = value.price;
+    if (value.quantity) updateData.stock = value.quantity;
+    if (value.color) updateData.color = value.color;
+    if (value.colorCode) updateData.colorCode = value.colorCode;
+    if (value.size) updateData.size = value.size;
     if (file) updateData.img = `/home/images/${file.filename}`;
 
     const updated = await prisma.product.update({

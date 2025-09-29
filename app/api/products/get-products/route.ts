@@ -7,17 +7,25 @@ import { Prisma, PrismaClient } from '@/app/generated/prisma';
 const prisma = new PrismaClient();
 
 const schema = Joi.object({
-  segment: Joi.number().integer().min(0).optional(),
-  slice: Joi.number().integer().min(0).optional(),
+  skip: Joi.number()
+    .integer()
+    .min(1)
+    .optional()
+    .messages({
+      'number.base': 'skip must be a number',
+      'number.min': 'skip must be at least 1'
+    }),
+  limit: Joi.number()
+    .integer()
+    .min(1)
+    .optional()
+    .messages({
+      'number.base': 'limit must be a number',
+      'number.min': 'limit must be at least 1'
+    }),
   query: Joi.string().allow('').optional(),
   sortOption: Joi.string()
-    .valid(
-      'priceLowHigh',
-      'priceHighLow',
-      'nameAZ',
-      'nameZA',
-      null
-    )
+    .valid('priceLowHigh', 'priceHighLow', 'nameAZ', 'nameZA')
     .optional()
 });
 
@@ -26,30 +34,29 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
 
     const params = {
-      segment: searchParams.get('segment') ? Number(searchParams.get('segment')) : 0,
-      slice: searchParams.get('slice') ? Number(searchParams.get('slice')) : 0,
+      skip: searchParams.get('skip')
+        ? Number(searchParams.get('skip'))
+        : undefined,
+      limit: searchParams.get('limit')
+        ? Number(searchParams.get('limit'))
+        : undefined,
       query: searchParams.get('query') || '',
-      sortOption: searchParams.get('sortOption')
+      sortOption: searchParams.get('sortOption') || undefined
     };
 
     const { error, value } = schema.validate(params, { abortEarly: false });
     if (error) {
-      return NextResponse.json({
-        error: error.details.map((d) => d.message)
-      }, {
-        status: 400
-      });
+      return NextResponse.json(
+        { error: error.details.map((d) => d.message) },
+        { status: 400 }
+      );
     }
 
     const {
-      segment,
-      slice,
-      query,
-      sortOption
+      skip, limit, query, sortOption
     } = value;
 
-    const skip = segment && slice ? (segment - 1) * slice : undefined;
-    const take = slice || undefined;
+    const take = limit || undefined;
 
     let where: Prisma.ProductWhereInput | undefined;
     if (query) {
@@ -84,20 +91,10 @@ export async function GET(req: Request) {
 
     const total = await prisma.product.count({ where });
 
-    return NextResponse.json(
-      {
-        products,
-        total
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({ products, total }, { status: 200 });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
 
-    return NextResponse.json({
-      error: message
-    }, {
-      status: 500
-    });
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -25,19 +25,19 @@ const initialState: ProductsState = {
 export const fetchProducts = createAsyncThunk<
   { products: Product[]; total: number },
   {
-    segment?: number;
-    slice?: number;
+    skip?: number;
+    limit?: number;
     query?: string;
     sortOption?: string | null;
   }
 >(
   'products/fetchProducts',
   async ({
-    segment, slice, query, sortOption
+    skip, limit, query, sortOption
   }) => {
     const params = new URLSearchParams();
-    if (segment) params.append('segment', segment.toString());
-    if (slice) params.append('slice', slice.toString());
+    if (skip) params.append('skip', skip.toString());
+    if (limit) params.append('limit', limit.toString());
     if (query) params.append('query', query);
     if (sortOption) params.append('sortOption', sortOption);
 
@@ -51,19 +51,19 @@ export const fetchProducts = createAsyncThunk<
 export const fetchNextProducts = createAsyncThunk<
   { products: Product[]; total: number },
   {
-    segment: number;
-    slice: number;
+    skip: number;
+    limit: number;
     query?: string;
     sortOption?: string | null;
   }
 >(
   'products/fetchNextProducts',
   async ({
-    segment, slice, query, sortOption
+    skip, limit, query, sortOption
   }) => {
     const params = new URLSearchParams();
-    params.append('segment', segment.toString());
-    params.append('slice', slice.toString());
+    params.append('skip', skip.toString());
+    params.append('limit', limit.toString());
     if (query) params.append('query', query);
     if (sortOption) params.append('sortOption', sortOption);
 

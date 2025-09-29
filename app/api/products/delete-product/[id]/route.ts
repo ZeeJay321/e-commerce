@@ -8,8 +8,14 @@ import { authOptions } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
-const schema = Joi.object({
-  id: Joi.string().guid({ version: ['uuidv4', 'uuidv5'] }).required()
+const deleteSchema = Joi.object({
+  id: Joi.string()
+    .guid({ version: ['uuidv4', 'uuidv5'] })
+    .required()
+    .messages({
+      'string.guid': 'Invalid product ID format',
+      'any.required': 'Product ID is required'
+    })
 });
 
 export async function DELETE(
@@ -29,7 +35,7 @@ export async function DELETE(
 
     const { id } = resolvedParams;
 
-    const { error } = schema.validate({ id });
+    const { error, value } = deleteSchema.validate({ id });
     if (error) {
       return NextResponse.json(
         { error: error.details.map((d) => d.message) },
@@ -39,11 +45,11 @@ export async function DELETE(
 
     await prisma.$transaction(async (tx) => {
       await tx.orderItem.deleteMany({
-        where: { productId: id }
+        where: { productId: value.id }
       });
 
       await tx.product.delete({
-        where: { id }
+        where: { id: value.id }
       });
     });
 

@@ -4,11 +4,11 @@ import { Order, PlaceOrderInput } from '@/models';
 
 // === Types ===
 interface OrdersResponse {
-  user?: string; // returned in user-specific API
+  user?: string;
   totalOrders: number;
   orders: Order[];
-  slice?: number;
-  segment?: number;
+  limit?: number;
+  skip?: number;
 }
 
 interface OrdersState {
@@ -52,11 +52,15 @@ export const placeOrder = createAsyncThunk<
 
 export const fetchOrders = createAsyncThunk<
   OrdersResponse,
-  { slice?: number; segment?: number; query?: string }
->('orders/fetchOrders', async ({ slice = 0, segment = 0, query = '' }) => {
+  {
+    limit?: number;
+    skip?: number;
+    query?: string
+  }
+>('orders/fetchOrders', async ({ limit = 0, skip = 0, query = '' }) => {
   const params = new URLSearchParams();
-  params.set('slice', String(slice));
-  params.set('segment', String(segment));
+  params.set('limit', String(limit));
+  params.set('skip', String(skip));
   if (query) params.set('query', query);
 
   const res = await fetch(`/api/orders/get-orders?${params.toString()}`, {

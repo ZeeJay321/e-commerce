@@ -65,8 +65,8 @@ const AdminDetailTable = () => {
     dispatch(clearProducts());
     dispatch(
       fetchProducts({
-        segment: currentPage,
-        slice: pageSize,
+        skip: currentPage,
+        limit: pageSize,
         query: '',
         sortOption: null
       })

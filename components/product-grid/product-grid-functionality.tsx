@@ -33,15 +33,15 @@ const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
     error
   } = useSelector((state: RootState) => state.products);
 
-  const slice = 8;
-  const [segment, setSegment] = useState(1);
+  const limit = 8;
+  const [skip, setSkip] = useState(1);
 
   useEffect(() => {
     dispatch(clearProducts());
-    setSegment(1);
+    setSkip(1);
     dispatch(fetchNextProducts({
-      segment: 1,
-      slice,
+      skip: 1,
+      limit,
       query: search,
       sortOption
     }));
@@ -65,12 +65,12 @@ const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
         && hasMore
         && products.length !== total
       ) {
-        const nextSegment = segment + 1;
-        setSegment(nextSegment);
+        const nextSkip = skip + 1;
+        setSkip(nextSkip);
         dispatch(
           fetchNextProducts({
-            segment: nextSegment,
-            slice,
+            skip: nextSkip,
+            limit,
             query: search,
             sortOption
           })
@@ -87,7 +87,7 @@ const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
     dispatch,
     loading,
     hasMore,
-    segment,
+    skip,
     search,
     products.length,
     total,

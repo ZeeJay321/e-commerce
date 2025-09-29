@@ -41,8 +41,8 @@ const OrdersTable = () => {
 
   useEffect(() => {
     dispatch(fetchOrders({
-      slice: pageSize,
-      segment: current
+      limit: pageSize,
+      skip: current
     }));
   }, [dispatch, current]);
 
