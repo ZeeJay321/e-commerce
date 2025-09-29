@@ -41,7 +41,7 @@
 
 /* content */
 .content-paragraph {
-  @apply text-[24px] text-title-style font-display pb-8 md:pt-6 hover:text-gray-500;
+  @apply text-[24px] text-title-style font-display !pb-8 md:pt-6 hover:text-gray-500;
 }
 
 .content-features {

@@ -91,7 +91,23 @@ export async function GET(req: Request) {
       };
     }
 
-    const totalOrders = await prisma.order.count({ where: whereCondition });
+    const totalOrders = await prisma.order.count({
+      where: baseCondition
+    });
+
+    const amountAgg = await prisma.order.aggregate({
+      _sum: { amount: true },
+      where: baseCondition
+    });
+    const totalAmount = amountAgg._sum.amount || 0;
+
+    const productsAgg = await prisma.orderItem.aggregate({
+      _sum: { quantity: true },
+      where: {
+        order: baseCondition
+      }
+    });
+    const totalProducts = productsAgg._sum.quantity || 0;
 
     const orders = await prisma.order.findMany({
       where: whereCondition,
@@ -108,6 +124,8 @@ export async function GET(req: Request) {
     return NextResponse.json(
       {
         totalOrders,
+        totalAmount,
+        totalProducts,
         limit,
         skip,
         query,

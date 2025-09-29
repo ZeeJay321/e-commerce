@@ -83,6 +83,8 @@ export async function PUT(
     if (value.size) updateData.size = value.size;
     if (file) updateData.img = `/home/images/${file.filename}`;
 
+    updateData.status = true;
+
     const updated = await prisma.product.update({
       where: { id },
       data: updateData

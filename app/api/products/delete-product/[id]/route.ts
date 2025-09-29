@@ -8,7 +8,7 @@ import { authOptions } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
-const deleteSchema = Joi.object({
+const disableSchema = Joi.object({
   id: Joi.string()
     .guid({ version: ['uuidv4', 'uuidv5'] })
     .required()
@@ -18,7 +18,7 @@ const deleteSchema = Joi.object({
     })
 });
 
-export async function DELETE(
+export async function PUT(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -35,7 +35,7 @@ export async function DELETE(
 
     const { id } = resolvedParams;
 
-    const { error, value } = deleteSchema.validate({ id });
+    const { error, value } = disableSchema.validate({ id });
     if (error) {
       return NextResponse.json(
         { error: error.details.map((d) => d.message) },
@@ -43,17 +43,15 @@ export async function DELETE(
       );
     }
 
-    await prisma.$transaction(async (tx) => {
-      await tx.orderItem.deleteMany({
-        where: { productId: value.id }
-      });
+    const updatedProduct = await prisma.$transaction(async (tx) => tx.product.update({
+      where: { id: value.id },
+      data: { status: false }
+    }));
 
-      await tx.product.delete({
-        where: { id: value.id }
-      });
-    });
-
-    return NextResponse.json({ success: true }, { status: 200 });
+    return NextResponse.json(
+      { success: true, product: updatedProduct },
+      { status: 200 }
+    );
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: message }, { status: 500 });

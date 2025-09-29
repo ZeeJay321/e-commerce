@@ -81,7 +81,7 @@ export const deleteProduct = createAsyncThunk<
 >('products/deleteProduct', async (productId, { rejectWithValue }) => {
   try {
     const res = await fetch(`/api/products/delete-product/${productId}`, {
-      method: 'DELETE',
+      method: 'PUT',
       credentials: 'include'
     });
 

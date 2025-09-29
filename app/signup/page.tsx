@@ -21,7 +21,13 @@ const signupFields: FieldConfig[] = [{
   name: 'fullname',
   label: 'Full Name',
   placeholder: 'Full Name',
-  rules: [{ required: true, message: 'Please enter your full name' }],
+  rules: [
+    { required: true, message: 'Please enter your full name' },
+    {
+      pattern: /^[A-Z][a-z]+(?: [A-Z][a-z]+)*$/,
+      message: 'Full name must start with capital letters and contain only letters'
+    }
+  ],
   inputType: 'text'
 }, {
   name: 'email',

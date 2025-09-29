@@ -53,14 +53,21 @@ export async function GET(req: Request) {
     }
 
     const {
-      skip, limit, query, sortOption
+      skip,
+      limit,
+      query,
+      sortOption
     } = value;
 
     const take = limit || undefined;
 
-    let where: Prisma.ProductWhereInput | undefined;
+    let where: Prisma.ProductWhereInput = { status: true };
+
     if (query) {
-      where = { title: { contains: query, mode: 'insensitive' } };
+      where = {
+        ...where,
+        title: { contains: query, mode: 'insensitive' }
+      };
     }
 
     let orderBy: Prisma.ProductOrderByWithRelationInput;
@@ -78,7 +85,7 @@ export async function GET(req: Request) {
         orderBy = { title: 'desc' };
         break;
       default:
-        orderBy = { id: 'asc' };
+        orderBy = { createdAt: 'desc' };
         break;
     }
 

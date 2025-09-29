@@ -1,11 +1,17 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import {
+  createAsyncThunk,
+  createSlice,
+  PayloadAction
+} from '@reduxjs/toolkit';
 
 import { Order, PlaceOrderInput } from '@/models';
 
 // === Types ===
 interface OrdersResponse {
   user?: string;
-  totalOrders: number;
+  totalOrders?: number;
+  totalAmount?: number;
+  totalProducts?: number;
   orders: Order[];
   limit?: number;
   skip?: number;
@@ -14,6 +20,8 @@ interface OrdersResponse {
 interface OrdersState {
   items: Order[];
   total: number;
+  totalAmount: number;
+  totalProducts: number;
   loading: boolean;
   error: string | null;
 }
@@ -21,13 +29,15 @@ interface OrdersState {
 const initialState: OrdersState = {
   items: [],
   total: 0,
+  totalAmount: 0,
+  totalProducts: 0,
   loading: false,
   error: null
 };
 
 export const placeOrder = createAsyncThunk<
-  Order, // return type
-  PlaceOrderInput, // argument type
+  Order,
+  PlaceOrderInput,
   { rejectValue: string }
 >('orders/placeOrder', async (orderData, { rejectWithValue }) => {
   try {
@@ -55,7 +65,7 @@ export const fetchOrders = createAsyncThunk<
   {
     limit?: number;
     skip?: number;
-    query?: string
+    query?: string;
   }
 >('orders/fetchOrders', async ({ limit = 0, skip = 0, query = '' }) => {
   const params = new URLSearchParams();
@@ -72,7 +82,6 @@ export const fetchOrders = createAsyncThunk<
   return res.json();
 });
 
-// === Slice ===
 const ordersSlice = createSlice({
   name: 'orders',
   initialState,
@@ -80,20 +89,25 @@ const ordersSlice = createSlice({
     clearOrders: (state) => {
       state.items = [];
       state.total = 0;
+      state.totalAmount = 0;
+      state.totalProducts = 0;
       state.error = null;
       state.loading = false;
     }
   },
   extraReducers: (builder) => {
-    // 🔹 Fetch orders
     builder
       .addCase(fetchOrders.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchOrders.fulfilled, (state, action: PayloadAction<OrdersResponse>) => {
-        state.items = action.payload.orders;
-        state.total = action.payload.totalOrders;
+        const { orders } = action.payload;
+
+        state.items = orders;
+        state.total = action.payload.totalOrders || 0;
+        state.totalAmount = action.payload.totalAmount || 0;
+        state.totalProducts = action.payload.totalProducts || 0;
         state.loading = false;
       })
       .addCase(fetchOrders.rejected, (state, action) => {
@@ -107,10 +121,16 @@ const ordersSlice = createSlice({
         state.error = null;
       })
       .addCase(placeOrder.fulfilled, (state, action: PayloadAction<Order>) => {
+        const order = action.payload;
+
         state.loading = false;
-        // push new order to list
-        state.items = [action.payload, ...state.items];
+        state.items = [order, ...state.items];
         state.total += 1;
+        state.totalAmount += order.amount;
+        state.totalProducts += order.products.reduce(
+          (sum, product) => sum + product.quantity,
+          0
+        );
       })
       .addCase(placeOrder.rejected, (state, action) => {
         state.loading = false;

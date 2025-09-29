@@ -46,7 +46,6 @@ const ProductCard = ({ product }: { product: Product }) => {
     const index = cart.findIndex((item) => item.id === product.id);
 
     if (index >= 0) {
-      // prevent exceeding stock
       const newQty = cart[index].qty + quantity;
       cart[index].qty = Math.min(newQty, product.stock);
     } else {
