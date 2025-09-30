@@ -63,8 +63,6 @@ export async function GET(req: Request) {
     const take = limit || 10;
     const offset = (page - 1) * take;
 
-    console.log(take);
-
     let where: Prisma.ProductWhereInput = { status: true };
 
     if (query) {
