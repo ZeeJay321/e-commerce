@@ -88,12 +88,12 @@ export async function POST(req: Request) {
     const order = await prisma.$transaction(async (tx) => {
       await Promise.all(
         orderItems.map((item) => tx.product
-          .updateMany({
+          .update({
             where: { id: item.productId, stock: { gte: item.quantity } },
             data: { stock: { decrement: item.quantity } }
           })
           .then((result) => {
-            if (result.count === 0) {
+            if (!result) {
               throw new Error(`Stock not sufficient for product ${item.productId}`);
             }
           }))
@@ -103,7 +103,7 @@ export async function POST(req: Request) {
         data: {
           userId,
           amount: total,
-          date: moment().format('DD MMMM YYYY'),
+          date: moment().toDate().toString(),
           products: { create: orderItems },
           metadata: {}
         },

@@ -60,10 +60,6 @@ const Page = () => {
       });
 
       setIsNextPage(true);
-
-      setTimeout(() => {
-        window.location.href = '/login';
-      }, 1200);
     } catch (err) {
       setNotification({
         type: 'error',
