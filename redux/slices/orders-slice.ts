@@ -13,6 +13,7 @@ interface OrdersResponse {
   totalOrders?: number;
   totalAmount?: number;
   totalProducts?: number;
+  totalPagination?: number;
   orders: Order[];
   limit?: number;
   skip?: number;
@@ -23,6 +24,7 @@ interface OrdersState {
   total: number;
   totalAmount: number;
   totalProducts: number;
+  totalPagination: number;
 
   orderInfo: OrderInfo | null;
   products: ProductItem[];
@@ -37,6 +39,7 @@ const initialState: OrdersState = {
   total: 0,
   totalAmount: 0,
   totalProducts: 0,
+  totalPagination: 0,
   orderInfo: null,
   products: [],
   loading: false,
@@ -155,6 +158,7 @@ const ordersSlice = createSlice({
         state.total = action.payload.totalOrders || 0;
         state.totalAmount = action.payload.totalAmount || 0;
         state.totalProducts = action.payload.totalProducts || 0;
+        state.totalPagination = action.payload.totalPagination || 0;
         state.loading = false;
         state.loadTable = true;
       })

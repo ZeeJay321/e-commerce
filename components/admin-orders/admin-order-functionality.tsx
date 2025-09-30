@@ -37,7 +37,7 @@ const AdminOrdersTable = ({ search }: AdminOrdersTableProps) => {
 
   const {
     items: orders,
-    total,
+    totalPagination,
     loading,
     error
   } = useSelector((state: RootState) => state.orders);
@@ -153,7 +153,7 @@ const AdminOrdersTable = ({ search }: AdminOrdersTableProps) => {
               <Pagination
                 current={current}
                 pageSize={pageSize}
-                total={total}
+                total={totalPagination}
                 onChange={(page) => setCurrent(page)}
               />
             </div>
