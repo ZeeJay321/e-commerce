@@ -37,6 +37,8 @@ const OrdersTable = () => {
   } = useSelector((state: RootState) => state.orders);
 
   const [current, setCurrent] = useState(1);
+  const [isRendered, setIsRendered] = useState(false);
+
   const pageSize = 8;
 
   useEffect(() => {
@@ -44,6 +46,7 @@ const OrdersTable = () => {
       limit: pageSize,
       skip: current
     }));
+    setIsRendered(true);
   }, [dispatch, current]);
 
   const mappedOrders: OrderRow[] = useMemo(
@@ -51,7 +54,7 @@ const OrdersTable = () => {
       key: idx + 1,
       id: order.id,
       orderNumber: order.orderNumber,
-      productsCount: order.productsCount || 0, // ✅ use productsCount
+      productsCount: order.productsCount || 0,
       date: order.date,
       amount: order.amount
     })),
@@ -108,7 +111,7 @@ const OrdersTable = () => {
 
   return (
     <div className="orders-items-div">
-      {loading && (
+      {(loading || !isRendered) && (
         <div className="flex justify-center py-10">
           <Spin size="large" />
         </div>

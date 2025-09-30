@@ -59,7 +59,11 @@ export async function GET(req: Request) {
       sortOption
     } = value;
 
-    const take = limit || undefined;
+    const page = skip || 1;
+    const take = limit || 10;
+    const offset = (page - 1) * take;
+
+    console.log(take);
 
     let where: Prisma.ProductWhereInput = { status: true };
 
@@ -90,7 +94,7 @@ export async function GET(req: Request) {
     }
 
     const products = await prisma.product.findMany({
-      skip,
+      skip: offset,
       take,
       where,
       orderBy
