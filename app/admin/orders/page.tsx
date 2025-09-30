@@ -64,7 +64,7 @@ const Page = () => {
             <span className='box-first-span'>Total Amount:</span>
             <span className='box-second-span'>
               $
-              {totalAmount}
+              {totalAmount.toFixed(2)}
             </span>
           </p>
           <div className="icon-div">

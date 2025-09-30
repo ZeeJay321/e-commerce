@@ -28,6 +28,7 @@ interface OrdersState {
   products: ProductItem[];
 
   loading: boolean;
+  loadTable: boolean;
   error: string | null;
 }
 
@@ -39,6 +40,7 @@ const initialState: OrdersState = {
   orderInfo: null,
   products: [],
   loading: false,
+  loadTable: true,
   error: null
 };
 
@@ -154,6 +156,7 @@ const ordersSlice = createSlice({
         state.totalAmount = action.payload.totalAmount || 0;
         state.totalProducts = action.payload.totalProducts || 0;
         state.loading = false;
+        state.loadTable = true;
       })
       .addCase(fetchOrders.rejected, (state, action) => {
         state.loading = false;
@@ -167,11 +170,11 @@ const ordersSlice = createSlice({
       })
       .addCase(placeOrder.fulfilled, (state, action: PayloadAction<Order>) => {
         const order = action.payload;
-        state.items = [order, ...state.items];
         state.total += 1;
         state.totalAmount += order.amount;
         state.totalProducts += order.productsCount || 0;
         state.loading = false;
+        state.loadTable = false;
       })
       .addCase(placeOrder.rejected, (state, action) => {
         state.loading = false;

@@ -33,6 +33,7 @@ const OrdersTable = () => {
     items: orders,
     total,
     loading,
+    loadTable,
     error
   } = useSelector((state: RootState) => state.orders);
 
@@ -111,13 +112,13 @@ const OrdersTable = () => {
 
   return (
     <div className="orders-items-div">
-      {(loading || !isRendered) && (
+      {(loading || !loadTable || !isRendered) && (
         <div className="flex justify-center py-10">
           <Spin size="large" />
         </div>
       )}
       {error && <Alert type="error" message={error} showIcon className="mb-4" />}
-      {!loading && !error && (
+      {!loading && !error && loadTable && (
         <>
           <Table<OrderRow>
             columns={columns}
