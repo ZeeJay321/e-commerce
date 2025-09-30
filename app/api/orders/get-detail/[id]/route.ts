@@ -8,6 +8,7 @@ import { authOptions } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
+// JOI Schema
 const paramsSchema = Joi.object({
   id: Joi.number().integer().positive().required()
     .messages({
