@@ -81,7 +81,7 @@ const Page = () => {
     }
 
     try {
-      dispatch(
+      await dispatch(
         placeOrder({
           userId: session.user.id,
           items: cartItems.map((item) => ({
