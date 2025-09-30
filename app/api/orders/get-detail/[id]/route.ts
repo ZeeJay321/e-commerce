@@ -21,10 +21,10 @@ const paramsSchema = Joi.object({
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const resolvedParams = await params;
+    const resolvedParams = params;
 
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {

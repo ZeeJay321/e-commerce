@@ -20,7 +20,7 @@ const disableSchema = Joi.object({
 
 export async function PUT(
   req: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     const resolvedParams = await params;
