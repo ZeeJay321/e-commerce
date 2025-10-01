@@ -1,34 +1,22 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { DeleteOutlined } from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
-import {
-  Button, Checkbox,
-  Table
-} from 'antd';
-
-import './table.css';
+import { Button, Checkbox, Table } from 'antd';
 
 import { CartItem } from '@/models';
+import './table.css';
 
 import ConfirmDeleteModal from '../delete-modal/delete-modal';
 
-const CartTable = () => {
-  const [cartData, setCartData] = useState<CartItem[]>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('cartData');
-      if (saved) return JSON.parse(saved);
-    }
-    return [];
-  });
+interface CartTableProps {
+  cartItems: CartItem[];
+  setCartItems: React.Dispatch<React.SetStateAction<CartItem[]>>;
+}
 
-  useEffect(() => {
-    localStorage.setItem('cartData', JSON.stringify(cartData));
-    window.dispatchEvent(new Event('cartUpdated')); // 🔔 notify listeners
-  }, [cartData]);
-
+const CartTable = ({ cartItems, setCartItems }: CartTableProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteKey, setDeleteKey] = useState<string | null>(null);
 
@@ -37,25 +25,24 @@ const CartTable = () => {
 
   const toggleSelect = (key: string) => {
     setSelectedKeys((prev) => (prev.includes(key)
-      ? prev.filter((k) => k !== key)
-      : [...prev, key]));
+      ? prev.filter((k) => k !== key) : [...prev, key]));
   };
 
   const toggleSelectAll = () => {
-    if (selectedKeys.length === cartData.length) {
+    if (selectedKeys.length === cartItems.length) {
       setSelectedKeys([]);
     } else {
-      setSelectedKeys(cartData.map((item) => item.id));
+      setSelectedKeys(cartItems.map((item) => item.id));
     }
   };
 
   const handleRemove = (key: string) => {
-    setCartData((prev) => prev.filter((item) => item.id !== key));
+    setCartItems((prev) => prev.filter((item) => item.id !== key));
     setSelectedKeys((prev) => prev.filter((k) => k !== key));
   };
 
   const handleBulkRemove = () => {
-    setCartData((prev) => prev.filter((item) => !selectedKeys.includes(item.id)));
+    setCartItems((prev) => prev.filter((item) => !selectedKeys.includes(item.id)));
     setSelectedKeys([]);
     setIsBulkDeleteOpen(false);
   };
@@ -74,11 +61,10 @@ const CartTable = () => {
   };
 
   const updateQty = (key: string, type: 'increase' | 'decrease') => {
-    setCartData((prev) => prev.map((item) => {
+    setCartItems((prev) => prev.map((item) => {
       if (item.id !== key) return item;
 
       if (type === 'increase') {
-        // stop at stock
         if (item.qty < item.stock) {
           return { ...item, qty: item.qty + 1 };
         }
@@ -86,7 +72,6 @@ const CartTable = () => {
       }
 
       if (type === 'decrease') {
-        // stop at 1
         return { ...item, qty: item.qty > 1 ? item.qty - 1 : 1 };
       }
 
@@ -101,9 +86,9 @@ const CartTable = () => {
       title: (
         <div className="flex pl-3 item-center text-center gap-0.5">
           <Checkbox
-            checked={selectedKeys.length === cartData.length && cartData.length > 0}
+            checked={selectedKeys.length === cartItems.length && cartItems.length > 0}
             indeterminate={
-              selectedKeys.length > 0 && selectedKeys.length < cartData.length
+              selectedKeys.length > 0 && selectedKeys.length < cartItems.length
             }
             onChange={toggleSelectAll}
           />
@@ -215,13 +200,12 @@ const CartTable = () => {
 
       <Table<CartItem>
         columns={columns}
-        dataSource={cartData}
+        dataSource={cartItems}
         pagination={false}
         bordered
         scroll={{ x: 'max-content' }}
       />
 
-      {/* Confirm Single Delete Modal */}
       <ConfirmDeleteModal
         open={isModalOpen}
         title="Remove Product"
@@ -230,7 +214,6 @@ const CartTable = () => {
         onConfirm={confirmDelete}
       />
 
-      {/* Confirm Bulk Delete Modal */}
       <ConfirmDeleteModal
         open={isBulkDeleteOpen}
         title="Remove Selected Products"

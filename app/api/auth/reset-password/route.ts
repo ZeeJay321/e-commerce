@@ -10,7 +10,7 @@ const prisma = new PrismaClient();
 const schema = Joi.object({
   token: Joi.string().required(),
   password: Joi.string()
-    .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/)
+    .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?=.{8,})/)
     .required()
     .messages({
       'string.pattern.base':

@@ -24,7 +24,7 @@ const schema = Joi.object({
       'string.empty': 'Phone number is required'
     }),
   password: Joi.string()
-    .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/)
+    .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?=.{8,})/)
     .required()
     .messages({
       'string.pattern.base':

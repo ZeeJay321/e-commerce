@@ -9,3 +9,8 @@ export interface CartItem {
   stock: number;
   price: number;
 }
+
+export type OutOfStockItem = {
+  productId: string;
+  availableStock: number;
+};

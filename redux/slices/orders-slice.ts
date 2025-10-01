@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+import { updateCartOnError } from '@/helper/cart-updater';
 import {
   Order,
   OrderInfo,
@@ -28,10 +29,16 @@ interface OrdersState {
 
   orderInfo: OrderInfo | null;
   products: ProductItem[];
+  cartItems: ProductItem[];
 
   loading: boolean;
   loadTable: boolean;
   error: string | null;
+}
+
+interface OrderErrorPayload {
+  error: string;
+  outOfStock?: { productId: string; availableStock: number }[];
 }
 
 const initialState: OrdersState = {
@@ -41,13 +48,18 @@ const initialState: OrdersState = {
   totalProducts: 0,
   totalPagination: 0,
   orderInfo: null,
+  cartItems: [],
   products: [],
   loading: false,
   loadTable: true,
   error: null
 };
 
-export const placeOrder = createAsyncThunk<Order, PlaceOrderInput, { rejectValue: string }>(
+export const placeOrder = createAsyncThunk<
+  Order,
+  PlaceOrderInput,
+  { rejectValue: OrderErrorPayload }
+>(
   'orders/placeOrder',
   async (orderData, { rejectWithValue }) => {
     try {
@@ -58,12 +70,14 @@ export const placeOrder = createAsyncThunk<Order, PlaceOrderInput, { rejectValue
         credentials: 'include'
       });
 
-      const data = await res.json();
-      if (!res.ok) return rejectWithValue(data.error || 'Order placement failed');
+      if (!res.ok) {
+        const errorData = await res.json();
+        return rejectWithValue(errorData as OrderErrorPayload);
+      }
 
-      return data as Order;
+      return (await res.json()) as Order;
     } catch (err) {
-      return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
+      return rejectWithValue({ error: err as string });
     }
   }
 );
@@ -181,8 +195,20 @@ const ordersSlice = createSlice({
         state.loadTable = false;
       })
       .addCase(placeOrder.rejected, (state, action) => {
+        let errorMessage = 'Failed to place order';
+
+        if (typeof action.payload === 'string') {
+          errorMessage = action.payload;
+        } else if (action.payload && 'error' in action.payload) {
+          errorMessage = action.payload.error;
+
+          if (action.payload.outOfStock) {
+            updateCartOnError(action.payload.outOfStock);
+          }
+        }
+
+        state.error = errorMessage;
         state.loading = false;
-        state.error = action.payload || 'Failed to place order';
       });
 
     builder
