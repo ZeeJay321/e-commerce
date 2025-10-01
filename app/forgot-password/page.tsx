@@ -32,7 +32,6 @@ const forgotFields: FieldConfig[] = [
 
 const Page = () => {
   const [isRendered, setIsRendered] = useState(false);
-  const [isNextPage, setIsNextPage] = useState(false);
   const [notification, setNotification] = useState<{
     type: 'success' | 'error';
     message: string;
@@ -58,8 +57,6 @@ const Page = () => {
         type: 'success',
         message
       });
-
-      setIsNextPage(true);
     } catch (err) {
       setNotification({
         type: 'error',
@@ -97,8 +94,8 @@ const Page = () => {
         />
       )}
 
-      {(loading || isNextPage) && (
-        <div className="fixed inset-0 bg-white bg-opacity-70 z-50 flex items-center justify-center">
+      {(loading) && (
+        <div className="fixed inset-0 bg-white opacity-50 z-50 flex items-center justify-center">
           <LoadingSpinner />
         </div>
       )}
