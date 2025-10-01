@@ -75,7 +75,7 @@ const Page = () => {
       <div className="content-div">
         <span className="content-paragraph">Orders</span>
         <div className="content-features w-full">
-          <SearchBar onSearch={setSearch} />
+          <SearchBar onSearch={setSearch} placeholder='Search by user & order ID' />
         </div>
       </div>
       <AdminOrdersTable search={search} />

@@ -9,12 +9,13 @@ let searchTimeout: NodeJS.Timeout;
 
 type SearchBarProps = {
   onSearch: (value: string) => void;
+  placeholder?: string;
 };
 
-const SearchBar = ({ onSearch }: SearchBarProps) => (
+const SearchBar = ({ onSearch, placeholder = 'Search...' }: SearchBarProps) => (
   <Input.Search
     className="content-search-bar"
-    placeholder="Search by user & order ID"
+    placeholder={placeholder}
     variant="filled"
     allowClear
     onChange={(e) => {
