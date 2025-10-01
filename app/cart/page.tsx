@@ -2,15 +2,13 @@
 
 import { useEffect, useState } from 'react';
 
-import { useRouter } from 'next/navigation';
-
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
-import { useDispatch, useSelector } from 'react-redux';
-
 import { useSession } from 'next-auth/react';
+import { useDispatch, useSelector } from 'react-redux';
 
 import type { AppDispatch, RootState } from '@/redux/store';
 
@@ -43,31 +41,39 @@ const Page = () => {
 
   useEffect(() => {
     setIsRendered(true);
+
     const updateCart = () => {
-      const cartData = localStorage.getItem('cartData');
-      if (cartData) {
-        const parsed: CartItem[] = JSON.parse(cartData);
-        setCartItems(parsed);
-
-        const subtotal = parsed.reduce(
-          (sum, item) => sum + item.price * item.qty,
-          0
-        );
-        const tax = subtotal * 0.1;
-        const total = subtotal + tax;
-
-        setTotals({ subtotal, tax, total });
+      console.log('Here in update cart');
+      const saved = localStorage.getItem('cartData');
+      if (saved) {
+        setCartItems(JSON.parse(saved));
       } else {
         setCartItems([]);
-        setTotals({ subtotal: 0, tax: 0, total: 0 });
       }
     };
 
     updateCart();
 
     window.addEventListener('cartUpdated', updateCart);
-    return () => window.removeEventListener('cartUpdated', updateCart);
+
+    return () => {
+      window.removeEventListener('cartUpdated', updateCart);
+    };
   }, []);
+
+  // Whenever cartItems changes → update localStorage + totals
+  useEffect(() => {
+    localStorage.setItem('cartData', JSON.stringify(cartItems));
+
+    const subtotal = cartItems.reduce(
+      (sum, item) => sum + item.price * item.qty,
+      0
+    );
+    const tax = subtotal * 0.1;
+    const total = subtotal + tax;
+
+    setTotals({ subtotal, tax, total });
+  }, [cartItems]);
 
   if (!isRendered) return <LoadingSpinner />;
 
@@ -93,7 +99,6 @@ const Page = () => {
         })
       ).unwrap();
 
-      // Success UI
       setNotification({
         type: 'success',
         message: 'Awesome, Your order has been placed successfully!'
@@ -101,7 +106,6 @@ const Page = () => {
 
       setIsLoadPage(true);
 
-      // Reset cart
       localStorage.removeItem('cartData');
       setCartItems([]);
       setTotals({ subtotal: 0, tax: 0, total: 0 });
@@ -112,12 +116,7 @@ const Page = () => {
       }, 2000);
     } catch (err) {
       const message = typeof err === 'string' ? err : 'Order placement failed';
-
-      setNotification({
-        type: 'error',
-        message
-      });
-
+      setNotification({ type: 'error', message });
       setTimeout(() => setNotification(null), 3000);
     }
   };
@@ -148,7 +147,8 @@ const Page = () => {
         </Link>
       </div>
 
-      <CartTable />
+      {/* ✅ Pass cartItems + setCartItems */}
+      <CartTable cartItems={cartItems} setCartItems={setCartItems} />
 
       <div className="totals-div">
         <div>

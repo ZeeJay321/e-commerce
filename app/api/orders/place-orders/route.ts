@@ -52,11 +52,13 @@ const schema = Joi.object({
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-
     const { error, value } = schema.validate(body, { abortEarly: false, convert: true });
 
     if (error) {
-      return NextResponse.json({ error: error.details.map((d) => d.message) }, { status: 400 });
+      return NextResponse.json(
+        { error: error.details.map((d) => d.message) },
+        { status: 400 }
+      );
     }
 
     const { userId, items } = value as { userId: string; items: OrderItemInput[] };
@@ -66,37 +68,68 @@ export async function POST(req: Request) {
       where: { id: { in: productIds } }
     });
 
-    const orderItems = items.map((item) => {
-      const product = products.find((p) => p.id === item.productId);
+    const { validItems, outOfStock } = items.reduce(
+      (acc, item) => {
+        const product = products.find((p) => p.id === item.productId);
 
-      if (!product) throw new Error(`Product ${item.productId} not found`);
+        if (!product) {
+          acc.outOfStock.push({
+            productId: item.productId,
+            title: 'Unknown product',
+            availableStock: 0,
+            requested: item.quantity
+          });
+          return acc;
+        }
 
-      if (product.stock < item.quantity) {
-        throw new Error(`Not enough stock for product ${product.title}`);
+        if (product.stock < item.quantity) {
+          acc.outOfStock.push({
+            productId: product.id,
+            title: product.title,
+            availableStock: product.stock,
+            requested: item.quantity
+          });
+          return acc;
+        }
+
+        acc.validItems.push({
+          productId: product.id,
+          quantity: item.quantity,
+          price: product.price
+        });
+
+        return acc;
+      },
+      {
+        validItems: [] as { productId: string; quantity: number; price: number }[],
+        outOfStock: [] as {
+          productId: string;
+          title: string;
+          availableStock: number;
+          requested: number;
+        }[]
       }
+    );
 
-      return {
-        productId: product.id,
-        quantity: item.quantity,
-        price: product.price
-      };
-    });
+    if (outOfStock.length > 0) {
+      return NextResponse.json(
+        { error: 'Some products are out of stock', outOfStock },
+        { status: 400 }
+      );
+    }
 
-    let total = orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    total += (total * 0.1); // 10% tax/fee
+    let total = validItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+    total += total * 0.1;
 
     const order = await prisma.$transaction(async (tx) => {
       await Promise.all(
-        orderItems.map((item) => tx.product
-          .update({
-            where: { id: item.productId, stock: { gte: item.quantity } },
-            data: { stock: { decrement: item.quantity } }
-          })
-          .then((result) => {
-            if (!result) {
-              throw new Error(`Stock not sufficient for product ${item.productId}`);
-            }
-          }))
+        validItems.map((item) => tx.product.update({
+          where: { id: item.productId, stock: { gte: item.quantity } },
+          data: { stock: { decrement: item.quantity } }
+        }))
       );
 
       return tx.order.create({
@@ -104,7 +137,7 @@ export async function POST(req: Request) {
           userId,
           amount: total,
           date: moment().toDate().toString(),
-          products: { create: orderItems },
+          products: { create: validItems },
           metadata: {}
         },
         include: { products: true }
@@ -114,7 +147,6 @@ export async function POST(req: Request) {
     return NextResponse.json(order, { status: 201 });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
-
     return NextResponse.json(
       { error: message || 'Failed to create an order' },
       { status: 500 }
