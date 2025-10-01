@@ -43,7 +43,6 @@ const Page = () => {
     setIsRendered(true);
 
     const updateCart = () => {
-      console.log('Here in update cart');
       const saved = localStorage.getItem('cartData');
       if (saved) {
         setCartItems(JSON.parse(saved));
