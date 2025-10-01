@@ -34,10 +34,10 @@ const updateSchema = Joi.object({
 
 export async function PUT(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: { params: { id: string } }
 ) {
   try {
-    const { id } = await context.params;
+    const { id } = context.params;
 
     const nodeStream = Readable.fromWeb(
       req.body as NodeReadableStream<Uint8Array>
