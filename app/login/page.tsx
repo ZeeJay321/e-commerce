@@ -3,35 +3,37 @@
 import { useEffect, useState } from 'react';
 
 import type { FormProps } from 'antd';
-
 import { useDispatch, useSelector } from 'react-redux';
+
+import { AppDispatch, RootState } from '@/redux/store';
+
+import { loginUser, loginWithGoogle } from '@/redux/slices/user-slice';
 
 import AuthCard from '@/components/auth-card/auth-card-functionality';
 import LoadingSpinner from '@/components/loading/loading-spinner';
 import CustomNotification from '@/components/notifications/notifications-functionality';
 
+import { FieldConfig, FieldType } from '@/models';
 import './login.css';
 
-import { FieldConfig, FieldType } from '@/models';
-import { loginUser } from '@/redux/slices/user-slice';
-import { AppDispatch, RootState } from '@/redux/store';
-
-const loginFields: FieldConfig[] = [{
-  name: 'email',
-  label: 'Enter email address',
-  placeholder: 'Please enter your email',
-  rules: [{
-    required: true, message: 'Email is required'
-  }, {
-    type: 'email', message: 'Please enter a valid email address'
-  }]
-}, {
-  name: 'password',
-  label: 'Password',
-  placeholder: 'Please enter password',
-  rules: [{ required: true, message: 'Please input your password' }],
-  inputType: 'password'
-}];
+const loginFields: FieldConfig[] = [
+  {
+    name: 'email',
+    label: 'Enter email address',
+    placeholder: 'Please enter your email',
+    rules: [
+      { required: true, message: 'Email is required' },
+      { type: 'email', message: 'Please enter a valid email address' }
+    ]
+  },
+  {
+    name: 'password',
+    label: 'Password',
+    placeholder: 'Please enter password',
+    rules: [{ required: true, message: 'Please input your password' }],
+    inputType: 'password'
+  }
+];
 
 const Page = () => {
   const [isRendered, setIsRendered] = useState(false);
@@ -44,8 +46,8 @@ const Page = () => {
   } | null>(null);
 
   const dispatch = useDispatch<AppDispatch>();
-
   const { loading } = useSelector((state: RootState) => state.user);
+
   const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
     if (!values.email || !values.password) {
       setNotification({
@@ -62,13 +64,9 @@ const Page = () => {
           password: values.password,
           remember: values.remember ?? false
         })
-      ).unwrap(); // throws if rejected
+      ).unwrap();
 
-      setNotification({
-        type: 'success',
-        message: 'Login Successful'
-      });
-
+      setNotification({ type: 'success', message: 'Login Successful' });
       setIsNextPage(true);
 
       setTimeout(() => {
@@ -90,6 +88,23 @@ const Page = () => {
       type: 'error',
       message: 'Please fill in all required fields correctly'
     });
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const user = await dispatch(loginWithGoogle()).unwrap();
+      setNotification({ type: 'success', message: 'Google Login Successful' });
+      setIsNextPage(true);
+
+      setTimeout(() => {
+        window.location.href = user.role === 'admin' ? '/admin/products' : '/';
+      }, 1200);
+    } catch (err) {
+      setNotification({
+        type: 'error',
+        message: err instanceof Error ? err.message : 'Google login failed'
+      });
+    }
   };
 
   useEffect(() => {
@@ -126,7 +141,21 @@ const Page = () => {
           submitText="Login"
           footer={(
             <>
-              <p className="text-sm pb-4">
+              <div className="pt-4">
+                <button
+                  type="button"
+                  onClick={handleGoogleLogin}
+                  className="w-full bg-gray-100 hover:bg-gray-300 text-black font-medium py-2 px-4 rounded-md flex items-center justify-center gap-2"
+                >
+                  <img
+                    src="https://developers.google.com/identity/images/g-logo.png"
+                    alt="Google"
+                    className="w-5 h-5"
+                  />
+                  Sign in with Google
+                </button>
+              </div>
+              <p className="text-sm pt-4 pb-4">
                 Forgot password?
                 {' '}
                 <a href="/forgot-password" className="form-hrefs">

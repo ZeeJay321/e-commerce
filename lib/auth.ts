@@ -8,6 +8,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import GithubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
 
+import { createGoogleUser } from '@/helper/google-helper';
 import { findUserByEmail, validateUserPassword } from '@/helper/login-checker';
 
 declare module 'next-auth' {
@@ -107,21 +108,47 @@ export const authOptions: NextAuthOptions = {
   },
 
   callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider === 'google') {
+        try {
+          let dbUser = await findUserByEmail(user.email!);
+
+          if (!dbUser) {
+            dbUser = await createGoogleUser({
+              email: user.email!,
+              name: user.name || 'Google User',
+              image: user.image
+            });
+          }
+
+          return true;
+        } catch (err) {
+          console.error('Google sign-in error:', err);
+          return false;
+        }
+      }
+
+      return true;
+    },
     async jwt({ token, user, account }) {
       if (account) {
         token.accessToken = account.access_token;
       }
+
       if (user) {
-        token.id = user.id;
-        token.role = user.role;
-        token.rememberMe = user.rememberMe;
-        const maxAge = user.rememberMe ? 30 * 24 * 60 * 60 : 30 * 60;
-        token.exp = Math.floor(Date.now() / 1000 + maxAge);
+        const dbUser = await findUserByEmail(user.email!);
+
+        if (dbUser) {
+          token.id = dbUser.id;
+          token.role = dbUser.role;
+          token.rememberMe = false;
+          const maxAge = 30 * 60;
+          token.exp = Math.floor(Date.now() / 1000 + maxAge);
+        }
       }
 
       return token;
     },
-
     async session({ session, token }) {
       if (token) {
         session.user.id = token.id as string;
