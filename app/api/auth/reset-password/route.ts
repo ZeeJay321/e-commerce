@@ -1,29 +1,18 @@
 import { NextResponse } from 'next/server';
 
 import bcrypt from 'bcrypt';
-import Joi from 'joi';
 
 import { PrismaClient } from '@/app/generated/prisma';
 
-const prisma = new PrismaClient();
+import { resetPasswordSchema } from '@/lib/validation/auth-schemas';
 
-const schema = Joi.object({
-  token: Joi.string().required(),
-  password: Joi.string()
-    .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?=.{8,})/)
-    .required()
-    .messages({
-      'string.pattern.base':
-        'Password must be at least 8 characters, include uppercase, lowercase, number, and special character'
-    }),
-  confirmPassword: Joi.ref('password')
-}).with('password', 'confirmPassword');
+const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    const { error, value } = schema.validate(body, { abortEarly: false });
+    const { error, value } = resetPasswordSchema.validate(body, { abortEarly: false });
     if (error) {
       return NextResponse.json(
         { error: error.details.map((d) => d.message) },

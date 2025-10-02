@@ -2,19 +2,12 @@ import crypto from 'crypto';
 
 import { NextResponse } from 'next/server';
 
-import Joi from 'joi';
-
 import { PrismaClient } from '@/app/generated/prisma';
 import { sendResetLink } from '@/helper/reset-email';
 
-const prisma = new PrismaClient();
+import { forgotPasswordSchema } from '@/lib/validation/auth-schemas';
 
-const schema = Joi.object({
-  email: Joi.string().email().required().messages({
-    'string.email': 'Please provide a valid email address',
-    'any.required': 'Email is required'
-  })
-});
+const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
@@ -24,7 +17,7 @@ export async function POST(req: Request) {
     const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
     const baseUrl = `${protocol}://${host}`;
 
-    const { error, value } = schema.validate(body, { abortEarly: false });
+    const { error, value } = forgotPasswordSchema.validate(body, { abortEarly: false });
     if (error) {
       return NextResponse.json(
         { error: error.details.map((d) => d.message) },

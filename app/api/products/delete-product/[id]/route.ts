@@ -1,22 +1,12 @@
 import { NextResponse } from 'next/server';
 
-import Joi from 'joi';
 import { getServerSession } from 'next-auth/next';
 
 import { PrismaClient } from '@/app/generated/prisma';
 import { authOptions } from '@/lib/auth';
+import { disableSchema } from '@/lib/validation/product-schemas';
 
 const prisma = new PrismaClient();
-
-const disableSchema = Joi.object({
-  id: Joi.string()
-    .guid({ version: ['uuidv4', 'uuidv5'] })
-    .required()
-    .messages({
-      'string.guid': 'Invalid product ID format',
-      'any.required': 'Product ID is required'
-    })
-});
 
 export async function PUT(
   req: Request,
