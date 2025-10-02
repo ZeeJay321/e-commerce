@@ -114,6 +114,8 @@ const Page = () => {
         message: `Welcome, ${(await user).name || 'User'}! Your account has been created.`
       });
 
+      localStorage.clear();
+
       setIsNextPage(true);
 
       setTimeout(() => {
