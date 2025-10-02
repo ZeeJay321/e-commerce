@@ -2,7 +2,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { User } from 'next-auth';
 
-// src/redux/slices/userSlice.ts
 import { signIn } from 'next-auth/react';
 
 interface UserState {
@@ -140,6 +139,37 @@ export const resetPassword = createAsyncThunk<
   }
 });
 
+export const loginWithGoogle = createAsyncThunk<
+  User,
+  void,
+  { rejectValue: string }
+>('user/loginWithGoogle', async (_, { rejectWithValue }) => {
+  try {
+    const result = await signIn('google', {
+      redirect: false
+    });
+
+    console.log(result);
+
+    if (result?.error) {
+      return rejectWithValue(result.error);
+    }
+
+    const sessionRes = await fetch('/api/auth/session');
+    const sessionData = await sessionRes.json();
+
+    if (!sessionData?.user) {
+      return rejectWithValue('Google session not found');
+    }
+
+    return sessionData.user as User;
+  } catch (err) {
+    return rejectWithValue(
+      err instanceof Error ? err.message : 'Something went wrong with Google login'
+    );
+  }
+});
+
 const userSlice = createSlice({
   name: 'user',
   initialState,
@@ -176,6 +206,20 @@ const userSlice = createSlice({
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Login failed';
+      });
+
+    builder
+      .addCase(loginWithGoogle.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(loginWithGoogle.fulfilled, (state, action: PayloadAction<User>) => {
+        state.loading = false;
+        state.user = action.payload;
+      })
+      .addCase(loginWithGoogle.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Google login failed';
       });
 
     builder

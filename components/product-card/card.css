@@ -38,7 +38,7 @@
 }
 
 .card-buttons {
-  @apply flex items-center justify-between mt-4 w-full;
+  @apply flex items-center justify-between mt-4 w-full max-w-[500px];
 }
 
 .card-buttons-div {
@@ -46,15 +46,15 @@
 }
 
 .card-buttons-layout {
-  @apply px-2 border border-[#DFDFDF] text-nav-text rounded-md w-full h-full max-w-8 max-h-8;
+  @apply px-2 border border-[#DFDFDF] text-nav-text rounded-md w-full h-full max-w-6 max-h-8;
 }
 
 .card-buttons-span {
-  @apply flex items-center justify-center border border-[#DFDFDF] rounded-md font-display w-full h-full max-w-11 max-h-8;
+  @apply flex items-center justify-center border border-[#DFDFDF] rounded-md font-display w-full h-full max-w-6 max-h-8;
 }
 
 .add-to-cart {
-  @apply flex-1 pr-3 pl-3 text-center;
+  @apply px-4 py-3 font-normal text-[16px] w-full h-full max-w-24 max-h-8;
 }
 
 .ant-card-meta-title {

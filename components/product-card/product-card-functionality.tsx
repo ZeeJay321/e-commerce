@@ -138,6 +138,7 @@ const ProductCard = ({ product }: { product: Product }) => {
             type="primary"
             onClick={addToCart}
             disabled={product.stock <= 0}
+            className='add-to-cart'
           >
             {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
           </Button>
