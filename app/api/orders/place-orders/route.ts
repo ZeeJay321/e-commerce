@@ -1,58 +1,17 @@
 import { NextResponse } from 'next/server';
 
-import Joi from 'joi';
 import moment from 'moment';
 
 import { PrismaClient } from '@/app/generated/prisma';
+import { placeOrderSchema } from '@/lib/validation/order-schemas';
 import { OrderItemInput } from '@/models';
 
 const prisma = new PrismaClient();
 
-const schema = Joi.object({
-  userId: Joi.string().uuid().required().messages({
-    'any.required': 'userId is required',
-    'string.base': 'userId must be a string',
-    'string.guid': 'userId must be a valid UUID'
-  }),
-  amount: Joi.number().precision(2).min(0).optional()
-    .messages({
-      'number.base': 'amount must be a number',
-      'number.min': 'amount cannot be negative'
-    }),
-  items: Joi.array()
-    .items(
-      Joi.object({
-        productId: Joi.string().uuid().required().messages({
-          'any.required': 'productId is required',
-          'string.base': 'productId must be a string',
-          'string.guid': 'productId must be a valid UUID'
-        }),
-        quantity: Joi.number().integer().min(1).required()
-          .messages({
-            'any.required': 'quantity is required',
-            'number.base': 'quantity must be a number',
-            'number.min': 'quantity must be at least 1'
-          }),
-        price: Joi.number().precision(2).min(0).required()
-          .messages({
-            'any.required': 'price is required',
-            'number.base': 'price must be a number',
-            'number.min': 'price cannot be negative'
-          })
-      })
-    )
-    .min(1)
-    .required()
-    .messages({
-      'any.required': 'items are required',
-      'array.min': 'at least one item is required'
-    })
-});
-
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { error, value } = schema.validate(body, { abortEarly: false, convert: true });
+    const { error, value } = placeOrderSchema.validate(body, { abortEarly: false, convert: true });
 
     if (error) {
       return NextResponse.json(

@@ -7,10 +7,9 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import type { Response } from 'express';
 
-import Joi from 'joi';
-
 import { PrismaClient } from '@/app/generated/prisma';
 import { runMiddleware, upload } from '@/lib/multer';
+import { updateProductSchema } from '@/lib/validation/product-schemas';
 
 const prisma = new PrismaClient();
 
@@ -22,15 +21,6 @@ interface MulterLikeRequest extends Readable {
   file?: Express.Multer.File;
   files?: Express.Multer.File[];
 }
-
-const updateSchema = Joi.object({
-  name: Joi.string().min(2).max(100),
-  price: Joi.number().positive(),
-  quantity: Joi.number().integer().min(1),
-  color: Joi.string(),
-  colorCode: Joi.string().pattern(/^#([0-9A-Fa-f]{6})$/),
-  size: Joi.string()
-}).min(1);
 
 export async function PUT(
   req: NextRequest,
@@ -65,7 +55,7 @@ export async function PUT(
 
     const { body, file } = expressReq;
 
-    const { error, value } = updateSchema.validate(body, { abortEarly: false });
+    const { error, value } = updateProductSchema.validate(body, { abortEarly: false });
 
     if (error) {
       return NextResponse.json(

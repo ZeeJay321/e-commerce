@@ -1,26 +1,12 @@
 import { NextResponse } from 'next/server';
 
-import Joi from 'joi';
 import { getServerSession } from 'next-auth';
 
 import { PrismaClient } from '@/app/generated/prisma';
 import { authOptions } from '@/lib/auth';
+import { getOrderSchema } from '@/lib/validation/order-schemas';
 
 const prisma = new PrismaClient();
-
-const schema = Joi.object({
-  limit: Joi.number().integer().min(0).default(0)
-    .messages({
-      'number.base': 'limit must be a number',
-      'number.min': 'limit must be at least 0'
-    }),
-  skip: Joi.number().integer().min(0).default(0)
-    .messages({
-      'number.base': 'skip must be a number',
-      'number.min': 'skip must be at least 0'
-    }),
-  query: Joi.string().optional().allow('', null)
-});
 
 export async function GET(req: Request) {
   try {
@@ -37,7 +23,7 @@ export async function GET(req: Request) {
       query: searchParams.get('query')
     };
 
-    const { error, value } = schema.validate(params, {
+    const { error, value } = getOrderSchema.validate(params, {
       abortEarly: false,
       convert: true
     });

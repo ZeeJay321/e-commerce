@@ -8,7 +8,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import GithubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
 
-import { findUserByEmailAndRole, validateUserPassword } from '@/helper/login-checker';
+import { findUserByEmail, validateUserPassword } from '@/helper/login-checker';
 
 declare module 'next-auth' {
   interface User extends DefaultUser {
@@ -52,7 +52,6 @@ export const authOptions: NextAuthOptions = {
       clientId: process.env.GITHUB_ID!,
       clientSecret: process.env.GITHUB_SECRET!
     }),
-
     CredentialsProvider({
       id: 'credentials',
       name: 'Email & Password Login',
@@ -66,11 +65,7 @@ export const authOptions: NextAuthOptions = {
 
         const remember = credentials.remember === 'true';
 
-        let user = await findUserByEmailAndRole(credentials.email, 'user');
-
-        if (!user) {
-          user = await findUserByEmailAndRole(credentials.email, 'admin');
-        }
+        const user = await findUserByEmail(credentials.email);
 
         if (!user) throw new Error('No user found');
 

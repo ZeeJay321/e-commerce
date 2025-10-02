@@ -1,23 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import Joi from 'joi';
 import { getServerSession } from 'next-auth';
 
 import { PrismaClient } from '@/app/generated/prisma';
 import { authOptions } from '@/lib/auth';
+import { getDetailSchema } from '@/lib/validation/order-schemas';
 
 const prisma = new PrismaClient();
-
-// JOI Schema
-const paramsSchema = Joi.object({
-  id: Joi.number().integer().positive().required()
-    .messages({
-      'number.base': 'Order number must be a number',
-      'number.integer': 'Order number must be an integer',
-      'number.positive': 'Order number must be positive',
-      'any.required': 'Order number is required'
-    })
-});
 
 export async function GET(
   req: NextRequest,
@@ -31,7 +20,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { error, value } = paramsSchema.validate({
+    const { error, value } = getDetailSchema.validate({
       id: Number(resolvedParams.id)
     });
 

@@ -60,7 +60,6 @@ const Page = () => {
     };
   }, []);
 
-  // Whenever cartItems changes → update localStorage + totals
   useEffect(() => {
     localStorage.setItem('cartData', JSON.stringify(cartItems));
 
@@ -146,7 +145,6 @@ const Page = () => {
         </Link>
       </div>
 
-      {/* ✅ Pass cartItems + setCartItems */}
       <CartTable cartItems={cartItems} setCartItems={setCartItems} />
 
       <div className="totals-div">

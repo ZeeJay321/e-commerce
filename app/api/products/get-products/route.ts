@@ -1,33 +1,9 @@
 import { NextResponse } from 'next/server';
 
-import Joi from 'joi';
-
 import { Prisma, PrismaClient } from '@/app/generated/prisma';
+import { getProductSchema } from '@/lib/validation/product-schemas';
 
 const prisma = new PrismaClient();
-
-const schema = Joi.object({
-  skip: Joi.number()
-    .integer()
-    .min(1)
-    .optional()
-    .messages({
-      'number.base': 'skip must be a number',
-      'number.min': 'skip must be at least 1'
-    }),
-  limit: Joi.number()
-    .integer()
-    .min(1)
-    .optional()
-    .messages({
-      'number.base': 'limit must be a number',
-      'number.min': 'limit must be at least 1'
-    }),
-  query: Joi.string().allow('').optional(),
-  sortOption: Joi.string()
-    .valid('priceLowHigh', 'priceHighLow', 'nameAZ', 'nameZA')
-    .optional()
-});
 
 export async function GET(req: Request) {
   try {
@@ -44,7 +20,7 @@ export async function GET(req: Request) {
       sortOption: searchParams.get('sortOption') || undefined
     };
 
-    const { error, value } = schema.validate(params, { abortEarly: false });
+    const { error, value } = getProductSchema.validate(params, { abortEarly: false });
     if (error) {
       return NextResponse.json(
         { error: error.details.map((d) => d.message) },

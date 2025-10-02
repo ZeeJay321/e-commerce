@@ -54,7 +54,11 @@ const NavBar = ({ authed }: NavBarProps) => {
       label: (
         <button
           type="button"
-          onClick={() => signOut({ redirect: false })}
+          onClick={() => {
+            localStorage.clear();
+            signOut({ redirect: false });
+            window.dispatchEvent(new Event('cartUpdated'));
+          }}
         >
           Logout
         </button>
