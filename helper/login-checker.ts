@@ -4,11 +4,17 @@ import { PrismaClient } from '@/app/generated/prisma';
 
 const prisma = new PrismaClient();
 
-export const findUserByEmailAndRole = async (email: string, role: string) => {
+export const findUserByEmail = async (email: string) => {
   const emailLower = email.toLowerCase();
-  return prisma.user.findFirst({
-    where: { email: emailLower, role }
+  const user = await prisma.user.findUnique({
+    where: { email: emailLower }
   });
+
+  if (user && (user.role === 'admin' || user.role === 'user')) {
+    return user;
+  }
+
+  return null;
 };
 
 export const validateUserPassword = async (
