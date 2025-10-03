@@ -1,7 +1,6 @@
 import {
   createAsyncThunk,
-  createSlice,
-  PayloadAction
+  createSlice
 } from '@reduxjs/toolkit';
 
 import { updateCartOnError } from '@/helper/cart-updater';
@@ -29,13 +28,16 @@ export const fetchProducts = createAsyncThunk<
     skip?: number;
     limit?: number;
     query?: string;
-    sortOption?: string | null;
-  }
->(
-  'products/fetchProducts',
-  async ({
-    skip, limit, query, sortOption
-  }) => {
+    sortOption?: string | null
+  },
+  { rejectValue: string }
+>('products/fetchProducts', async ({
+  skip,
+  limit,
+  query,
+  sortOption
+}, { rejectWithValue }) => {
+  try {
     const params = new URLSearchParams();
     if (skip) params.append('skip', skip.toString());
     if (limit) params.append('limit', limit.toString());
@@ -43,11 +45,17 @@ export const fetchProducts = createAsyncThunk<
     if (sortOption) params.append('sortOption', sortOption);
 
     const res = await fetch(`/api/products/get-products?${params.toString()}`);
-    if (!res.ok) throw new Error('Failed to fetch products');
+    const data = await res.json();
 
-    return res.json();
+    if (!res.ok) {
+      return rejectWithValue(data.error || 'Failed to fetch products');
+    }
+
+    return data as { products: Product[]; total: number };
+  } catch (err) {
+    return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
   }
-);
+});
 
 export const fetchNextProducts = createAsyncThunk<
   { products: Product[]; total: number },
@@ -55,13 +63,16 @@ export const fetchNextProducts = createAsyncThunk<
     skip: number;
     limit: number;
     query?: string;
-    sortOption?: string | null;
-  }
->(
-  'products/fetchNextProducts',
-  async ({
-    skip, limit, query, sortOption
-  }) => {
+    sortOption?: string | null
+  },
+  { rejectValue: string }
+>('products/fetchNextProducts', async ({
+  skip,
+  limit,
+  query,
+  sortOption
+}, { rejectWithValue }) => {
+  try {
     const params = new URLSearchParams();
     params.append('skip', skip.toString());
     params.append('limit', limit.toString());
@@ -69,11 +80,17 @@ export const fetchNextProducts = createAsyncThunk<
     if (sortOption) params.append('sortOption', sortOption);
 
     const res = await fetch(`/api/products/get-products?${params.toString()}`);
-    if (!res.ok) throw new Error('Failed to fetch next products');
+    const data = await res.json();
 
-    return res.json();
+    if (!res.ok) {
+      return rejectWithValue(data.error || 'Failed to fetch next products');
+    }
+
+    return data as { products: Product[]; total: number };
+  } catch (err) {
+    return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
   }
-);
+});
 
 export const deleteProduct = createAsyncThunk<
   string,
@@ -87,7 +104,6 @@ export const deleteProduct = createAsyncThunk<
     });
 
     const data = await res.json();
-
     if (!res.ok) {
       return rejectWithValue(data.error || 'Failed to delete product');
     }
@@ -99,8 +115,8 @@ export const deleteProduct = createAsyncThunk<
 });
 
 export const updateProduct = createAsyncThunk<
-  Product, // return type
-  { id: string; formData: FormData }, // arg type
+  Product,
+  { id: string; formData: FormData },
   { rejectValue: string }
 >('products/updateProduct', async ({ id, formData }, { rejectWithValue }) => {
   try {
@@ -111,7 +127,6 @@ export const updateProduct = createAsyncThunk<
     });
 
     const data = await res.json();
-
     if (!res.ok) {
       return rejectWithValue(data.error || 'Failed to update product');
     }
@@ -135,7 +150,6 @@ export const addProduct = createAsyncThunk<
     });
 
     const data = await res.json();
-
     if (!res.ok) {
       return rejectWithValue(data.error || 'Failed to add product');
     }
@@ -155,7 +169,7 @@ export const fetchProductStock = createAsyncThunk<
     const res = await fetch('/api/products/get-stock', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productIds }), // still wraps inside { productIds }
+      body: JSON.stringify({ productIds }),
       credentials: 'include'
     });
 
@@ -168,6 +182,7 @@ export const fetchProductStock = createAsyncThunk<
       productId: p.id,
       availableStock: p.stock
     }));
+
     const triggerEvent = true;
     updateCartOnError(outOfStock, 'cartData', triggerEvent);
 
@@ -195,10 +210,7 @@ const productsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchProducts.fulfilled, (
-        state,
-        action: PayloadAction<{ products: Product[]; total: number }>
-      ) => {
+      .addCase(fetchProducts.fulfilled, (state, action) => {
         state.loading = false;
         state.items = action.payload.products;
         state.total = action.payload.total;
@@ -206,17 +218,14 @@ const productsSlice = createSlice({
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Something went wrong';
+        state.error = action.payload || action.error.message || 'Something went wrong';
       })
 
       .addCase(fetchNextProducts.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchNextProducts.fulfilled, (
-        state,
-        action: PayloadAction<{ products: Product[]; total: number }>
-      ) => {
+      .addCase(fetchNextProducts.fulfilled, (state, action) => {
         state.loading = false;
         state.items = [...state.items, ...action.payload.products];
         state.total = action.payload.total;
@@ -224,59 +233,55 @@ const productsSlice = createSlice({
       })
       .addCase(fetchNextProducts.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Something went wrong';
-      });
+        state.error = action.payload || action.error.message || 'Something went wrong';
+      })
 
-    builder
       .addCase(deleteProduct.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(deleteProduct.fulfilled, (state, action: PayloadAction<string>) => {
+      .addCase(deleteProduct.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = state.items.filter((p) => p.id !== action.payload); // remove from state
+        state.items = state.items.filter((p) => p.id !== action.payload);
         state.total -= 1;
       })
       .addCase(deleteProduct.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to delete product';
-      });
+      })
 
-    builder
       .addCase(updateProduct.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(updateProduct.fulfilled, (state, action: PayloadAction<Product>) => {
+      .addCase(updateProduct.fulfilled, (state, action) => {
         state.loading = false;
         state.items = state.items.map((p) => (p.id === action.payload.id ? action.payload : p));
       })
       .addCase(updateProduct.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to update product';
-      });
+      })
 
-    builder
       .addCase(addProduct.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(addProduct.fulfilled, (state, action: PayloadAction<Product>) => {
+      .addCase(addProduct.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = [action.payload, ...state.items]; // add new product to top of list
+        state.items = [action.payload, ...state.items];
         state.total += 1;
       })
       .addCase(addProduct.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to add product';
-      });
+      })
 
-    builder
       .addCase(fetchProductStock.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchProductStock.fulfilled, (state, action: PayloadAction<Product[]>) => {
+      .addCase(fetchProductStock.fulfilled, (state, action) => {
         state.loading = false;
         state.items = action.payload;
       })
