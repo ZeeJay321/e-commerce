@@ -21,6 +21,7 @@ import './cart.css';
 
 import { CartItem } from '@/models';
 import { placeOrder } from '@/redux/slices/orders-slice';
+import { fetchProductStock } from '@/redux/slices/products-slice';
 
 const Page = () => {
   const router = useRouter();
@@ -38,6 +39,27 @@ const Page = () => {
     message: string;
     description?: string;
   } | null>(null);
+
+  useEffect(() => {
+    setIsRendered(true);
+
+    const updateCart = () => {
+      const saved = localStorage.getItem('cartData');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setCartItems(parsed);
+
+        if (parsed.length > 0) {
+          const ids = parsed.map((item: CartItem) => item.id);
+          dispatch(fetchProductStock(ids));
+        }
+      } else {
+        setCartItems([]);
+      }
+    };
+
+    updateCart();
+  }, [dispatch]);
 
   useEffect(() => {
     setIsRendered(true);

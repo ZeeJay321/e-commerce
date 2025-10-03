@@ -2,7 +2,8 @@ import { CartItem, OutOfStockItem } from '@/models';
 
 export function updateCartOnError(
   outOfStock: OutOfStockItem[],
-  storageKey = 'cartData'
+  storageKey = 'cartData',
+  triggerEvent = true
 ): CartItem[] {
   if (!outOfStock || outOfStock.length === 0) return [];
 
@@ -28,7 +29,9 @@ export function updateCartOnError(
   cart = cart.filter((c) => c.qty > 0 && c.stock > 0);
 
   localStorage.setItem(storageKey, JSON.stringify(cart));
-  window.dispatchEvent(new Event('cartUpdated'));
+  if (triggerEvent === true) {
+    window.dispatchEvent(new Event('cartUpdated'));
+  }
 
   return cart;
 }

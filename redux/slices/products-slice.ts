@@ -4,6 +4,7 @@ import {
   PayloadAction
 } from '@reduxjs/toolkit';
 
+import { updateCartOnError } from '@/helper/cart-updater';
 import { Product } from '@/models';
 
 type ProductsState = {
@@ -145,6 +146,37 @@ export const addProduct = createAsyncThunk<
   }
 });
 
+export const fetchProductStock = createAsyncThunk<
+  Product[],
+  string[],
+  { rejectValue: string }
+>('products/fetchProductStock', async (productIds, { rejectWithValue }) => {
+  try {
+    const res = await fetch('/api/products/get-stock', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productIds }), // still wraps inside { productIds }
+      credentials: 'include'
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      return rejectWithValue(data.error || 'Failed to fetch product stock');
+    }
+
+    const outOfStock = data.products.map((p: Product) => ({
+      productId: p.id,
+      availableStock: p.stock
+    }));
+    const triggerEvent = true;
+    updateCartOnError(outOfStock, 'cartData', triggerEvent);
+
+    return data.products as Product[];
+  } catch (err) {
+    return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
+  }
+});
+
 const productsSlice = createSlice({
   name: 'products',
   initialState,
@@ -237,6 +269,20 @@ const productsSlice = createSlice({
       .addCase(addProduct.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to add product';
+      });
+
+    builder
+      .addCase(fetchProductStock.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchProductStock.fulfilled, (state, action: PayloadAction<Product[]>) => {
+        state.loading = false;
+        state.items = action.payload;
+      })
+      .addCase(fetchProductStock.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Something went wrong';
       });
   }
 });

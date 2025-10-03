@@ -35,7 +35,7 @@ export async function PUT(
 
     const updatedProduct = await prisma.$transaction(async (tx) => tx.product.update({
       where: { id: value.id },
-      data: { status: false }
+      data: { isDeleted: false }
     }));
 
     return NextResponse.json(

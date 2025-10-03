@@ -71,3 +71,15 @@ export const addProductSchema = Joi.object({
     'any.required': 'Size is required'
   })
 });
+
+export const stockSchema = Joi.object({
+  productIds: Joi.array()
+    .items(Joi.string().uuid().message('Each productId must be a valid UUID'))
+    .min(1)
+    .required()
+    .messages({
+      'array.base': 'productIds must be an array',
+      'array.min': 'At least one productId is required',
+      'any.required': 'productIds field is required'
+    })
+});
