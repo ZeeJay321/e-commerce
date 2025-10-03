@@ -52,7 +52,7 @@ const Page = () => {
           <Button
             type="primary"
             className="px-4 py-1.5"
-            onClick={() => setAddMultipleOpen(true)} // 👈 open multiple upload modal
+            onClick={() => setAddMultipleOpen(true)}
           >
             + Add Multiple Products
           </Button>

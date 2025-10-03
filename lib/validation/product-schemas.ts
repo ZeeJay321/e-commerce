@@ -26,7 +26,7 @@ export const getProductSchema = Joi.object({
 export const updateProductSchema = Joi.object({
   name: Joi.string().min(2).max(100),
   price: Joi.number().positive(),
-  quantity: Joi.number().integer().min(1),
+  quantity: Joi.number().integer().min(0),
   color: Joi.string(),
   colorCode: Joi.string().pattern(/^#([0-9A-Fa-f]{6})$/),
   size: Joi.string()

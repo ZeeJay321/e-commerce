@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
       color: value.color,
       colorCode: value.colorCode,
       size: value.size,
-      status: true,
+      isDeleted: true,
       img: file ? `/home/images/${file.filename}` : ''
     };
 

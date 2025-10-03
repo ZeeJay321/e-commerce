@@ -73,7 +73,7 @@ export async function PUT(
     if (value.size) updateData.size = value.size;
     if (file) updateData.img = `/home/images/${file.filename}`;
 
-    updateData.status = true;
+    updateData.isDeleted = true;
 
     const updated = await prisma.product.update({
       where: { id },
