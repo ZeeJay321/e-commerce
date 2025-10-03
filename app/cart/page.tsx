@@ -27,13 +27,12 @@ const Page = () => {
   const router = useRouter();
   const { data: session } = useSession();
   const dispatch = useDispatch<AppDispatch>();
-  const orderLoading = useSelector((state: RootState) => state.orders.loading);
-  const productLoading = useSelector((state: RootState) => state.products.loading);
 
   const [isRendered, setIsRendered] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [totals, setTotals] = useState({ subtotal: 0, tax: 0, total: 0 });
   const [isLoadPage, setIsLoadPage] = useState(false);
+  const { loading } = useSelector((state: RootState) => state.orders);
 
   const [notification, setNotification] = useState<{
     type: 'success' | 'error';
@@ -154,12 +153,6 @@ const Page = () => {
         />
       )}
 
-      {(orderLoading || productLoading) && (
-        <div className="fixed inset-0 bg-white opacity-50 z-50 flex items-center justify-center">
-          <LoadingSpinner />
-        </div>
-      )}
-
       {(isLoadPage && (
         <div className="fixed inset-0 bg-white z-50 flex items-center justify-center">
           <LoadingSpinner />
@@ -215,8 +208,9 @@ const Page = () => {
             size="large"
             block
             onClick={handlePlaceOrder}
+            disabled={loading}
           >
-            Place Order
+            {loading ? 'Placing Order...' : 'Place Order'}
           </Button>
         </div>
       </div>
