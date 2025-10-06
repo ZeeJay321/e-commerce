@@ -20,7 +20,7 @@ export const sendResetLink = async (baseUrl: string, email: string, token: strin
     html: `
         <p>You requested a password reset.</p>
         <p>Click this link to reset your password:</p>
-        <p><a href="${resetUrl}">${resetUrl}</a></p>
+        <p><a href="${resetUrl}">Link</a></p>
         <p>This link expires in 10 minutes.</p>
       `
   });

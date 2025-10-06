@@ -71,13 +71,13 @@ export async function POST(req: NextRequest) {
       color: value.color,
       colorCode: value.colorCode,
       size: value.size,
-      status: true,
+      isDeleted: true,
       img: file ? `/home/images/${file.filename}` : ''
     };
 
     const created = await prisma.product.create({ data: createData });
 
-    return NextResponse.json(created);
+    return NextResponse.json(`New Product ${created.id} has been created successfully`);
   } catch (err) {
     return NextResponse.json(
       { error: (err as Error).message },

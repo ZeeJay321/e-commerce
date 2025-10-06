@@ -4,10 +4,19 @@ import { useState } from 'react';
 
 import { DeleteOutlined } from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
-import { Button, Checkbox, Table } from 'antd';
+import {
+  Button,
+  Checkbox,
+  Spin,
+  Table
+} from 'antd';
+
+import { useSelector } from 'react-redux';
 
 import { CartItem } from '@/models';
 import './table.css';
+
+import { RootState } from '@/redux/store';
 
 import ConfirmDeleteModal from '../delete-modal/delete-modal';
 
@@ -19,6 +28,8 @@ interface CartTableProps {
 const CartTable = ({ cartItems, setCartItems }: CartTableProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteKey, setDeleteKey] = useState<string | null>(null);
+  const orderLoading = useSelector((state: RootState) => state.orders.loading);
+  const productLoading = useSelector((state: RootState) => state.products.loading);
 
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
   const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
@@ -183,7 +194,12 @@ const CartTable = ({ cartItems, setCartItems }: CartTableProps) => {
 
   return (
     <div className="cart-items-div">
-      {selectedKeys.length > 0 && (
+      {(orderLoading || productLoading) && (
+        <div className="flex justify-center py-10">
+          <Spin size="large" />
+        </div>
+      )}
+      {(selectedKeys.length > 0) && (
         <div className="mb-3 flex justify-end">
           <Button
             type="primary"
@@ -198,13 +214,15 @@ const CartTable = ({ cartItems, setCartItems }: CartTableProps) => {
         </div>
       )}
 
-      <Table<CartItem>
-        columns={columns}
-        dataSource={cartItems}
-        pagination={false}
-        bordered
-        scroll={{ x: 'max-content' }}
-      />
+      {(!orderLoading && !productLoading) && (
+        <Table<CartItem>
+          columns={columns}
+          dataSource={cartItems}
+          pagination={false}
+          bordered
+          scroll={{ x: 'max-content' }}
+        />
+      )}
 
       <ConfirmDeleteModal
         open={isModalOpen}

@@ -95,9 +95,18 @@ export async function GET(req: Request) {
 
     const orders = await prisma.order.findMany({
       where: whereCondition,
-      include: {
-        user: { select: { fullname: true } },
-        _count: { select: { products: true } }
+      select: {
+        id: true,
+        orderNumber: true,
+        userId: true,
+        amount: true,
+        date: true,
+        user: {
+          select: { fullname: true }
+        },
+        _count: {
+          select: { products: true }
+        }
       },
       orderBy: { createdAt: 'desc' },
       ...(limit && skip ? { skip: (skip - 1) * limit, take: limit } : {})

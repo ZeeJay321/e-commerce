@@ -1,7 +1,9 @@
-// src/redux/slices/userSlice.ts
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import {
+  createAsyncThunk,
+  createSlice,
+  PayloadAction
+} from '@reduxjs/toolkit';
 import { User } from 'next-auth';
-
 import { signIn } from 'next-auth/react';
 
 interface UserState {
@@ -18,9 +20,17 @@ const initialState: UserState = {
 
 export const loginUser = createAsyncThunk<
   User,
-  { email: string; password: string; remember: boolean },
+  {
+    email: string;
+    password: string;
+    remember: boolean
+  },
   { rejectValue: string }
->('user/login', async ({ email, password, remember }, { rejectWithValue }) => {
+>('user/login', async ({
+  email,
+  password,
+  remember
+}, { rejectWithValue }) => {
   try {
     const result = await signIn('credentials', {
       redirect: false,
@@ -33,9 +43,8 @@ export const loginUser = createAsyncThunk<
       return rejectWithValue(result.error);
     }
 
-    // Fetch session after successful login
     const sessionRes = await fetch('/api/auth/session');
-    const sessionData = await sessionRes.json();
+    const sessionData = await sessionRes.json().catch(() => ({}));
 
     if (!sessionData?.user) {
       return rejectWithValue('Session not found');
@@ -43,9 +52,7 @@ export const loginUser = createAsyncThunk<
 
     return sessionData.user as User;
   } catch (err) {
-    return rejectWithValue(
-      err instanceof Error ? err.message : 'Something went wrong'
-    );
+    return rejectWithValue(err instanceof Error ? err.message : 'Something went wrong');
   }
 });
 
@@ -67,7 +74,7 @@ export const signupUser = createAsyncThunk<
       body: JSON.stringify(userData)
     });
 
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
       return rejectWithValue(data.error || 'Signup failed');
@@ -83,15 +90,13 @@ export const signupUser = createAsyncThunk<
 
     return data.user as User;
   } catch (error) {
-    return rejectWithValue(
-      error instanceof Error ? error.message : 'Something went wrong'
-    );
+    return rejectWithValue(error instanceof Error ? error.message : 'Something went wrong');
   }
 });
 
 export const forgotPassword = createAsyncThunk<
-  string, // return type
-  { email: string }, // args
+  string,
+  { email: string },
   { rejectValue: string }
 >('user/forgotPassword', async ({ email }, { rejectWithValue }) => {
   try {
@@ -101,7 +106,7 @@ export const forgotPassword = createAsyncThunk<
       body: JSON.stringify({ email })
     });
 
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
       return rejectWithValue(data.error || 'Failed to send reset link');
@@ -109,25 +114,35 @@ export const forgotPassword = createAsyncThunk<
 
     return data.message || 'Reset instructions sent to your email.';
   } catch (error) {
-    return rejectWithValue(
-      error instanceof Error ? error.message : 'Something went wrong'
-    );
+    return rejectWithValue(error instanceof Error ? error.message : 'Something went wrong');
   }
 });
 
 export const resetPassword = createAsyncThunk<
   string,
-  { token: string; password: string; confirmPassword: string }, // ✅ args
+  {
+    token: string;
+    password: string;
+    confirmPassword: string
+  },
   { rejectValue: string }
->('user/resetPassword', async ({ token, password, confirmPassword }, { rejectWithValue }) => {
+>('user/resetPassword', async ({
+  token,
+  password,
+  confirmPassword
+}, { rejectWithValue }) => {
   try {
     const res = await fetch('/api/auth/reset-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, password, confirmPassword })
+      body: JSON.stringify({
+        token,
+        password,
+        confirmPassword
+      })
     });
 
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
       return rejectWithValue(data.error || 'Password reset failed');
@@ -145,18 +160,14 @@ export const loginWithGoogle = createAsyncThunk<
   { rejectValue: string }
 >('user/loginWithGoogle', async (_, { rejectWithValue }) => {
   try {
-    const result = await signIn('google', {
-      redirect: false
-    });
-
-    console.log(result);
+    const result = await signIn('google', { redirect: false });
 
     if (result?.error) {
       return rejectWithValue(result.error);
     }
 
     const sessionRes = await fetch('/api/auth/session');
-    const sessionData = await sessionRes.json();
+    const sessionData = await sessionRes.json().catch(() => ({}));
 
     if (!sessionData?.user) {
       return rejectWithValue('Google session not found');
@@ -164,9 +175,7 @@ export const loginWithGoogle = createAsyncThunk<
 
     return sessionData.user as User;
   } catch (err) {
-    return rejectWithValue(
-      err instanceof Error ? err.message : 'Something went wrong with Google login'
-    );
+    return rejectWithValue(err instanceof Error ? err.message : 'Something went wrong with Google login');
   }
 });
 
@@ -180,7 +189,6 @@ const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // signup
       .addCase(signupUser.pending, (state) => {
         state.loading = true;
         state.error = null;

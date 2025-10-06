@@ -26,7 +26,7 @@ export const getProductSchema = Joi.object({
 export const updateProductSchema = Joi.object({
   name: Joi.string().min(2).max(100),
   price: Joi.number().positive(),
-  quantity: Joi.number().integer().min(1),
+  quantity: Joi.number().integer().min(0),
   color: Joi.string(),
   colorCode: Joi.string().pattern(/^#([0-9A-Fa-f]{6})$/),
   size: Joi.string()
@@ -70,4 +70,16 @@ export const addProductSchema = Joi.object({
     'string.empty': 'Size is required',
     'any.required': 'Size is required'
   })
+});
+
+export const stockSchema = Joi.object({
+  productIds: Joi.array()
+    .items(Joi.string().uuid().message('Each productId must be a valid UUID'))
+    .min(1)
+    .required()
+    .messages({
+      'array.base': 'productIds must be an array',
+      'array.min': 'At least one productId is required',
+      'any.required': 'productIds field is required'
+    })
 });

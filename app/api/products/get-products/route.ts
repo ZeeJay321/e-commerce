@@ -39,7 +39,7 @@ export async function GET(req: Request) {
     const take = limit || 10;
     const offset = (page - 1) * take;
 
-    let where: Prisma.ProductWhereInput = { status: true };
+    let where: Prisma.ProductWhereInput = { isDeleted: true };
 
     if (query) {
       where = {
@@ -71,7 +71,17 @@ export async function GET(req: Request) {
       skip: offset,
       take,
       where,
-      orderBy
+      orderBy,
+      select: {
+        id: true,
+        title: true,
+        price: true,
+        img: true,
+        color: true,
+        colorCode: true,
+        size: true,
+        stock: true
+      }
     });
 
     const total = await prisma.product.count({ where });

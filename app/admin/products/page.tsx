@@ -24,6 +24,7 @@ const Page = () => {
   const handleAddProduct = async (formData: FormData) => {
     await dispatch(addProduct(formData));
     setAddProductOpen(false);
+    window.dispatchEvent(new Event('ProductUpdated'));
   };
 
   useEffect(() => {
@@ -39,7 +40,6 @@ const Page = () => {
       <div className="content-div">
         <span className="content-paragraph">Our Products</span>
         <div className="content-features w-full">
-          {/* Add Single Product */}
           <Button
             type="default"
             className="px-4 py-1.5"
@@ -48,11 +48,10 @@ const Page = () => {
             + Add a Single Product
           </Button>
 
-          {/* Add Multiple Products */}
           <Button
             type="primary"
             className="px-4 py-1.5"
-            onClick={() => setAddMultipleOpen(true)} // 👈 open multiple upload modal
+            onClick={() => setAddMultipleOpen(true)}
           >
             + Add Multiple Products
           </Button>
@@ -61,7 +60,6 @@ const Page = () => {
 
       <AdminDetailTable />
 
-      {/* 👇 Add Product Modal */}
       {addProductOpen && (
         <EditProductModal
           open={addProductOpen}

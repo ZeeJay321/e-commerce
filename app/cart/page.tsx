@@ -21,23 +21,45 @@ import './cart.css';
 
 import { CartItem } from '@/models';
 import { placeOrder } from '@/redux/slices/orders-slice';
+import { fetchProductStock } from '@/redux/slices/products-slice';
 
 const Page = () => {
   const router = useRouter();
   const { data: session } = useSession();
   const dispatch = useDispatch<AppDispatch>();
-  const { loading } = useSelector((state: RootState) => state.orders);
 
   const [isRendered, setIsRendered] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [totals, setTotals] = useState({ subtotal: 0, tax: 0, total: 0 });
   const [isLoadPage, setIsLoadPage] = useState(false);
+  const { loading } = useSelector((state: RootState) => state.orders);
 
   const [notification, setNotification] = useState<{
     type: 'success' | 'error';
     message: string;
     description?: string;
   } | null>(null);
+
+  useEffect(() => {
+    setIsRendered(true);
+
+    const updateCart = () => {
+      const saved = localStorage.getItem('cartData');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setCartItems(parsed);
+
+        if (parsed.length > 0) {
+          const ids = parsed.map((item: CartItem) => item.id);
+          dispatch(fetchProductStock(ids));
+        }
+      } else {
+        setCartItems([]);
+      }
+    };
+
+    updateCart();
+  }, [dispatch]);
 
   useEffect(() => {
     setIsRendered(true);
@@ -131,11 +153,11 @@ const Page = () => {
         />
       )}
 
-      {(loading || isLoadPage) && (
-        <div className="fixed inset-0 bg-white bg-opacity-70 z-50 flex items-center justify-center">
+      {(isLoadPage && (
+        <div className="fixed inset-0 bg-white z-50 flex items-center justify-center">
           <LoadingSpinner />
         </div>
-      )}
+      ))}
 
       <div className="content-div">
         <Link href="/" className="content-paragraph">
@@ -186,8 +208,9 @@ const Page = () => {
             size="large"
             block
             onClick={handlePlaceOrder}
+            disabled={loading}
           >
-            Place Order
+            {loading ? 'Placing Order...' : 'Place Order'}
           </Button>
         </div>
       </div>

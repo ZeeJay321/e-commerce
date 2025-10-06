@@ -70,77 +70,114 @@ export const placeOrder = createAsyncThunk<
         credentials: 'include'
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const errorData = await res.json();
-        return rejectWithValue(errorData as OrderErrorPayload);
+        return rejectWithValue(data as OrderErrorPayload);
       }
 
-      return (await res.json()) as Order;
+      return data as Order;
     } catch (err) {
-      return rejectWithValue({ error: err as string });
+      return rejectWithValue({
+        error: err instanceof Error ? err.message : 'Unknown error'
+      });
     }
   }
 );
 
 export const fetchOrders = createAsyncThunk<
   OrdersResponse,
-  { limit?: number; skip?: number; query?: string }
->('orders/fetchOrders', async ({ limit = 0, skip = 0, query = '' }) => {
-  const params = new URLSearchParams();
-  params.set('limit', String(limit));
-  params.set('skip', String(skip));
-  if (query) params.set('query', query);
+  {
+    limit?: number;
+    skip?: number;
+    query?: string
+  },
+  { rejectValue: string }
+>(
+  'orders/fetchOrders',
+  async ({
+    limit = 0,
+    skip = 0,
+    query = ''
+  }, { rejectWithValue }) => {
+    try {
+      const params = new URLSearchParams();
+      params.set('limit', String(limit));
+      params.set('skip', String(skip));
+      if (query) params.set('query', query);
 
-  const res = await fetch(`/api/orders/get-orders?${params.toString()}`, { credentials: 'include' });
-  if (!res.ok) throw new Error('Failed to fetch user orders');
+      const res = await fetch(`/api/orders/get-orders?${params.toString()}`, {
+        credentials: 'include'
+      });
 
-  return res.json();
-});
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        return rejectWithValue(errorData.error || 'Failed to fetch user orders');
+      }
+
+      return (await res.json()) as OrdersResponse;
+    } catch (err) {
+      return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
+    }
+  }
+);
 
 export const fetchOrderDetail = createAsyncThunk<
   { orderInfo: OrderInfo; products: ProductItem[] },
-  { orderId: number }
->('orders/fetchOrderDetail', async ({ orderId }) => {
-  const res = await fetch(`/api/orders/get-detail/${orderId}`);
-  if (!res.ok) throw new Error('Failed to fetch order details');
+  { orderId: number },
+  { rejectValue: string }
+>(
+  'orders/fetchOrderDetail',
+  async ({ orderId }, { rejectWithValue }) => {
+    try {
+      const res = await fetch(`/api/orders/get-detail/${orderId}`);
 
-  const order: {
-    id: string;
-    userId: string;
-    user: { fullname: string };
-    amount: number;
-    date: string;
-    createdAt: string;
-    updatedAt: string;
-    products: OrderItem[];
-  } = await res.json();
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        return rejectWithValue(errorData.error || 'Failed to fetch order details');
+      }
 
-  const products: ProductItem[] = order.products.map((item, index) => ({
-    key: index + 1,
-    id: item.id,
-    productId: item.productId,
-    img: item.product.img,
-    title: item.product.title,
-    price: item.price,
-    quantity: item.quantity,
-    stock: item.product.stock,
-    color: item.product.color,
-    colorCode: item.product.colorCode,
-    size: item.product.size
-  }));
+      const order: {
+        id: string;
+        userId: string;
+        user: { fullname: string };
+        amount: number;
+        date: string;
+        createdAt: string;
+        updatedAt: string;
+        products: OrderItem[];
+      } = await res.json();
 
-  const orderInfo: OrderInfo = {
-    id: order.id,
-    userId: order.userId,
-    fullname: order.user.fullname,
-    amount: order.amount,
-    date: order.date,
-    createdAt: order.createdAt,
-    updatedAt: order.updatedAt
-  };
+      const products: ProductItem[] = order.products.map((item, index) => ({
+        key: index + 1,
+        id: item.id,
+        productId: item.productId,
+        img: item.product.img,
+        title: item.product.title,
+        price: item.price,
+        quantity: item.quantity,
+        stock: item.product.stock,
+        color: item.product.color,
+        colorCode: item.product.colorCode,
+        size: item.product.size
+      }));
 
-  return { orderInfo, products };
-});
+      const orderInfo: OrderInfo = {
+        id: order.id,
+        userId: order.userId,
+        fullname: order.user.fullname,
+        amount: order.amount,
+        date: order.date,
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt
+      };
+
+      return { orderInfo, products };
+    } catch (err) {
+      return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
+    }
+  }
+);
 
 const ordersSlice = createSlice({
   name: 'orders',
@@ -178,7 +215,7 @@ const ordersSlice = createSlice({
       })
       .addCase(fetchOrders.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to load user orders';
+        state.error = action.payload || action.error.message || 'Failed to load user orders';
       });
 
     builder
@@ -186,25 +223,22 @@ const ordersSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(placeOrder.fulfilled, (state, action: PayloadAction<Order>) => {
-        const order = action.payload;
-        state.total += 1;
-        state.totalAmount += order.amount;
-        state.totalProducts += order.productsCount || 0;
+      .addCase(placeOrder.fulfilled, (state) => {
         state.loading = false;
         state.loadTable = false;
       })
       .addCase(placeOrder.rejected, (state, action) => {
         let errorMessage = 'Failed to place order';
 
-        if (typeof action.payload === 'string') {
-          errorMessage = action.payload;
-        } else if (action.payload && 'error' in action.payload) {
+        if (action.payload && typeof action.payload === 'object' && 'error' in action.payload) {
           errorMessage = action.payload.error;
-
           if (action.payload.outOfStock) {
             updateCartOnError(action.payload.outOfStock);
           }
+        } else if (typeof action.payload === 'string') {
+          errorMessage = action.payload;
+        } else if (action.error.message) {
+          errorMessage = action.error.message;
         }
 
         state.error = errorMessage;
@@ -226,7 +260,7 @@ const ordersSlice = createSlice({
       )
       .addCase(fetchOrderDetail.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to fetch order detail';
+        state.error = action.payload || action.error.message || 'Failed to fetch order detail';
       });
   }
 });

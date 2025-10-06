@@ -5,12 +5,11 @@ import { useEffect } from 'react';
 import { useParams } from 'next/navigation';
 
 import { ArrowLeftOutlined } from '@ant-design/icons';
-import { Divider } from 'antd';
+import { Divider, Spin } from 'antd';
 
 import { useDispatch, useSelector } from 'react-redux';
 
 import DetailTable from '@/components/detail-table/detail-table-functionality';
-import LoadingSpinner from '@/components/loading/loading-spinner';
 
 import { fetchOrderDetail } from '@/redux/slices/orders-slice';
 import { AppDispatch, RootState } from '@/redux/store';
@@ -35,14 +34,15 @@ const Page = () => {
     }
   }, [id, dispatch]);
 
-  if (loading) return <LoadingSpinner />;
   if (error) return <div className="text-red-500 p-4">{error}</div>;
 
   let totalAmount = products.reduce((acc, item) => acc + item.price * item.quantity, 0);
   totalAmount += totalAmount * 0.1;
 
   return (
+
     <div className="cover">
+
       <div className="content-div">
         <div className="page-section">
           <a href="/orders" className="content-paragraph">
@@ -53,32 +53,40 @@ const Page = () => {
             Orders Details
           </a>
 
+          {(loading) && (
+            <div className="flex justify-center py-10">
+              <Spin size="large" />
+            </div>
+          )}
+
           <Divider className="divider-midnight" />
+          {(!loading) && (
+            <div className="order-info-row">
+              <div className="order-info-block">
+                <span className="order-info-label">Date</span>
+                <span className="order-info-value">{orderInfo?.date || 'N/A'}</span>
+              </div>
 
-          <div className="order-info-row">
-            <div className="order-info-block">
-              <span className="order-info-label">Date</span>
-              <span className="order-info-value">{orderInfo?.date || 'N/A'}</span>
-            </div>
+              <div className="order-info-block">
+                <span className="order-info-label">Order #</span>
+                <span className="order-info-value">{id}</span>
+              </div>
 
-            <div className="order-info-block">
-              <span className="order-info-label">Order #</span>
-              <span className="order-info-value">{id}</span>
-            </div>
+              <div className="order-info-block">
+                <span className="order-info-label">Products</span>
+                <span className="order-info-value">{products.length}</span>
+              </div>
 
-            <div className="order-info-block">
-              <span className="order-info-label">Products</span>
-              <span className="order-info-value">{products.length}</span>
-            </div>
+              <div className="order-info-block">
+                <span className="order-info-label">Amount</span>
+                <span className="order-info-value">
+                  $
+                  {totalAmount.toFixed(2)}
+                </span>
+              </div>
 
-            <div className="order-info-block">
-              <span className="order-info-label">Amount</span>
-              <span className="order-info-value">
-                $
-                {totalAmount.toFixed(2)}
-              </span>
             </div>
-          </div>
+          )}
 
           <Divider className="divider-large" />
 
@@ -86,7 +94,15 @@ const Page = () => {
         </div>
       </div>
 
-      <DetailTable />
+      {(loading) && (
+        <div className="flex justify-center py-10">
+          <Spin size="large" />
+        </div>
+      )}
+
+      {(!loading) && (
+        <DetailTable />
+      )}
     </div>
   );
 };

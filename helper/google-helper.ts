@@ -10,7 +10,7 @@ export async function createGoogleUser({
   image
 }: {
   email: string;
-  name: string | null | undefined;
+  name: string | null;
   image?: string | null;
 }) {
   const randomPassword = crypto.randomBytes(16).toString('hex');

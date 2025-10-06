@@ -103,7 +103,11 @@ export async function POST(req: Request) {
       });
     });
 
-    return NextResponse.json(order, { status: 201 });
+    return NextResponse.json({
+      message: `New Order ${order.orderNumber} created successfully`
+    }, {
+      status: 201
+    });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json(

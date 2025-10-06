@@ -73,14 +73,14 @@ export async function PUT(
     if (value.size) updateData.size = value.size;
     if (file) updateData.img = `/home/images/${file.filename}`;
 
-    updateData.status = true;
+    updateData.isDeleted = true;
 
     const updated = await prisma.product.update({
       where: { id },
       data: updateData
     });
 
-    return NextResponse.json(updated);
+    return NextResponse.json(`Product ${updated.title} Updated Successfully`);
   } catch (err) {
     return NextResponse.json({ error: (err as Error).message }, { status: 500 });
   }

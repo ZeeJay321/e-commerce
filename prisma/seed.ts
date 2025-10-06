@@ -67,7 +67,7 @@ async function main() {
           color: ['Black', 'Red', 'Green', 'Blue'][i % 4],
           size: ['S', 'M', 'L', 'XL'][i % 4],
           stock: Math.floor(Math.random() * 50) + 1,
-          status: true,
+          isDeleted: true,
           metadata: {},
         },
       })
