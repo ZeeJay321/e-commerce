@@ -63,7 +63,7 @@ const AuthCard = ({
           name="confirmPassword"
           dependencies={['password']}
           rules={[
-            { required: true, message: 'Please confirm your password' },
+            { required: true, message: 'Confirm password is required' },
             ({ getFieldValue }) => ({
               validator(_, value) {
                 if (!value || getFieldValue('password') === value) {
@@ -75,7 +75,7 @@ const AuthCard = ({
             })
           ]}
         >
-          <Input.Password placeholder="Confirm Password" />
+          <Input.Password placeholder="Enter your password again" />
         </Form.Item>
       )}
 

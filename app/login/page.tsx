@@ -19,18 +19,18 @@ import './login.css';
 const loginFields: FieldConfig[] = [
   {
     name: 'email',
-    label: 'Enter email address',
-    placeholder: 'Please enter your email',
+    label: 'Email address',
+    placeholder: 'Enter your email address',
     rules: [
       { required: true, message: 'Email is required' },
-      { type: 'email', message: 'Please enter a valid email address' }
+      { type: 'email', message: 'Enter a valid email address' }
     ]
   },
   {
     name: 'password',
     label: 'Password',
-    placeholder: 'Please enter password',
-    rules: [{ required: true, message: 'Please input your password' }],
+    placeholder: 'Enter your password',
+    rules: [{ required: true, message: 'Password is required' }],
     inputType: 'password'
   }
 ];
@@ -50,10 +50,6 @@ const Page = () => {
 
   const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
     if (!values.email || !values.password) {
-      setNotification({
-        type: 'error',
-        message: 'Email and password are required'
-      });
       return;
     }
 
@@ -81,13 +77,6 @@ const Page = () => {
             : 'Wrong username or password, please enter correct credentials'
       });
     }
-  };
-
-  const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = () => {
-    setNotification({
-      type: 'error',
-      message: 'Please fill in all required fields correctly'
-    });
   };
 
   const handleGoogleLogin = async () => {
@@ -145,7 +134,6 @@ const Page = () => {
           fields={loginFields}
           checkbox={{ name: 'remember', label: 'Remember me' }}
           onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
           submitText="Login"
           footer={(
             <>

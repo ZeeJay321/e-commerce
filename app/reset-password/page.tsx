@@ -28,7 +28,7 @@ const resetFields: FieldConfig[] = [{
   label: 'Enter new password',
   placeholder: 'Enter new password',
   rules: [{
-    required: true, message: 'Please enter your new password'
+    required: true, message: 'Enter your new password'
   }, {
     pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])[A-Za-z\d\S]{8,}$/,
     message:
@@ -60,10 +60,6 @@ function ResetPasswordPage() {
         || !values.password
         || !values.confirmPassword
       ) {
-        setNotification({
-          type: 'error',
-          message: 'Both fields are required'
-        });
         return;
       }
       const message = await dispatch(
@@ -89,14 +85,6 @@ function ResetPasswordPage() {
       });
       setTimeout(() => setNotification(null), 3000);
     }
-  };
-
-  const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = () => {
-    setNotification({
-      type: 'error',
-      message: 'Password reset failed. Please check fields.'
-    });
-    setTimeout(() => setNotification(null), 3000);
   };
 
   useEffect(() => {
@@ -135,7 +123,6 @@ function ResetPasswordPage() {
           fields={resetFields}
           confirmPassword
           onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
           submitText="Reset Password"
         />
       </div>
