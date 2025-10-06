@@ -25,10 +25,10 @@ import { AppDispatch, RootState } from '@/redux/store';
 
 const resetFields: FieldConfig[] = [{
   name: 'password',
-  label: 'Enter new password',
+  label: 'Password',
   placeholder: 'Enter new password',
   rules: [{
-    required: true, message: 'Enter your new password'
+    required: true, message: 'Password is required'
   }, {
     pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])[A-Za-z\d\S]{8,}$/,
     message:

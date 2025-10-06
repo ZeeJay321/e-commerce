@@ -74,7 +74,7 @@ const Page = () => {
         message:
           err instanceof Error
             ? err.message
-            : 'Wrong username or password, please enter correct credentials'
+            : 'Wrong email address or password, please enter correct credentials'
       });
     }
   };
