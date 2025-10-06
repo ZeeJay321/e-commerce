@@ -149,8 +149,14 @@ const Page = () => {
         />
       )}
 
-      {(loading || isNextPage) && (
-        <div className="fixed inset-0 bg-white bg-opacity-70 z-50 flex items-center justify-center">
+      {(loading) && (
+        <div className="fixed inset-0 bg-white opacity-50 z-50 flex items-center justify-center">
+          <LoadingSpinner />
+        </div>
+      )}
+
+      {(isNextPage) && (
+        <div className="fixed inset-0 bg-white z-50 flex items-center justify-center">
           <LoadingSpinner />
         </div>
       )}
