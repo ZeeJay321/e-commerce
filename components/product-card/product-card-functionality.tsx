@@ -114,7 +114,7 @@ const ProductCard = ({ product }: { product: Product }) => {
               Price:
               <span className="card-description">
                 $
-                {product.price}
+                {product.price.toFixed(2)}
               </span>
             </p>
           )}

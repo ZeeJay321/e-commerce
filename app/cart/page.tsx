@@ -182,7 +182,7 @@ const Page = () => {
         </div>
         <div className="pt-3.5 text-sm">
           <span>
-            Tax:
+            Tax (10%):
             {' '}
             <span className="font-extrabold">
               $
