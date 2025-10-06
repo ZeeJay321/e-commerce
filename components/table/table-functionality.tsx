@@ -90,8 +90,6 @@ const CartTable = ({ cartItems, setCartItems }: CartTableProps) => {
     }));
   };
 
-  const formattedQuantity = (value: number) => value.toString().padStart(2, '0');
-
   const columns: TableColumnsType<CartItem> = [
     {
       title: (
@@ -122,8 +120,7 @@ const CartTable = ({ cartItems, setCartItems }: CartTableProps) => {
           </div>
         </div>
       )
-    },
-    {
+    }, {
       title: <span className="pl-3">Color</span>,
       dataIndex: 'color',
       render: (_, record) => (
@@ -135,15 +132,13 @@ const CartTable = ({ cartItems, setCartItems }: CartTableProps) => {
           <span className="font-display text-xs">{record.color}</span>
         </div>
       )
-    },
-    {
+    }, {
       title: <span className="pl-3">Size</span>,
       dataIndex: 'size',
       render: (value) => (
         <span className="font-display text-xs pl-3 py-4">{value}</span>
       )
-    },
-    {
+    }, {
       title: <span className="pl-3">Qty</span>,
       dataIndex: 'qty',
       render: (value: number, record) => (
@@ -155,7 +150,7 @@ const CartTable = ({ cartItems, setCartItems }: CartTableProps) => {
           >
             -
           </Button>
-          <span className="card-buttons-span">{formattedQuantity(value)}</span>
+          <span className="card-buttons-span">{value}</span>
           <Button
             className="card-buttons-layout"
             size="small"
@@ -166,9 +161,8 @@ const CartTable = ({ cartItems, setCartItems }: CartTableProps) => {
           </Button>
         </div>
       )
-    },
-    {
-      title: <span className="pl-3">Price</span>,
+    }, {
+      title: <span className="pl-3">Price / unit</span>,
       dataIndex: 'price',
       render: (value: number) => (
         <span className="font-display text-xs pl-3 py-4">
@@ -176,8 +170,16 @@ const CartTable = ({ cartItems, setCartItems }: CartTableProps) => {
           {value.toFixed(2)}
         </span>
       )
-    },
-    {
+    }, {
+      title: <span className="pl-3">Total Price</span>,
+      key: 'total',
+      render: (_, record) => (
+        <span className="font-display text-xs pl-3 py-4">
+          $
+          {(record.price * record.qty).toFixed(2)}
+        </span>
+      )
+    }, {
       title: <span className="pl-3">Actions</span>,
       key: 'actions',
       render: (_, record) => (

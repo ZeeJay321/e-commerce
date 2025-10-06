@@ -25,7 +25,7 @@
 }
 
 .cover {
-  @apply w-full h-full max-w-[1920px];
+  @apply w-full h-full max-w-[1920px] mt-6;
 }
 
 .content-section {
