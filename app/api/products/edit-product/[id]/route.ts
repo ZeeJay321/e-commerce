@@ -80,7 +80,7 @@ export async function PUT(
       data: updateData
     });
 
-    return NextResponse.json(updated);
+    return NextResponse.json(`Product ${updated.title} Updated Successfully`);
   } catch (err) {
     return NextResponse.json({ error: (err as Error).message }, { status: 500 });
   }

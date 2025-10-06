@@ -1,6 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useState
+} from 'react';
 
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
@@ -54,6 +58,7 @@ const AdminDetailTable = () => {
     setReload((prev) => !prev);
     setIsDeleteModalOpen(false);
     setDeleteKey(null);
+    window.dispatchEvent(new Event('ProductUpdated'));
   };
 
   const cancelDelete = () => {
@@ -61,7 +66,7 @@ const AdminDetailTable = () => {
     setDeleteKey(null);
   };
 
-  useEffect(() => {
+  const getUpdatedProducts = useCallback(() => {
     dispatch(clearProducts());
     dispatch(
       fetchProducts({
@@ -71,7 +76,13 @@ const AdminDetailTable = () => {
         sortOption: null
       })
     );
-  }, [dispatch, currentPage, reload]);
+  }, [dispatch, currentPage, pageSize]);
+
+  useEffect(() => {
+    getUpdatedProducts();
+    window.addEventListener('ProductUpdated', getUpdatedProducts);
+    return () => window.removeEventListener('ProductUpdated', getUpdatedProducts);
+  }, [getUpdatedProducts, reload]);
 
   const columns: TableColumnsType<Product> = [
     {
@@ -172,7 +183,8 @@ const AdminDetailTable = () => {
           actionLabel="Update"
           onAction={async (formData) => {
             await dispatch(updateProduct({ id: editProduct.id, formData }));
-            setEditProduct(null); // close modal after success
+            setEditProduct(null);
+            window.dispatchEvent(new Event('ProductUpdated'));
           }}
         />
       )}

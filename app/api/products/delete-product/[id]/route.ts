@@ -39,7 +39,11 @@ export async function PUT(
     }));
 
     return NextResponse.json(
-      { success: true, product: updatedProduct },
+      {
+        success: true,
+        message: `Product ${updatedProduct.id} deleted successfully`,
+        product: { id: updatedProduct.id }
+      },
       { status: 200 }
     );
   } catch (err) {

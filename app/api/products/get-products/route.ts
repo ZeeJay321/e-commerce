@@ -71,7 +71,17 @@ export async function GET(req: Request) {
       skip: offset,
       take,
       where,
-      orderBy
+      orderBy,
+      select: {
+        id: true,
+        title: true,
+        price: true,
+        img: true,
+        color: true,
+        colorCode: true,
+        size: true,
+        stock: true
+      }
     });
 
     const total = await prisma.product.count({ where });

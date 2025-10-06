@@ -219,11 +219,7 @@ const ordersSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(placeOrder.fulfilled, (state, action: PayloadAction<Order>) => {
-        const order = action.payload;
-        state.total += 1;
-        state.totalAmount += order.amount;
-        state.totalProducts += order.productsCount || 0;
+      .addCase(placeOrder.fulfilled, (state) => {
         state.loading = false;
         state.loadTable = false;
       })

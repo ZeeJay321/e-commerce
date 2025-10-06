@@ -240,10 +240,8 @@ const productsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(deleteProduct.fulfilled, (state, action) => {
+      .addCase(deleteProduct.fulfilled, (state) => {
         state.loading = false;
-        state.items = state.items.filter((p) => p.id !== action.payload);
-        state.total -= 1;
       })
       .addCase(deleteProduct.rejected, (state, action) => {
         state.loading = false;
@@ -254,9 +252,8 @@ const productsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(updateProduct.fulfilled, (state, action) => {
+      .addCase(updateProduct.fulfilled, (state) => {
         state.loading = false;
-        state.items = state.items.map((p) => (p.id === action.payload.id ? action.payload : p));
       })
       .addCase(updateProduct.rejected, (state, action) => {
         state.loading = false;
@@ -267,10 +264,8 @@ const productsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(addProduct.fulfilled, (state, action) => {
+      .addCase(addProduct.fulfilled, (state) => {
         state.loading = false;
-        state.items = [action.payload, ...state.items];
-        state.total += 1;
       })
       .addCase(addProduct.rejected, (state, action) => {
         state.loading = false;
