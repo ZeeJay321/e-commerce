@@ -110,13 +110,32 @@ const ProductCard = ({ product }: { product: Product }) => {
       <div className="meta-content">
         <Meta
           description={(
-            <p className="text-card-price text-sm font-bold">
-              Price:
-              <span className="card-description">
-                $
-                {product.price.toFixed(2)}
+            <div className='flex flex-col items-start justify-between'>
+              <p className="text-card-price text-sm font-bold">
+                Price:
+                <span className="card-description">
+                  $
+                  {product.price.toFixed(2)}
+                </span>
+              </p>
+              <span className="font-display text-xs mb-3.5">
+                <span className='text-card-price text-sm font-bold'>
+                  Size:
+                  <span className='card-description'>
+                    {product.size}
+                  </span>
+                </span>
+
               </span>
-            </p>
+              <div className="cart-color mb-3.5">
+                <span className='text-card-price text-sm font-bold'>Color:</span>
+                <span
+                  className="cart-color-span"
+                  style={{ backgroundColor: product.colorCode }}
+                />
+                <span className="card-description">{product.color}</span>
+              </div>
+            </div>
           )}
           title={<p className="card-text">{product.title}</p>}
         />
