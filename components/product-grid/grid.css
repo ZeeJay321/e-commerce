@@ -19,3 +19,9 @@
 .content-grid {
   @apply pt-6 px-4 md:px-14 md:pt-8 lg:px-15;
 }
+
+.page-scroll {
+  scroll-behavior: smooth;
+  overflow-y: auto;
+  height: 100vh;
+}

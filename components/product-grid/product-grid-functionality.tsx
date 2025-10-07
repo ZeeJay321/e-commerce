@@ -1,8 +1,16 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState
+} from 'react';
 
-import { Col, Row, Spin } from 'antd';
+import {
+  Col,
+  Row,
+  Spin
+} from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 
 import ProductCard from '@/components/product-card/product-card-functionality';
@@ -26,86 +34,136 @@ const LIMIT = 8;
 const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const {
-    items: products, loading, total, error
+    items:
+    products,
+    loading,
+    total,
+    error
   } = useSelector(
     (state: RootState) => state.products
   );
 
-  // separate state for next/prev tracking
   const [nextPage, setNextPage] = useState(1);
   const [prevPage, setPrevPage] = useState(1);
+  const [topLoading, setTopLoading] = useState(false);
 
   const isFetching = useRef(false);
 
-  // Initial fetch
   useEffect(() => {
     dispatch(clearProducts());
     setNextPage(1);
     setPrevPage(1);
-    dispatch(fetchNextProducts({
-      skip: 1, limit: LIMIT, query: search, sortOption
-    }));
-  }, [dispatch, search, sortOption]);
+    dispatch(
+      fetchNextProducts({
+        skip: 1,
+        limit: LIMIT,
+        query: search,
+        sortOption
+      })
+    );
+  }, [
+    dispatch,
+    search,
+    sortOption
+  ]);
 
-  // Scroll logic
   useEffect(() => {
     const scrollContainer = document.querySelector('.page-scroll');
     if (!scrollContainer) return () => { };
 
-    const onScroll = () => {
+    const onScroll = async () => {
       if (isFetching.current || loading) return;
 
-      const { scrollTop, clientHeight, scrollHeight } = scrollContainer;
+      const {
+        scrollTop,
+        clientHeight,
+        scrollHeight
+      } = scrollContainer;
       const nearBottom = scrollTop + clientHeight >= scrollHeight - 800;
-      const nearTop = scrollTop < 1600;
+      const nearTop = scrollTop < 600;
 
+      // 🔽 Scroll down
       if (nearBottom && nextPage * LIMIT < total) {
         isFetching.current = true;
         const newNext = nextPage + 1;
         setNextPage(newNext);
 
-        dispatch(
+        await dispatch(
           fetchNextProducts({
-            skip: newNext, limit: LIMIT, query: search, sortOption
+            skip: newNext,
+            limit: LIMIT,
+            query: search,
+            sortOption
           })
-        ).finally(() => {
-          isFetching.current = false;
+        );
 
-          if ((newNext - prevPage) * LIMIT >= MAX_PRODUCTS) {
-            setPrevPage((p) => p + 1);
-            dispatch(removeProducts({ count: LIMIT, from: 'start' }));
-          }
-        });
+        if ((newNext - prevPage) * LIMIT >= MAX_PRODUCTS) {
+          setPrevPage((p) => p + 1);
+          dispatch(removeProducts({ count: LIMIT, from: 'start' }));
+        }
+
+        isFetching.current = false;
       }
 
-      // SCROLL UP → fetch previous
+      // 🔼 Scroll up
       if (nearTop && prevPage > 1) {
         isFetching.current = true;
+        setTopLoading(true);
+
+        const prevScrollHeight = scrollContainer.scrollHeight; // save old height
+        const prevScrollTop = scrollContainer.scrollTop; // save current position
+
         const newPrev = prevPage - 1;
         setPrevPage(newPrev);
 
-        dispatch(
+        await dispatch(
           fetchPrevProducts({
-            skip: newPrev, limit: LIMIT, query: search, sortOption
+            skip: newPrev,
+            limit: LIMIT,
+            query: search,
+            sortOption
           })
-        ).finally(() => {
-          isFetching.current = false;
+        );
 
-          // If too many items, remove from end
-          if ((nextPage - newPrev) * LIMIT >= MAX_PRODUCTS) {
-            setNextPage((n) => n - 1);
-            dispatch(removeProducts({ count: LIMIT, from: 'end' }));
-          }
+        // Wait a frame to allow DOM to render
+        requestAnimationFrame(() => {
+          const newScrollHeight = scrollContainer.scrollHeight;
+          // adjust so user stays at same spot
+          scrollContainer.scrollTop = newScrollHeight - prevScrollHeight + prevScrollTop;
         });
+
+        if ((nextPage - newPrev) * LIMIT >= MAX_PRODUCTS) {
+          setNextPage((n) => n - 1);
+          dispatch(removeProducts({ count: LIMIT, from: 'end' }));
+        }
+
+        setTopLoading(false);
+        isFetching.current = false;
       }
     };
 
     scrollContainer.addEventListener('scroll', onScroll);
     return () => scrollContainer.removeEventListener('scroll', onScroll);
-  }, [dispatch, loading, nextPage, prevPage, total, search, sortOption]);
+  }, [
+    dispatch,
+    loading,
+    nextPage,
+    prevPage,
+    total,
+    search,
+    sortOption
+  ]);
 
   return (
     <div>
+      {topLoading && (
+        <div
+          className='text-center p-5'
+        >
+          <Spin />
+        </div>
+      )}
+
       <Row
         className="content-grid"
         gutter={[
@@ -123,18 +181,21 @@ const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
           </Col>
         ))}
 
-        {products.length === 0 && !loading && (
-          <Col span={24} className="text-center py-6">
-            <p>No products found</p>
-          </Col>
-        )}
-
-        {loading && (
+        {/* Bottom loader */}
+        {loading && !topLoading && (
           <Col span={24} className="text-center py-6">
             <Spin />
           </Col>
         )}
 
+        {/* Empty state */}
+        {!loading && products.length === 0 && (
+          <Col span={24} className="text-center py-6">
+            <p>No products found</p>
+          </Col>
+        )}
+
+        {/* Error */}
         {error && (
           <Col span={24} className="text-center py-6 text-red-500">
             <p>{error}</p>
