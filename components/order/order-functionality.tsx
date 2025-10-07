@@ -6,8 +6,6 @@ import {
   useState
 } from 'react';
 
-import { useRouter } from 'next/navigation';
-
 import { ArrowsAltOutlined } from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
 import {
@@ -31,7 +29,6 @@ interface OrdersTableProps {
 }
 
 const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
-  const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
 
   const {
@@ -49,7 +46,6 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
 
   const pageSize = admin ? 12 : 8;
 
-  // Fetch orders
   useEffect(() => {
     dispatch(fetchOrders({
       limit: pageSize,
@@ -57,7 +53,12 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
       query: search || undefined
     }));
     setIsRendered(true);
-  }, [dispatch, current, search]);
+  }, [
+    dispatch,
+    current,
+    search,
+    pageSize
+  ]);
 
   // Reset to first page on search change
   useEffect(() => {
@@ -136,12 +137,8 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
         <ArrowsAltOutlined
           className="cursor-pointer hover:text-blue-600 py-4 pl-3"
           onClick={() => {
-            if (admin) {
-              router.push(`/admin/order-details/${record.orderNumber}`);
-            } else {
-              setSelectedOrderId(record.orderNumber);
-              setDrawerOpen(true);
-            }
+            setSelectedOrderId(record.orderNumber);
+            setDrawerOpen(true);
           }}
         />
       )
@@ -186,13 +183,11 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
         </>
       )}
 
-      {!admin && (
-        <OrderDetailsDrawer
-          open={drawerOpen}
-          onClose={() => setDrawerOpen(false)}
-          orderId={selectedOrderId}
-        />
-      )}
+      <OrderDetailsDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        orderId={selectedOrderId}
+      />
     </div>
   );
 };

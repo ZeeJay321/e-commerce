@@ -43,7 +43,7 @@
 
 /* content */
 .content-paragraph {
-  @apply text-[24px] text-nav-text font-display md:pt-6;
+  @apply !text-[24px] !text-nav-text font-display md:pt-6;
 }
 
 .content-features {
