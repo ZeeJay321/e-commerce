@@ -79,10 +79,9 @@ const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
         clientHeight,
         scrollHeight
       } = scrollContainer;
-      const nearBottom = scrollTop + clientHeight >= scrollHeight - 800;
+      const nearBottom = scrollTop + clientHeight >= scrollHeight - 3200;
       const nearTop = scrollTop < 600;
 
-      // 🔽 Scroll down
       if (nearBottom && nextPage * LIMIT < total) {
         isFetching.current = true;
         const newNext = nextPage + 1;
@@ -105,13 +104,12 @@ const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
         isFetching.current = false;
       }
 
-      // 🔼 Scroll up
       if (nearTop && prevPage > 1) {
         isFetching.current = true;
         setTopLoading(true);
 
-        const prevScrollHeight = scrollContainer.scrollHeight; // save old height
-        const prevScrollTop = scrollContainer.scrollTop; // save current position
+        const prevScrollHeight = scrollContainer.scrollHeight;
+        const prevScrollTop = scrollContainer.scrollTop;
 
         const newPrev = prevPage - 1;
         setPrevPage(newPrev);
@@ -125,10 +123,8 @@ const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
           })
         );
 
-        // Wait a frame to allow DOM to render
         requestAnimationFrame(() => {
           const newScrollHeight = scrollContainer.scrollHeight;
-          // adjust so user stays at same spot
           scrollContainer.scrollTop = newScrollHeight - prevScrollHeight + prevScrollTop;
         });
 
