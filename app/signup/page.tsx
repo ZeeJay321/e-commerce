@@ -20,9 +20,9 @@ import './signup.css';
 const signupFields: FieldConfig[] = [{
   name: 'fullname',
   label: 'Full Name',
-  placeholder: 'Full Name',
+  placeholder: 'Enter your full name e.g (Zain Jillani)',
   rules: [
-    { required: true, message: 'Please enter your full name' },
+    { required: true, message: 'Full name is required' },
     {
       pattern: /^[A-Z][a-z]+(?: [A-Z][a-z]+)*$/,
       message: 'Full name must start with capital letters and contain only letters'
@@ -32,18 +32,18 @@ const signupFields: FieldConfig[] = [{
 }, {
   name: 'email',
   label: 'Email Address',
-  placeholder: 'Email Address',
+  placeholder: 'Enter your email address e.g (zain.ul.abidin@qbatch.com)',
   rules: [
-    { required: true, message: 'Please enter your email' },
-    { type: 'email', message: 'Enter a valid email address' }
+    { required: true, message: 'Email address is required' },
+    { type: 'email', message: 'Email address must be valid' }
   ],
   inputType: 'text'
 }, {
   name: 'mobile',
   label: 'Mobile',
-  placeholder: 'Mobile Number',
+  placeholder: 'Enter your Mobile Number e.g (+923123456789)',
   rules: [{
-    required: true, message: 'Please enter your mobile number'
+    required: true, message: 'Mobile number is required'
 
   }, {
     pattern: /^\+?[1-9]\d{9,14}$/,
@@ -53,7 +53,7 @@ const signupFields: FieldConfig[] = [{
 }, {
   name: 'password',
   label: 'Password',
-  placeholder: 'Password',
+  placeholder: 'Enter your Password',
   rules: [{
     required: true, message: 'Password is required'
   }, {
@@ -93,10 +93,6 @@ const Page = () => {
         || !values.password
         || !values.confirmPassword
       ) {
-        setNotification({
-          type: 'error',
-          message: 'All fields are required'
-        });
         return;
       }
       const user = dispatch(
@@ -129,14 +125,6 @@ const Page = () => {
     }
   };
 
-  const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = () => {
-    setNotification({
-      type: 'error',
-      message: 'Signup failed. Please check the form fields.'
-    });
-    setTimeout(() => setNotification(null), 3000);
-  };
-
   return (
     <div className="cover">
       {notification && (
@@ -149,8 +137,14 @@ const Page = () => {
         />
       )}
 
-      {(loading || isNextPage) && (
-        <div className="fixed inset-0 bg-white bg-opacity-70 z-50 flex items-center justify-center">
+      {(loading) && (
+        <div className="fixed inset-0 bg-white opacity-50 z-50 flex items-center justify-center">
+          <LoadingSpinner />
+        </div>
+      )}
+
+      {(isNextPage) && (
+        <div className="fixed inset-0 bg-white z-50 flex items-center justify-center">
           <LoadingSpinner />
         </div>
       )}
@@ -161,7 +155,6 @@ const Page = () => {
           fields={signupFields}
           confirmPassword
           onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
           submitText="Signup"
           footer={(
             <p className="text-sm">

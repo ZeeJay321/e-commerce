@@ -20,13 +20,12 @@ import { AppDispatch, RootState } from '@/redux/store';
 const forgotFields: FieldConfig[] = [
   {
     name: 'email',
-    label: 'Enter your email address',
-    placeholder: 'Please enter your email',
-    rules: [{
-      required: true, message: 'Please enter your email address'
-    }, {
-      type: 'email', message: 'Enter a valid email address'
-    }]
+    label: 'Email address',
+    placeholder: 'Enter your email address',
+    rules: [
+      { required: true, message: 'Email is required' },
+      { type: 'email', message: 'Enter a valid email address' }
+    ]
   }
 ];
 
@@ -65,15 +64,6 @@ const Page = () => {
     }
   };
 
-  const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
-    setNotification({
-      type: 'error',
-      message: `Failed to send reset link ${errorInfo}`
-    });
-
-    setTimeout(() => setNotification(null), 3000);
-  };
-
   useEffect(() => {
     setIsRendered(true);
   }, []);
@@ -105,7 +95,6 @@ const Page = () => {
         <AuthCard
           fields={forgotFields}
           onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
           submitText="Forgot Password"
           footer={(
             <p className="text-sm">

@@ -6,47 +6,44 @@ import {
   useState
 } from 'react';
 
-import { useRouter } from 'next/navigation';
-
 import { ArrowsAltOutlined } from '@ant-design/icons';
-import type { TableColumnsType } from 'antd';
 import {
   Alert,
   Pagination,
   Spin,
   Table
 } from 'antd';
-
 import { useDispatch, useSelector } from 'react-redux';
 
+import OrderDetailsDrawer from '@/components/order-drawer';
+import { OrderRow } from '@/models';
 import { fetchOrders } from '@/redux/slices/orders-slice';
 import { AppDispatch, RootState } from '@/redux/store';
 
-import { OrderRow } from '@/models';
 import './order.css';
 
 const OrdersTable = () => {
-  const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
-
   const {
-    items: orders,
+    items:
+    orders,
     total,
     loading,
     loadTable,
     error
-  } = useSelector((state: RootState) => state.orders);
+  } = useSelector(
+    (state: RootState) => state.orders
+  );
 
   const [current, setCurrent] = useState(1);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [isRendered, setIsRendered] = useState(false);
 
   const pageSize = 8;
 
   useEffect(() => {
-    dispatch(fetchOrders({
-      limit: pageSize,
-      skip: current
-    }));
+    dispatch(fetchOrders({ limit: pageSize, skip: current }));
     setIsRendered(true);
   }, [dispatch, current]);
 
@@ -62,7 +59,7 @@ const OrdersTable = () => {
     [orders]
   );
 
-  const columns: TableColumnsType<OrderRow> = [
+  const columns = [
     {
       title: <span className="table-span-head">Date</span>,
       dataIndex: 'date',
@@ -101,10 +98,13 @@ const OrdersTable = () => {
     {
       title: <span className="table-span-head">Actions</span>,
       key: 'actions',
-      render: (_, record) => (
+      render: (_: unknown, record: OrderRow) => (
         <ArrowsAltOutlined
           className="cursor-pointer hover:text-blue-600 py-4 pl-3"
-          onClick={() => router.push(`/order-details/${record.orderNumber}`)}
+          onClick={() => {
+            setSelectedOrderId(record.orderNumber);
+            setDrawerOpen(true);
+          }}
         />
       )
     }
@@ -117,34 +117,46 @@ const OrdersTable = () => {
           <Spin size="large" />
         </div>
       )}
+
       {error && <Alert type="error" message={error} showIcon className="mb-4" />}
-      {!loading && !error && loadTable && (
-        <>
-          <Table<OrderRow>
-            columns={columns}
-            dataSource={mappedOrders}
-            pagination={false}
-            bordered
-          />
-          <div className="orders-footer-div">
-            <div>
-              <span className="orders-footer-span">
-                {total}
-                {' '}
-                Total Count
-              </span>
+
+      {!loading
+        && !error
+        && loadTable
+        && (
+          <>
+            <Table<OrderRow>
+              columns={columns}
+              dataSource={mappedOrders}
+              pagination={false}
+              bordered
+            />
+
+            <div className="orders-footer-div">
+              <div>
+                <span className="orders-footer-span">
+                  {total}
+                  {' '}
+                  Total Count
+                </span>
+              </div>
+              <div className="orders-footer-pagination">
+                <Pagination
+                  current={current}
+                  pageSize={pageSize}
+                  total={total}
+                  onChange={(page) => setCurrent(page)}
+                />
+              </div>
             </div>
-            <div className="orders-footer-pagination">
-              <Pagination
-                current={current}
-                pageSize={pageSize}
-                total={total}
-                onChange={(page) => setCurrent(page)}
-              />
-            </div>
-          </div>
-        </>
-      )}
+          </>
+        )}
+
+      <OrderDetailsDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        orderId={selectedOrderId}
+      />
     </div>
   );
 };

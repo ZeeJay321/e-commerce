@@ -30,7 +30,7 @@ const DetailTable = () => {
       </div>
     )
   }, {
-    title: <span className="table-span-head">Price</span>,
+    title: <span className="table-span-head">Price / unit</span>,
     dataIndex: 'price',
     render: (value: number) => (
       <span className="table-span">
@@ -42,6 +42,15 @@ const DetailTable = () => {
     title: <span className="table-span-head">Quantity</span>,
     dataIndex: 'quantity',
     render: (value: number) => <span className="table-span">{value}</span>
+  }, {
+    title: <span className="table-span-head">Total Price</span>,
+    key: 'total',
+    render: (_, record) => (
+      <span className="table-span">
+        $
+        {(record.price * record.quantity).toFixed(2)}
+      </span>
+    )
   }];
 
   if (loading) return <Spin size="large" className="flex justify-center py-10" />;

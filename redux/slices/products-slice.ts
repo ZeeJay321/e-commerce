@@ -10,7 +10,6 @@ type ProductsState = {
   items: Product[];
   total: number;
   loading: boolean;
-  hasMore: boolean;
   error: string | null;
 };
 
@@ -18,7 +17,6 @@ const initialState: ProductsState = {
   items: [],
   total: 0,
   loading: false,
-  hasMore: false,
   error: null
 };
 
@@ -201,7 +199,6 @@ const productsSlice = createSlice({
       state.total = 0;
       state.error = null;
       state.loading = false;
-      state.hasMore = false;
     }
   },
   extraReducers: (builder) => {
@@ -214,7 +211,6 @@ const productsSlice = createSlice({
         state.loading = false;
         state.items = action.payload.products;
         state.total = action.payload.total;
-        state.hasMore = action.payload.products.length !== 0;
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
@@ -229,7 +225,6 @@ const productsSlice = createSlice({
         state.loading = false;
         state.items = [...state.items, ...action.payload.products];
         state.total = action.payload.total;
-        state.hasMore = action.payload.products.length !== 0;
       })
       .addCase(fetchNextProducts.rejected, (state, action) => {
         state.loading = false;

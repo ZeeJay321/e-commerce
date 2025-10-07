@@ -25,10 +25,10 @@ import { AppDispatch, RootState } from '@/redux/store';
 
 const resetFields: FieldConfig[] = [{
   name: 'password',
-  label: 'Enter new password',
+  label: 'Password',
   placeholder: 'Enter new password',
   rules: [{
-    required: true, message: 'Please enter your new password'
+    required: true, message: 'Password is required'
   }, {
     pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])[A-Za-z\d\S]{8,}$/,
     message:
@@ -60,10 +60,6 @@ function ResetPasswordPage() {
         || !values.password
         || !values.confirmPassword
       ) {
-        setNotification({
-          type: 'error',
-          message: 'Both fields are required'
-        });
         return;
       }
       const message = await dispatch(
@@ -91,14 +87,6 @@ function ResetPasswordPage() {
     }
   };
 
-  const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = () => {
-    setNotification({
-      type: 'error',
-      message: 'Password reset failed. Please check fields.'
-    });
-    setTimeout(() => setNotification(null), 3000);
-  };
-
   useEffect(() => {
     setIsRendered(true);
   }, []);
@@ -117,8 +105,14 @@ function ResetPasswordPage() {
         />
       )}
 
-      {(loading || isNextPage) && (
-        <div className="fixed inset-0 bg-white bg-opacity-70 z-50 flex items-center justify-center">
+      {(loading) && (
+        <div className="fixed inset-0 bg-white opacity-50 z-50 flex items-center justify-center">
+          <LoadingSpinner />
+        </div>
+      )}
+
+      {(isNextPage) && (
+        <div className="fixed inset-0 bg-white z-50 flex items-center justify-center">
           <LoadingSpinner />
         </div>
       )}
@@ -129,7 +123,6 @@ function ResetPasswordPage() {
           fields={resetFields}
           confirmPassword
           onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
           submitText="Reset Password"
         />
       </div>

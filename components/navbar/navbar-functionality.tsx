@@ -13,7 +13,7 @@ import {
   MenuProps
 } from 'antd';
 
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 
 import './navbar.css';
 
@@ -24,12 +24,37 @@ type NavBarProps = {
 };
 
 const NavBar = ({ authed }: NavBarProps) => {
+  const { data: session } = useSession();
+
   const [cartCount, setCartCount] = useState(0);
 
   const updateCartCount = () => {
     const stored = localStorage.getItem('cartData');
     const parsed = stored ? JSON.parse(stored) : [];
     setCartCount(parsed.length);
+  };
+
+  const handleLogout = async () => {
+    try {
+      const userId = session?.user?.id;
+
+      const cartData = localStorage.getItem('cartData');
+      const parsedCart = cartData ? JSON.parse(cartData) : [];
+
+      if (userId) {
+        localStorage.setItem(
+          `userCartData_${userId}`,
+          JSON.stringify(parsedCart)
+        );
+      }
+
+      localStorage.removeItem('cartData');
+      await signOut({ redirect: false });
+
+      window.dispatchEvent(new Event('cartUpdated'));
+    } catch (err) {
+      console.error('Error while saving user cart before logout:', err);
+    }
   };
 
   useEffect(() => {
@@ -54,11 +79,7 @@ const NavBar = ({ authed }: NavBarProps) => {
       label: (
         <button
           type="button"
-          onClick={() => {
-            localStorage.clear();
-            signOut({ redirect: false });
-            window.dispatchEvent(new Event('cartUpdated'));
-          }}
+          onClick={handleLogout}
         >
           Logout
         </button>

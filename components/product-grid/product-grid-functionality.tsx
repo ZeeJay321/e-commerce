@@ -28,7 +28,6 @@ const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
     items:
     products,
     loading,
-    hasMore,
     total,
     error
   } = useSelector((state: RootState) => state.products);
@@ -62,7 +61,6 @@ const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
         scrollContainer.scrollTop + scrollContainer.clientHeight
         >= scrollContainer.scrollHeight - 1200
         && !loading
-        && hasMore
         && products.length !== total
       ) {
         const nextSkip = skip + 1;
@@ -86,7 +84,6 @@ const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
   }, [
     dispatch,
     loading,
-    hasMore,
     skip,
     search,
     products.length,

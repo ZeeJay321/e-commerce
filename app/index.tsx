@@ -26,9 +26,7 @@ const BaseLayout = ({
     '/login',
     '/signup',
     '/forgot-password',
-    '/reset-password',
-    '/orders',
-    '/cart'
+    '/reset-password'
   ];
 
   const hideNavBar = hideNavBarRoutes.includes(pathname ?? '')
