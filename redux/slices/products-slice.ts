@@ -55,6 +55,41 @@ export const fetchProducts = createAsyncThunk<
   }
 });
 
+export const fetchPrevProducts = createAsyncThunk<
+  { products: Product[]; total: number },
+  {
+    skip: number;
+    limit: number;
+    query?: string;
+    sortOption?: string | null
+  },
+  { rejectValue: string }
+>('products/fetchPrevProducts', async ({
+  skip,
+  limit,
+  query,
+  sortOption
+}, { rejectWithValue }) => {
+  try {
+    const params = new URLSearchParams();
+    params.append('skip', skip.toString());
+    params.append('limit', limit.toString());
+    if (query) params.append('query', query);
+    if (sortOption) params.append('sortOption', sortOption);
+
+    const res = await fetch(`/api/products/get-products?${params.toString()}`);
+    const data = await res.json();
+
+    if (!res.ok) {
+      return rejectWithValue(data.error || 'Failed to fetch next products');
+    }
+
+    return data as { products: Product[]; total: number };
+  } catch (err) {
+    return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
+  }
+});
+
 export const fetchNextProducts = createAsyncThunk<
   { products: Product[]; total: number },
   {
@@ -199,6 +234,22 @@ const productsSlice = createSlice({
       state.total = 0;
       state.error = null;
       state.loading = false;
+    },
+    removeProducts: (
+      state,
+      action: {
+        payload: {
+          count: number;
+          from: 'start' | 'end'
+        }
+      }
+    ) => {
+      const { count, from } = action.payload;
+      if (from === 'start') {
+        state.items = state.items.slice(count);
+      } else {
+        state.items = state.items.slice(0, -count);
+      }
     }
   },
   extraReducers: (builder) => {
@@ -213,6 +264,20 @@ const productsSlice = createSlice({
         state.total = action.payload.total;
       })
       .addCase(fetchProducts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message || 'Something went wrong';
+      })
+
+      .addCase(fetchPrevProducts.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchPrevProducts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.items = [...action.payload.products, ...state.items];
+        state.total = action.payload.total;
+      })
+      .addCase(fetchPrevProducts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error.message || 'Something went wrong';
       })
@@ -282,5 +347,5 @@ const productsSlice = createSlice({
   }
 });
 
-export const { clearProducts } = productsSlice.actions;
+export const { clearProducts, removeProducts } = productsSlice.actions;
 export default productsSlice.reducer;

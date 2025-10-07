@@ -81,7 +81,9 @@ export async function POST(req: Request) {
       (sum, item) => sum + item.price * item.quantity,
       0
     );
-    total += total * 0.1;
+    total += total * 0.1; // 10% tax
+
+    const formattedDate = moment().format('DD-MM-YY HH:mm:ss');
 
     const order = await prisma.$transaction(async (tx) => {
       await Promise.all(
@@ -95,7 +97,7 @@ export async function POST(req: Request) {
         data: {
           userId,
           amount: total,
-          date: moment().toDate().toString(),
+          date: formattedDate,
           products: { create: validItems },
           metadata: {}
         },

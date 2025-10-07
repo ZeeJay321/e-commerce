@@ -1,20 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-import { Col, Row } from 'antd';
+import { Col, Row, Spin } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 
 import ProductCard from '@/components/product-card/product-card-functionality';
 import {
   clearProducts,
-  fetchNextProducts
+  fetchNextProducts,
+  fetchPrevProducts,
+  removeProducts
 } from '@/redux/slices/products-slice';
-import {
-  type AppDispatch,
-  type RootState
-} from '@/redux/store';
-
+import { type AppDispatch, type RootState } from '@/redux/store';
 import './grid.css';
 
 type ProductGridProps = {
@@ -22,111 +20,128 @@ type ProductGridProps = {
   sortOption: string | null;
 };
 
+const MAX_PRODUCTS = 40;
+const LIMIT = 8;
+
 const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const {
-    items:
-    products,
-    loading,
-    total,
-    error
-  } = useSelector((state: RootState) => state.products);
+    items: products, loading, total, error
+  } = useSelector(
+    (state: RootState) => state.products
+  );
 
-  const limit = 8;
-  const [skip, setSkip] = useState(1);
+  // separate state for next/prev tracking
+  const [nextPage, setNextPage] = useState(1);
+  const [prevPage, setPrevPage] = useState(1);
 
+  const isFetching = useRef(false);
+
+  // Initial fetch
   useEffect(() => {
     dispatch(clearProducts());
-    setSkip(1);
+    setNextPage(1);
+    setPrevPage(1);
     dispatch(fetchNextProducts({
-      skip: 1,
-      limit,
-      query: search,
-      sortOption
+      skip: 1, limit: LIMIT, query: search, sortOption
     }));
-  }, [
-    dispatch,
-    search,
-    sortOption
-  ]);
+  }, [dispatch, search, sortOption]);
 
+  // Scroll logic
   useEffect(() => {
     const scrollContainer = document.querySelector('.page-scroll');
-    if (!scrollContainer) {
-      return undefined;
-    }
+    if (!scrollContainer) return () => { };
 
     const onScroll = () => {
-      if (
-        scrollContainer.scrollTop + scrollContainer.clientHeight
-        >= scrollContainer.scrollHeight - 1200
-        && !loading
-        && products.length !== total
-      ) {
-        const nextSkip = skip + 1;
-        setSkip(nextSkip);
+      if (isFetching.current || loading) return;
+
+      const { scrollTop, clientHeight, scrollHeight } = scrollContainer;
+      const nearBottom = scrollTop + clientHeight >= scrollHeight - 800;
+      const nearTop = scrollTop < 1600;
+
+      if (nearBottom && nextPage * LIMIT < total) {
+        isFetching.current = true;
+        const newNext = nextPage + 1;
+        setNextPage(newNext);
+
         dispatch(
           fetchNextProducts({
-            skip: nextSkip,
-            limit,
-            query: search,
-            sortOption
+            skip: newNext, limit: LIMIT, query: search, sortOption
           })
-        );
+        ).finally(() => {
+          isFetching.current = false;
+
+          if ((newNext - prevPage) * LIMIT >= MAX_PRODUCTS) {
+            setPrevPage((p) => p + 1);
+            dispatch(removeProducts({ count: LIMIT, from: 'start' }));
+          }
+        });
+      }
+
+      // SCROLL UP → fetch previous
+      if (nearTop && prevPage > 1) {
+        isFetching.current = true;
+        const newPrev = prevPage - 1;
+        setPrevPage(newPrev);
+
+        dispatch(
+          fetchPrevProducts({
+            skip: newPrev, limit: LIMIT, query: search, sortOption
+          })
+        ).finally(() => {
+          isFetching.current = false;
+
+          // If too many items, remove from end
+          if ((nextPage - newPrev) * LIMIT >= MAX_PRODUCTS) {
+            setNextPage((n) => n - 1);
+            dispatch(removeProducts({ count: LIMIT, from: 'end' }));
+          }
+        });
       }
     };
 
     scrollContainer.addEventListener('scroll', onScroll);
-
-    return () => {
-      scrollContainer.removeEventListener('scroll', onScroll);
-    };
-  }, [
-    dispatch,
-    loading,
-    skip,
-    search,
-    products.length,
-    total,
-    sortOption
-  ]);
+    return () => scrollContainer.removeEventListener('scroll', onScroll);
+  }, [dispatch, loading, nextPage, prevPage, total, search, sortOption]);
 
   return (
-    <Row
-      className="content-grid"
-      gutter={[
-        {
-          xs: 12, sm: 30, md: 30, lg: 30
-        },
-        {
-          xs: 12, sm: 32, md: 32, lg: 32
-        }
-      ]}
-    >
-      {products.map((product) => (
-        <Col key={product.id} lg={6} md={8} sm={12} xs={24}>
-          <ProductCard product={product} />
-        </Col>
-      ))}
+    <div>
+      <Row
+        className="content-grid"
+        gutter={[
+          {
+            xs: 12, sm: 30, md: 30, lg: 30
+          },
+          {
+            xs: 12, sm: 32, md: 32, lg: 32
+          }
+        ]}
+      >
+        {products.map((product) => (
+          <Col key={product.id} lg={6} md={8} sm={12} xs={24}>
+            <ProductCard product={product} />
+          </Col>
+        ))}
 
-      {products.length === 0 && !loading && (
-        <Col span={24} className="text-center py-6">
-          <p>No products found</p>
-        </Col>
-      )}
+        {products.length === 0 && !loading && (
+          <Col span={24} className="text-center py-6">
+            <p>No products found</p>
+          </Col>
+        )}
 
-      {loading && (
-        <Col span={24} className="text-center py-6">
-          <p>Loading...</p>
-        </Col>
-      )}
+        {loading && (
+          <Col span={24} className="text-center py-6">
+            <Spin />
+          </Col>
+        )}
 
-      {error && (
-        <Col span={24} className="text-center py-6 text-red-500">
-          <p>{error}</p>
-        </Col>
-      )}
-    </Row>
+        {error && (
+          <Col span={24} className="text-center py-6 text-red-500">
+            <p>{error}</p>
+          </Col>
+        )}
+      </Row>
+    </div>
   );
 };
 

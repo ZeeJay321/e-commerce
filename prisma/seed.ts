@@ -57,7 +57,7 @@ async function main() {
   ];
 
   const products = await Promise.all(
-    Array.from({ length: 24 }).map((_, i) =>
+    Array.from({ length: 60 }).map((_, i) =>
       prisma.product.create({
         data: {
           title: `Product ${i + 1}`,
