@@ -28,8 +28,6 @@ const ProductCard = ({ product }: { product: Product }) => {
 
   const decrease = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
-  const formattedQuantity = quantity.toString().padStart(2, '0');
-
   const addToCart = () => {
     if (product.stock <= 0) {
       setNotification({
@@ -144,7 +142,30 @@ const ProductCard = ({ product }: { product: Product }) => {
             <Button size="small" onClick={decrease} disabled={quantity <= 1}>
               -
             </Button>
-            <span className="card-buttons-span">{formattedQuantity}</span>
+            <span
+              contentEditable
+              role="textbox"
+              tabIndex={0}
+              aria-label="Edit quantity"
+              suppressContentEditableWarning
+              className="card-buttons-span outline-none border rounded-md px-2"
+              onBlur={(e) => {
+                const text = e.currentTarget.textContent?.trim() || '1';
+                let newQty = Number(text);
+                if (Number.isNaN(newQty) || newQty < 1) newQty = 1;
+                if (newQty > product.stock) newQty = product.stock;
+                setQuantity(newQty);
+                e.currentTarget.textContent = newQty.toString().padStart(2, '0');
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  e.currentTarget.blur();
+                }
+              }}
+            >
+              {quantity}
+            </span>
             <Button
               size="small"
               onClick={increase}

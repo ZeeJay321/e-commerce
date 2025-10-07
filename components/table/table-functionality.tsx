@@ -150,7 +150,35 @@ const CartTable = ({ cartItems, setCartItems }: CartTableProps) => {
           >
             -
           </Button>
-          <span className="card-buttons-span">{value}</span>
+          <span
+            contentEditable
+            role="textbox"
+            tabIndex={0}
+            aria-label="Edit quantity"
+            suppressContentEditableWarning
+            className="card-buttons-span outline-none border border-gray-300 rounded-md px-2 text-center min-w-[24px]"
+            onBlur={(e) => {
+              const text = e.currentTarget.textContent?.trim() || '1';
+              let newQty = Number(text);
+              if (Number.isNaN(newQty) || newQty < 1) newQty = 1;
+              if (newQty > record.stock) newQty = record.stock;
+
+              setCartItems((prev) => prev.map((item) => (item.id === record.id ? {
+                ...item,
+                qty: newQty
+              } : item)));
+
+              e.currentTarget.textContent = newQty.toString();
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                e.currentTarget.blur();
+              }
+            }}
+          >
+            {value}
+          </span>
           <Button
             className="card-buttons-layout"
             size="small"

@@ -41,6 +41,7 @@ const AuthCard = ({
       onFinish={onFinish}
       onFinishFailed={onFinishFailed}
       className="ant-form-now"
+      validateTrigger="onBlur"
     >
       {fields.map((field) => (
         <Form.Item<FieldType>
