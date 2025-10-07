@@ -30,6 +30,7 @@ interface OrdersState {
   cartItems: ProductItem[];
 
   loading: boolean;
+  detailLoading: boolean;
   loadTable: boolean;
   error: string | null;
 }
@@ -48,6 +49,7 @@ const initialState: OrdersState = {
   cartItems: [],
   products: [],
   loading: false,
+  detailLoading: false,
   loadTable: true,
   error: null
 };
@@ -243,7 +245,7 @@ const ordersSlice = createSlice({
 
     builder
       .addCase(fetchOrderDetail.pending, (state) => {
-        state.loading = true;
+        state.detailLoading = true;
         state.error = null;
       })
       .addCase(
@@ -251,11 +253,11 @@ const ordersSlice = createSlice({
         (state, action: PayloadAction<{ orderInfo: OrderInfo; products: ProductItem[] }>) => {
           state.orderInfo = action.payload.orderInfo;
           state.products = action.payload.products;
-          state.loading = false;
+          state.detailLoading = false;
         }
       )
       .addCase(fetchOrderDetail.rejected, (state, action) => {
-        state.loading = false;
+        state.detailLoading = false;
         state.error = action.payload || action.error.message || 'Failed to fetch order detail';
       });
   }

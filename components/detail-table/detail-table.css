@@ -58,7 +58,7 @@
 }
 
 .cart-items-div {
-  @apply pt-8 pl-4 md:px-14 lg:px-15;
+  @apply pt-8;
 }
 
 .ant-table-cell {
