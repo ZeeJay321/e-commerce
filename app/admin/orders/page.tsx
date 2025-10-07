@@ -12,12 +12,12 @@ import {
 
 import LoadingSpinner from '@/components/loading/loading-spinner';
 
-import AdminOrdersTable from '@/components/admin-orders/admin-order-functionality';
 import SearchBar from '@/components/search-bar/search-bar-functionality';
 
 import 'antd/dist/reset.css';
 import './home.css';
 
+import OrdersTable from '@/components/order/order-functionality';
 import { RootState } from '@/redux/store';
 
 const Page = () => {
@@ -78,7 +78,7 @@ const Page = () => {
           <SearchBar onSearch={setSearch} placeholder='Search by user & order ID' />
         </div>
       </div>
-      <AdminOrdersTable search={search} />
+      <OrdersTable admin search={search} />
     </div>
   );
 };

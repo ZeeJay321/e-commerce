@@ -6,7 +6,10 @@ import {
   useState
 } from 'react';
 
+import { useRouter } from 'next/navigation';
+
 import { ArrowsAltOutlined } from '@ant-design/icons';
+import type { TableColumnsType } from 'antd';
 import {
   Alert,
   Pagination,
@@ -22,36 +25,52 @@ import { AppDispatch, RootState } from '@/redux/store';
 
 import './order.css';
 
-const OrdersTable = () => {
+interface OrdersTableProps {
+  admin?: boolean;
+  search?: string;
+}
+
+const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
+  const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
+
   const {
-    items:
-    orders,
+    items: orders,
     total,
     loading,
     loadTable,
     error
-  } = useSelector(
-    (state: RootState) => state.orders
-  );
+  } = useSelector((state: RootState) => state.orders);
 
   const [current, setCurrent] = useState(1);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [isRendered, setIsRendered] = useState(false);
 
-  const pageSize = 8;
+  const pageSize = admin ? 12 : 8;
 
+  // Fetch orders
   useEffect(() => {
-    dispatch(fetchOrders({ limit: pageSize, skip: current }));
+    dispatch(fetchOrders({
+      limit: pageSize,
+      skip: current,
+      query: search || undefined
+    }));
     setIsRendered(true);
-  }, [dispatch, current]);
+  }, [dispatch, current, search]);
 
-  const mappedOrders: OrderRow[] = useMemo(
+  // Reset to first page on search change
+  useEffect(() => {
+    setCurrent(1);
+  }, [search]);
+
+  // Map order data for the table
+  const mappedOrders: (OrderRow & { user?: string })[] = useMemo(
     () => orders.map((order, idx) => ({
       key: idx + 1,
       id: order.id,
       orderNumber: order.orderNumber,
+      user: order.user ?? 'Unknown',
       productsCount: order.productsCount || 0,
       date: order.date,
       amount: order.amount
@@ -59,7 +78,8 @@ const OrdersTable = () => {
     [orders]
   );
 
-  const columns = [
+  // Define columns
+  const columns: TableColumnsType<OrderRow & { user?: string }> = [
     {
       title: <span className="table-span-head">Date</span>,
       dataIndex: 'date',
@@ -72,6 +92,20 @@ const OrdersTable = () => {
       key: 'orderNumber',
       render: (text: string) => <span className="table-span">{text}</span>
     },
+    ...(admin
+      ? [
+        {
+          title: <span className="table-span-head">User</span>,
+          dataIndex: 'user',
+          key: 'user',
+          render: (text: string) => (
+            <div className="flex flex-col">
+              <span className="table-span">{text}</span>
+            </div>
+          )
+        }
+      ]
+      : []),
     {
       title: <span className="table-span-head">Product(s)</span>,
       dataIndex: 'productsCount',
@@ -98,12 +132,16 @@ const OrdersTable = () => {
     {
       title: <span className="table-span-head">Actions</span>,
       key: 'actions',
-      render: (_: unknown, record: OrderRow) => (
+      render: (_, record) => (
         <ArrowsAltOutlined
           className="cursor-pointer hover:text-blue-600 py-4 pl-3"
           onClick={() => {
-            setSelectedOrderId(record.orderNumber);
-            setDrawerOpen(true);
+            if (admin) {
+              router.push(`/admin/order-details/${record.orderNumber}`);
+            } else {
+              setSelectedOrderId(record.orderNumber);
+              setDrawerOpen(true);
+            }
           }}
         />
       )
@@ -120,43 +158,41 @@ const OrdersTable = () => {
 
       {error && <Alert type="error" message={error} showIcon className="mb-4" />}
 
-      {!loading
-        && !error
-        && loadTable
-        && (
-          <>
-            <Table<OrderRow>
-              columns={columns}
-              dataSource={mappedOrders}
-              pagination={false}
-              bordered
-            />
-
-            <div className="orders-footer-div">
-              <div>
-                <span className="orders-footer-span">
-                  {total}
-                  {' '}
-                  Total Count
-                </span>
-              </div>
-              <div className="orders-footer-pagination">
-                <Pagination
-                  current={current}
-                  pageSize={pageSize}
-                  total={total}
-                  onChange={(page) => setCurrent(page)}
-                />
-              </div>
+      {!loading && !error && loadTable && (
+        <>
+          <Table
+            columns={columns}
+            dataSource={mappedOrders}
+            pagination={false}
+            bordered
+          />
+          <div className="orders-footer-div">
+            <div>
+              <span className="orders-footer-span">
+                {total}
+                {' '}
+                Total Count
+              </span>
             </div>
-          </>
-        )}
+            <div className="orders-footer-pagination">
+              <Pagination
+                current={current}
+                pageSize={pageSize}
+                total={total}
+                onChange={(page) => setCurrent(page)}
+              />
+            </div>
+          </div>
+        </>
+      )}
 
-      <OrderDetailsDrawer
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        orderId={selectedOrderId}
-      />
+      {!admin && (
+        <OrderDetailsDrawer
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          orderId={selectedOrderId}
+        />
+      )}
     </div>
   );
 };
