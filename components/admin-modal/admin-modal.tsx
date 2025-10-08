@@ -21,9 +21,10 @@ import './admin-modal.css';
 type EditProductModalProps = {
   open: boolean;
   onClose: () => void;
-  mode?: 'edit' | 'upload'; // 👈 NEW prop
+  mode?: 'edit' | 'upload';
   product?: {
     id: string;
+    variantId: string;
     name: string;
     price: number;
     quantity: number;
