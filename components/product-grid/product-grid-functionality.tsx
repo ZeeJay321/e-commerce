@@ -126,7 +126,7 @@ const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
           requestAnimationFrame(() => {
             const newScrollHeight = scrollContainer.scrollHeight;
             scrollContainer.scrollTop = newScrollHeight - prevScrollHeight + prevScrollTop;
-            scrollContainer.scrollBy({ top: 400, behavior: 'smooth' });
+            scrollContainer.scrollBy({ top: 800, behavior: 'smooth' });
           });
 
           if ((nextPage - newPrev) * LIMIT >= MAX_PRODUCTS) {
