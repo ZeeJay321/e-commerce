@@ -71,75 +71,80 @@ const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
     const scrollContainer = document.querySelector('.page-scroll');
     if (!scrollContainer) return () => { };
 
+    let scrollTimeout: NodeJS.Timeout | null = null;
+
     const onScroll = async () => {
-      if (isFetching.current || loading) return;
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(async () => {
+        if (isFetching.current || loading) return;
 
-      const {
-        scrollTop,
-        clientHeight,
-        scrollHeight
-      } = scrollContainer;
-      const nearBottom = scrollTop + clientHeight >= scrollHeight - 3200;
-      const nearTop = scrollTop < 600;
+        const { scrollTop, clientHeight, scrollHeight } = scrollContainer;
+        const nearBottom = scrollTop + clientHeight >= scrollHeight - 3200;
+        const nearTop = scrollTop < 100;
 
-      if (nearBottom && nextPage * LIMIT < total) {
-        isFetching.current = true;
-        const newNext = nextPage + 1;
-        setNextPage(newNext);
+        if (nearBottom && nextPage * LIMIT < total) {
+          isFetching.current = true;
+          const newNext = nextPage + 1;
+          setNextPage(newNext);
 
-        await dispatch(
-          fetchNextProducts({
-            skip: newNext,
-            limit: LIMIT,
-            query: search,
-            sortOption
-          })
-        );
+          await dispatch(
+            fetchNextProducts({
+              skip: newNext,
+              limit: LIMIT,
+              query: search,
+              sortOption
+            })
+          );
 
-        if ((newNext - prevPage) * LIMIT >= MAX_PRODUCTS) {
-          setPrevPage((p) => p + 1);
-          dispatch(removeProducts({ count: LIMIT, from: 'start' }));
+          if ((newNext - prevPage) * LIMIT >= MAX_PRODUCTS) {
+            setPrevPage((p) => p + 1);
+            dispatch(removeProducts({ count: LIMIT, from: 'start' }));
+          }
+
+          isFetching.current = false;
         }
 
-        isFetching.current = false;
-      }
+        if (nearTop && prevPage > 1) {
+          isFetching.current = true;
+          setTopLoading(true);
 
-      if (nearTop && prevPage > 1) {
-        isFetching.current = true;
-        setTopLoading(true);
+          const prevScrollHeight = scrollContainer.scrollHeight;
+          const prevScrollTop = scrollContainer.scrollTop;
 
-        const prevScrollHeight = scrollContainer.scrollHeight;
-        const prevScrollTop = scrollContainer.scrollTop;
+          const newPrev = prevPage - 1;
+          setPrevPage(newPrev);
 
-        const newPrev = prevPage - 1;
-        setPrevPage(newPrev);
+          await dispatch(
+            fetchPrevProducts({
+              skip: newPrev,
+              limit: LIMIT,
+              query: search,
+              sortOption
+            })
+          );
 
-        await dispatch(
-          fetchPrevProducts({
-            skip: newPrev,
-            limit: LIMIT,
-            query: search,
-            sortOption
-          })
-        );
+          requestAnimationFrame(() => {
+            const newScrollHeight = scrollContainer.scrollHeight;
+            scrollContainer.scrollTop = newScrollHeight - prevScrollHeight + prevScrollTop;
+            scrollContainer.scrollBy({ top: 400, behavior: 'smooth' });
+          });
 
-        requestAnimationFrame(() => {
-          const newScrollHeight = scrollContainer.scrollHeight;
-          scrollContainer.scrollTop = newScrollHeight - prevScrollHeight + prevScrollTop;
-        });
+          if ((nextPage - newPrev) * LIMIT >= MAX_PRODUCTS) {
+            setNextPage((n) => n - 1);
+            dispatch(removeProducts({ count: LIMIT, from: 'end' }));
+          }
 
-        if ((nextPage - newPrev) * LIMIT >= MAX_PRODUCTS) {
-          setNextPage((n) => n - 1);
-          dispatch(removeProducts({ count: LIMIT, from: 'end' }));
+          setTopLoading(false);
+          isFetching.current = false;
         }
-
-        setTopLoading(false);
-        isFetching.current = false;
-      }
+      }, 50);
     };
 
     scrollContainer.addEventListener('scroll', onScroll);
-    return () => scrollContainer.removeEventListener('scroll', onScroll);
+    return () => {
+      scrollContainer.removeEventListener('scroll', onScroll);
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+    };
   }, [
     dispatch,
     loading,
