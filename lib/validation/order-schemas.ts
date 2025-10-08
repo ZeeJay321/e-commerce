@@ -43,6 +43,11 @@ export const placeOrderSchema = Joi.object({
           'string.base': 'productId must be a string',
           'string.guid': 'productId must be a valid UUID'
         }),
+        variantId: Joi.string().uuid().required().messages({
+          'any.required': 'productId is required',
+          'string.base': 'productId must be a string',
+          'string.guid': 'productId must be a valid UUID'
+        }),
         quantity: Joi.number().integer().min(1).required()
           .messages({
             'any.required': 'quantity is required',

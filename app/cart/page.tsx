@@ -21,7 +21,6 @@ import './cart.css';
 
 import { CartItem } from '@/models';
 import { placeOrder } from '@/redux/slices/orders-slice';
-import { fetchProductStock } from '@/redux/slices/products-slice';
 
 const Page = () => {
   const router = useRouter();
@@ -39,27 +38,6 @@ const Page = () => {
     message: string;
     description?: string;
   } | null>(null);
-
-  useEffect(() => {
-    setIsRendered(true);
-
-    const updateCart = () => {
-      const saved = localStorage.getItem('cartData');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        setCartItems(parsed);
-
-        if (parsed.length > 0) {
-          const ids = parsed.map((item: CartItem) => item.id);
-          dispatch(fetchProductStock(ids));
-        }
-      } else {
-        setCartItems([]);
-      }
-    };
-
-    updateCart();
-  }, [dispatch]);
 
   useEffect(() => {
     setIsRendered(true);
@@ -106,12 +84,25 @@ const Page = () => {
       return;
     }
 
+    const invalidItems = cartItems.filter((item) => item.qty > item.stock);
+
+    if (invalidItems.length > 0) {
+      const ids = invalidItems.map((i) => i.product).join(', ');
+      setNotification({
+        type: 'error',
+        message: 'Some items exceed available stock',
+        description: `Invalid product Name(s): ${ids}`
+      });
+      return;
+    }
+
     try {
       await dispatch(
         placeOrder({
           userId: session.user.id,
           items: cartItems.map((item) => ({
             productId: item.id,
+            variantId: item.variantId,
             quantity: item.qty,
             price: item.price
           })),

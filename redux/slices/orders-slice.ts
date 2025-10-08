@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { updateCartOnError } from '@/helper/cart-updater';
+import { updateCartStockOnly } from '@/helper/cart-updater';
 import {
   Order,
   OrderInfo,
@@ -231,7 +231,7 @@ const ordersSlice = createSlice({
         if (action.payload && typeof action.payload === 'object' && 'error' in action.payload) {
           errorMessage = action.payload.error;
           if (action.payload.outOfStock) {
-            updateCartOnError(action.payload.outOfStock);
+            updateCartStockOnly(action.payload.outOfStock);
           }
         } else if (typeof action.payload === 'string') {
           errorMessage = action.payload;

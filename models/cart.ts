@@ -1,6 +1,7 @@
 export interface CartItem {
   img: string;
   id: string;
+  variantId: string;
   product: string;
   colorcode: string;
   color: string;

@@ -167,14 +167,11 @@ const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
 
       <Row
         className="content-grid"
-        gutter={[
-          {
-            xs: 12, sm: 30, md: 30, lg: 30
-          },
-          {
-            xs: 12, sm: 32, md: 32, lg: 32
-          }
-        ]}
+        gutter={[{
+          xs: 12, sm: 30, md: 30, lg: 30
+        }, {
+          xs: 12, sm: 32, md: 32, lg: 32
+        }]}
       >
         {products.map((product) => (
           <Col key={product.id} lg={6} md={8} sm={12} xs={24}>

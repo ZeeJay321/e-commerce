@@ -1,18 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import Image from 'next/image';
 
-import { Button, Card } from 'antd';
+import {
+  Button,
+  Card,
+  Select
+} from 'antd';
 
-import { CartItem, Product } from '@/models';
+import {
+  CartItem,
+  Product,
+  ProductVariant
+} from '@/models';
 
 import CustomNotification from '../notifications/notifications-functionality';
 
 import './card.css';
 
 const { Meta } = Card;
+const { Option } = Select;
 
 const ProductCard = ({ product }: { product: Product }) => {
   const [quantity, setQuantity] = useState(1);
@@ -22,14 +31,35 @@ const ProductCard = ({ product }: { product: Product }) => {
     description?: string;
   } | null>(null);
 
+  const colors = useMemo(
+    () => Array.from(
+      new Map(product.variants.map((v) => [v.colorCode, v])).values()
+    ),
+    [product.variants]
+  );
+
+  const sizes = useMemo(
+    () => Array.from(new Set(product.variants.map((v) => v.size))),
+    [product.variants]
+  );
+
+  const [selectedColor, setSelectedColor] = useState(colors[0].colorCode);
+  const [selectedSize, setSelectedSize] = useState(sizes[0]);
+
+  const currentVariant = useMemo<ProductVariant | undefined>(() => product.variants.find(
+    (v) => v.colorCode === selectedColor && v.size === selectedSize
+  ), [product.variants, selectedColor, selectedSize]);
+
   const increase = () => {
-    setQuantity((prev) => (prev < product.stock ? prev + 1 : prev));
+    if (!currentVariant) return;
+    setQuantity((prev) => (prev < currentVariant.stock ? prev + 1 : prev));
   };
 
   const decrease = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
   const addToCart = () => {
-    if (product.stock <= 0) {
+    if (!currentVariant) return;
+    if (currentVariant.stock <= 0) {
       setNotification({
         type: 'error',
         message: `${product.title} is out of stock!`
@@ -41,11 +71,16 @@ const ProductCard = ({ product }: { product: Product }) => {
     const existingCart = localStorage.getItem('cartData');
     const cart: CartItem[] = existingCart ? JSON.parse(existingCart) : [];
 
-    const index = cart.findIndex((item) => item.id === product.id);
+    const index = cart.findIndex(
+      (item) => item.id === product.id
+        && item.colorcode === currentVariant.colorCode
+        && item.size === currentVariant.size
+    );
+
     if (index >= 0) {
       const newQty = cart[index].qty + quantity;
 
-      if (newQty > product.stock) {
+      if (newQty > currentVariant.stock) {
         setNotification({
           type: 'error',
           message: `You cannot add more of this item: ${product.title}`
@@ -58,13 +93,14 @@ const ProductCard = ({ product }: { product: Product }) => {
       const newItem: CartItem = {
         img: product.img,
         id: product.id,
+        variantId: currentVariant.id,
         product: product.title,
-        colorcode: product.colorCode,
-        color: product.color,
-        size: product.size,
-        qty: Math.min(quantity, product.stock),
-        stock: product.stock,
-        price: product.price
+        colorcode: currentVariant.colorCode,
+        color: currentVariant.color,
+        size: currentVariant.size,
+        qty: Math.min(quantity, currentVariant.stock),
+        stock: currentVariant.stock,
+        price: currentVariant.price
       };
       cart.push(newItem);
     }
@@ -105,38 +141,79 @@ const ProductCard = ({ product }: { product: Product }) => {
           onClose={() => setNotification(null)}
         />
       )}
+
       <div className="meta-content">
         <Meta
+          title={<p className="card-text">{product.title}</p>}
           description={(
-            <div className='flex flex-col items-start justify-between'>
+            <div className="flex flex-col items-start justify-between">
               <p className="text-card-price text-sm font-bold">
                 Price:
+                {' '}
                 <span className="card-description">
                   $
-                  {product.price.toFixed(2)}
+                  {currentVariant?.price.toFixed(2) ?? '--'}
                 </span>
               </p>
-              <span className="font-display text-xs mb-3.5">
-                <span className='text-card-price text-sm font-bold'>
-                  Size:
-                  <span className='card-description'>
-                    {product.size}
-                  </span>
-                </span>
 
-              </span>
-              <div className="cart-color mb-3.5">
-                <span className='text-card-price text-sm font-bold'>Color:</span>
-                <span
-                  className="cart-color-span"
-                  style={{ backgroundColor: product.colorCode }}
-                />
-                <span className="card-description">{product.color}</span>
+              <div className="flex justify-around item-center text-center gap-8">
+                <div className="flex flex-col text-left">
+                  <span className="text-card-price text-sm font-bold mb-1">
+                    Size:
+                  </span>
+                  <Select
+                    size="small"
+                    value={selectedSize}
+                    onChange={setSelectedSize}
+                    style={{ width: 80 }}
+                  >
+                    {sizes.map((size) => (
+                      <Option key={size} value={size}>
+                        {size}
+                      </Option>
+                    ))}
+                  </Select>
+                </div>
+
+                <div className="flex flex-col text-left">
+                  <span className="text-card-price text-sm font-bold mb-1">
+                    Color:
+                  </span>
+                  <Select
+                    size="small"
+                    value={selectedColor}
+                    onChange={setSelectedColor}
+                    style={{ width: 100 }}
+                    optionLabelProp="label"
+                  >
+                    {colors.map((variant) => (
+                      <Option
+                        key={variant.colorCode}
+                        value={variant.colorCode}
+                        label={variant.color}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="cart-color-span"
+                            style={{
+                              backgroundColor: variant.colorCode,
+                              display: 'inline-block',
+                              width: '16px',
+                              height: '16px',
+                              borderRadius: '50%'
+                            }}
+                          />
+                          {variant.color}
+                        </div>
+                      </Option>
+                    ))}
+                  </Select>
+                </div>
               </div>
             </div>
           )}
-          title={<p className="card-text">{product.title}</p>}
         />
+
         <div className="card-buttons">
           <div className="card-buttons-div">
             <Button size="small" onClick={decrease} disabled={quantity <= 1}>
@@ -153,7 +230,7 @@ const ProductCard = ({ product }: { product: Product }) => {
                 const text = e.currentTarget.textContent?.trim() || '1';
                 let newQty = Number(text);
                 if (Number.isNaN(newQty) || newQty < 1) newQty = 1;
-                if (newQty > product.stock) newQty = product.stock;
+                if (currentVariant && newQty > currentVariant.stock) newQty = currentVariant.stock;
                 setQuantity(newQty);
                 e.currentTarget.textContent = newQty.toString().padStart(2, '0');
               }}
@@ -169,18 +246,21 @@ const ProductCard = ({ product }: { product: Product }) => {
             <Button
               size="small"
               onClick={increase}
-              disabled={quantity >= product.stock}
+              disabled={currentVariant ? quantity >= currentVariant.stock : true}
             >
               +
             </Button>
           </div>
+
           <Button
             type="primary"
             onClick={addToCart}
-            disabled={product.stock <= 0}
-            className='add-to-cart'
+            disabled={!currentVariant || currentVariant.stock <= 0}
+            className="add-to-cart"
           >
-            {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
+            {currentVariant?.stock && currentVariant.stock > 0
+              ? 'Add to Cart'
+              : 'Out of Stock'}
           </Button>
         </div>
       </div>
