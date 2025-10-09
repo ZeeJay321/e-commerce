@@ -15,7 +15,7 @@ import {
 } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Product } from '@/models';
+import { Product, ProductVariant } from '@/models';
 import {
   clearProducts,
   deleteProduct,
@@ -27,13 +27,13 @@ import { AppDispatch, RootState } from '@/redux/store';
 import EditProductModal from '@/components/admin-modal/admin-modal';
 
 import ConfirmDeleteModal from '../delete-modal/delete-modal';
+
 import './admin-detail-table.css';
 
 const AdminDetailTable = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteKey, setDeleteKey] = useState<string | null>(null);
   const [reload, setReload] = useState(false);
-
   const [editProduct, setEditProduct] = useState<Product | null>(null);
 
   const dispatch = useDispatch<AppDispatch>();
@@ -84,54 +84,91 @@ const AdminDetailTable = () => {
     return () => window.removeEventListener('ProductUpdated', getUpdatedProducts);
   }, [getUpdatedProducts, reload]);
 
+  // 🔹 Main product columns (no price/stock)
   const columns: TableColumnsType<Product> = [
     {
       title: <span className="table-span-head">Title</span>,
       dataIndex: 'title',
       render: (text: string, record) => (
         <div className="cart-product-div">
-          <img src={record.img} alt="" className="cart-product-image" />
+          <img
+            src={record.variants?.[0]?.img || '/placeholder.png'}
+            alt={text}
+            className="cart-product-image"
+          />
           <span className="font-display text-xs whitespace-normal">{text}</span>
-        </div>
-      )
-    },
-    {
-      title: <span className="table-span-head">Price</span>,
-      dataIndex: 'price',
-      render: (value: number) => (
-        <span className="table-span">
-          $
-          {value.toFixed(2)}
-        </span>
-      )
-    },
-    {
-      title: <span className="table-span-head">Stock</span>,
-      dataIndex: 'stock',
-      render: (value: number) => (
-        <span className="table-span">{value}</span>
-      )
-    },
-    {
-      title: <span className="table-span-head">Actions</span>,
-      key: 'actions',
-      render: (record) => (
-        <div className="table-div">
-          <EditOutlined
-            className="edit-button"
-            onClick={() => setEditProduct(record)}
-          />
-          <DeleteOutlined
-            onClick={() => {
-              setDeleteKey(record.id);
-              setIsDeleteModalOpen(true);
-            }}
-            className="delete-button"
-          />
         </div>
       )
     }
   ];
+
+  // 🔹 Nested table for variants
+  const expandedRowRender = (product: Product) => {
+    const variantColumns = [
+      {
+        title: <span className="table-span-head">Color</span>,
+        dataIndex: 'color',
+        render: (color: string, variant: ProductVariant) => (
+          <div className="flex items-center gap-0.5 pl-3 py-4">
+            <span
+              className="inline-block w-4 h-4 rounded-full border"
+              style={{ backgroundColor: variant.colorCode }}
+            />
+            {color}
+          </div>
+        )
+      },
+      {
+        title: <span className="table-span-head">Size</span>,
+        dataIndex: 'size'
+      },
+      {
+        title: <span className="table-span-head">Price</span>,
+        dataIndex: 'price',
+        render: (price: number) => (
+          <span className="table-span">
+            $
+            {price.toFixed(2)}
+          </span>
+        )
+      },
+      {
+        title: <span className="table-span-head">Stock</span>,
+        dataIndex: 'stock'
+      },
+      {
+        title: <span className="table-span-head">Actions</span>,
+        key: 'actions',
+        render: (_: unknown, variant: ProductVariant) => (
+          <div className="table-div">
+            <EditOutlined
+              className="edit-button"
+              onClick={() => setEditProduct({ ...product, ...variant })}
+            />
+            <DeleteOutlined
+              onClick={() => {
+                setDeleteKey(variant.id);
+                setIsDeleteModalOpen(true);
+              }}
+              className="delete-button"
+            />
+          </div>
+        )
+      }
+    ];
+
+    return (
+      <div className="max-h-[400px] overflow-y-auto border-1 border-gray-300 rounded-md">
+        <Table
+          columns={variantColumns}
+          dataSource={product.variants || []}
+          pagination={false}
+          rowKey="id"
+          size="small"
+        />
+      </div>
+    );
+  };
 
   if (loading) {
     return <Spin size="large" className="flex justify-center py-10" />;
@@ -146,6 +183,7 @@ const AdminDetailTable = () => {
       <Table<Product>
         columns={columns}
         dataSource={products}
+        expandable={{ expandedRowRender }}
         pagination={{
           current: currentPage,
           pageSize,
@@ -164,6 +202,8 @@ const AdminDetailTable = () => {
         onCancel={cancelDelete}
         onConfirm={confirmDelete}
       />
+
+      {/* Edit Modal */}
       {editProduct && (
         <EditProductModal
           open={!!editProduct}
@@ -179,7 +219,7 @@ const AdminDetailTable = () => {
             size: editProduct.size
           }}
           showImage
-          title="Edit a Single Product"
+          title="Edit Product"
           actionLabel="Update"
           onAction={async (formData) => {
             await dispatch(updateProduct({ id: editProduct.id, formData }));
