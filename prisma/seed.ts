@@ -1,12 +1,12 @@
 import bcrypt from 'bcrypt';
 import moment from 'moment';
-
-// eslint-disable-next-line import/no-relative-packages
-import { PrismaClient } from '../app/generated/prisma';
+import { PrismaClient, Size } from '../app/generated/prisma';
 
 const prisma = new PrismaClient();
 
 async function main() {
+  console.log('🌱 Starting seed...');
+
   const userPassword = await bcrypt.hash('user123', 10);
   const adminPassword = await bcrypt.hash('admin123', 10);
 
@@ -35,7 +35,7 @@ async function main() {
 
   // ---- ADMINS ----
   const admins = await Promise.all(
-    Array.from({ length: 4 }).map((_, i) =>
+    Array.from({ length: 2 }).map((_, i) =>
       prisma.user.create({
         data: {
           fullname: `Admin ${i + 1}`,
@@ -49,8 +49,8 @@ async function main() {
     )
   );
 
-  // ---- PRODUCTS ----
-  const productImages = [
+  // ---- PRODUCT BASE DATA ----
+  const baseImages = [
     '/images/pajamas.png',
     '/images/headphones.png',
     '/images/shelf.png',
@@ -61,17 +61,17 @@ async function main() {
     { name: 'Red', code: '#FF0000' },
     { name: 'Green', code: '#00FF00' },
     { name: 'Blue', code: '#0000FF' },
+    { name: 'Black', code: '#000000' },
   ];
 
-  const sizes = ['S', 'M', 'L'];
+  const sizes: Size[] = [Size.S, Size.M, Size.L, Size.XL];
 
-  // Create base products
+  // ---- CREATE PRODUCTS ----
   const products = await Promise.all(
     Array.from({ length: 80 }).map((_, i) =>
       prisma.product.create({
         data: {
           title: `Product ${i + 1}`,
-          img: productImages[i % productImages.length],
           isDeleted: false,
           metadata: {},
         },
@@ -79,7 +79,7 @@ async function main() {
     )
   );
 
-  // Create variants for each product
+  // ---- CREATE VARIANTS ----
   const variants: any[] = [];
   for (const product of products) {
     for (const color of colors) {
@@ -90,6 +90,7 @@ async function main() {
             color: color.name,
             colorCode: color.code,
             size,
+            img: baseImages[Math.floor(Math.random() * baseImages.length)],
             price: Math.floor(Math.random() * 100) + 10,
             stock: Math.floor(Math.random() * 50) + 1,
             metadata: {},
@@ -100,7 +101,7 @@ async function main() {
     }
   }
 
-  // ---- ORDERS ----
+  // ---- CREATE ORDERS ----
   const orders = await Promise.all(
     Array.from({ length: 4 }).map(async (_, i) => {
       const user = users[i];
@@ -110,19 +111,21 @@ async function main() {
       const order = await prisma.order.create({
         data: {
           userId: user.id,
-          amount: 0, // will update later
+          amount: 0, // will be updated later
           metadata: {},
           date: moment().subtract(i, 'days').format('DD MMM YYYY'),
           products: {
             create: [
               {
                 variantId: variant1.id,
+                productId: variant1.productId,
                 quantity: 1,
                 price: variant1.price,
                 metadata: {},
               },
               {
                 variantId: variant2.id,
+                productId: variant2.productId,
                 quantity: 2,
                 price: variant2.price,
                 metadata: {},
@@ -134,8 +137,7 @@ async function main() {
       });
 
       const total = order.products.reduce(
-        (sum: number, item: { price: number; quantity: number }) =>
-          sum + item.price * item.quantity,
+        (sum, item) => sum + item.price * item.quantity,
         0
       );
 
@@ -146,14 +148,14 @@ async function main() {
     })
   );
 
-  console.log(
-    `✅ Seed complete:
-    👤 ${users.length} users
-    👑 ${admins.length} admins
-    🛍️ ${products.length} products
-    🎨 ${variants.length} variants
-    📦 ${orders.length} orders`
-  );
+  console.log(`
+✅ Seed complete!
+👤 ${users.length} users
+👑 ${admins.length} admins
+🛍️ ${products.length} products
+🎨 ${variants.length} variants
+📦 ${orders.length} orders
+`);
 }
 
 main()

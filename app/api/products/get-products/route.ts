@@ -69,6 +69,7 @@ export async function GET(req: Request) {
           variants: {
             select: {
               id: true,
+              img: true,
               color: true,
               colorCode: true,
               size: true,
@@ -116,6 +117,7 @@ export async function GET(req: Request) {
         variants: {
           select: {
             id: true,
+            img: true,
             color: true,
             colorCode: true,
             size: true,

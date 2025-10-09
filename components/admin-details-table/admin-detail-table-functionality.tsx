@@ -1,15 +1,21 @@
 'use client';
 
 import {
-  useCallback, useEffect, useMemo, useState
+  useCallback,
+  useEffect,
+  useState
 } from 'react';
 
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
-import { Alert, Spin, Table } from 'antd';
+import {
+  Alert,
+  Spin,
+  Table
+} from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 
-import EditProductModal from '@/components/admin-modal/admin-modal';
+import { Product } from '@/models';
 import {
   clearProducts,
   deleteProduct,
@@ -18,28 +24,48 @@ import {
 } from '@/redux/slices/products-slice';
 import { AppDispatch, RootState } from '@/redux/store';
 
-import ConfirmDeleteModal from '../delete-modal/delete-modal';
+import EditProductModal from '@/components/admin-modal/admin-modal';
 
+import ConfirmDeleteModal from '../delete-modal/delete-modal';
 import './admin-detail-table.css';
 
 const AdminDetailTable = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteKey, setDeleteKey] = useState<string | null>(null);
   const [reload, setReload] = useState(false);
-  const [editVariant, setEditVariant] = useState<any | null>(null);
+
+  const [editProduct, setEditProduct] = useState<Product | null>(null);
 
   const dispatch = useDispatch<AppDispatch>();
   const {
-    items: products,
-    total,
-    loading,
-    error
-  } = useSelector((state: RootState) => state.products);
+    items: products, total, loading, error
+  } = useSelector(
+    (state: RootState) => state.products
+  );
 
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
 
-  /** Fetch products with variants */
+  const handleDeleteProduct = (deleteId: string | null) => {
+    if (!deleteId) return;
+    dispatch(deleteProduct(deleteId));
+  };
+
+  const confirmDelete = () => {
+    if (deleteKey !== null) {
+      handleDeleteProduct(deleteKey);
+    }
+    setReload((prev) => !prev);
+    setIsDeleteModalOpen(false);
+    setDeleteKey(null);
+    window.dispatchEvent(new Event('ProductUpdated'));
+  };
+
+  const cancelDelete = () => {
+    setIsDeleteModalOpen(false);
+    setDeleteKey(null);
+  };
+
   const getUpdatedProducts = useCallback(() => {
     dispatch(clearProducts());
     dispatch(
@@ -58,46 +84,9 @@ const AdminDetailTable = () => {
     return () => window.removeEventListener('ProductUpdated', getUpdatedProducts);
   }, [getUpdatedProducts, reload]);
 
-  /** Flatten all variants into table rows */
-  const variantRows = useMemo(() => {
-    if (!products?.length) return [];
-    return products.flatMap((product) => product.variants.map((variant: any) => ({
-      key: variant.id,
-      productId: product.id,
-      variantId: variant.id,
-      title: product.title,
-      img: product.img,
-      color: variant.color,
-      colorCode: variant.colorCode,
-      size: variant.size,
-      price: variant.price,
-      stock: variant.stock
-    })));
-  }, [products]);
-
-  const handleDeleteVariant = (variantId: string | null) => {
-    if (!variantId) return;
-    dispatch(deleteProduct(variantId));
-  };
-
-  const confirmDelete = () => {
-    if (deleteKey !== null) {
-      handleDeleteVariant(deleteKey);
-    }
-    setReload((prev) => !prev);
-    setIsDeleteModalOpen(false);
-    setDeleteKey(null);
-    window.dispatchEvent(new Event('ProductUpdated'));
-  };
-
-  const cancelDelete = () => {
-    setIsDeleteModalOpen(false);
-    setDeleteKey(null);
-  };
-
-  const columns: TableColumnsType<any> = [
+  const columns: TableColumnsType<Product> = [
     {
-      title: <span className="table-span-head">Product</span>,
+      title: <span className="table-span-head">Title</span>,
       dataIndex: 'title',
       render: (text: string, record) => (
         <div className="cart-product-div">
@@ -105,26 +94,6 @@ const AdminDetailTable = () => {
           <span className="font-display text-xs whitespace-normal">{text}</span>
         </div>
       )
-    },
-    {
-      title: <span className="table-span-head">Color</span>,
-      dataIndex: 'color',
-      render: (color: string, record) => (
-        <div className="flex items-center gap-2">
-          <span className="table-span">{color}</span>
-          {record.colorCode && (
-            <span
-              className="w-4 h-4 rounded-full border"
-              style={{ backgroundColor: record.colorCode }}
-            />
-          )}
-        </div>
-      )
-    },
-    {
-      title: <span className="table-span-head">Size</span>,
-      dataIndex: 'size',
-      render: (value: string) => <span className="table-span">{value}</span>
     },
     {
       title: <span className="table-span-head">Price</span>,
@@ -139,7 +108,9 @@ const AdminDetailTable = () => {
     {
       title: <span className="table-span-head">Stock</span>,
       dataIndex: 'stock',
-      render: (value: number) => <span className="table-span">{value}</span>
+      render: (value: number) => (
+        <span className="table-span">{value}</span>
+      )
     },
     {
       title: <span className="table-span-head">Actions</span>,
@@ -148,11 +119,11 @@ const AdminDetailTable = () => {
         <div className="table-div">
           <EditOutlined
             className="edit-button"
-            onClick={() => setEditVariant(record)}
+            onClick={() => setEditProduct(record)}
           />
           <DeleteOutlined
             onClick={() => {
-              setDeleteKey(record.variantId);
+              setDeleteKey(record.id);
               setIsDeleteModalOpen(true);
             }}
             className="delete-button"
@@ -172,9 +143,9 @@ const AdminDetailTable = () => {
 
   return (
     <div className="cart-items-div">
-      <Table
+      <Table<Product>
         columns={columns}
-        dataSource={variantRows}
+        dataSource={products}
         pagination={{
           current: currentPage,
           pageSize,
@@ -182,44 +153,37 @@ const AdminDetailTable = () => {
           onChange: (page) => setCurrentPage(page)
         }}
         bordered
-        rowKey="variantId"
+        rowKey="id"
       />
 
       {/* Delete Confirmation Modal */}
       <ConfirmDeleteModal
         open={isDeleteModalOpen}
-        title="Remove Variant"
-        text="Are you sure you want to delete this variant?"
+        title="Remove Product"
+        text="Are you sure you want to delete this item?"
         onCancel={cancelDelete}
         onConfirm={confirmDelete}
       />
-
-      {editVariant && (
+      {editProduct && (
         <EditProductModal
-          open={!!editVariant}
-          onClose={() => setEditVariant(null)}
+          open={!!editProduct}
+          onClose={() => setEditProduct(null)}
           product={{
-            id: editVariant.productId,
-            variantId: editVariant.variantId,
-            name: editVariant.title,
-            price: editVariant.price,
-            quantity: editVariant.stock,
-            image: editVariant.img,
-            color: editVariant.color,
-            colorCode: editVariant.colorCode,
-            size: editVariant.size
+            id: editProduct.id,
+            name: editProduct.title,
+            price: editProduct.price,
+            quantity: editProduct.stock,
+            image: editProduct.img,
+            color: editProduct.color,
+            colorCode: editProduct.colorCode,
+            size: editProduct.size
           }}
           showImage
-          title="Edit Product Variant"
+          title="Edit a Single Product"
           actionLabel="Update"
           onAction={async (formData) => {
-            await dispatch(
-              updateProduct({
-                id: editVariant.variantId,
-                formData
-              })
-            );
-            setEditVariant(null);
+            await dispatch(updateProduct({ id: editProduct.id, formData }));
+            setEditProduct(null);
             window.dispatchEvent(new Event('ProductUpdated'));
           }}
         />

@@ -91,7 +91,7 @@ const ProductCard = ({ product }: { product: Product }) => {
       cart[index].qty = newQty;
     } else {
       const newItem: CartItem = {
-        img: product.img,
+        img: currentVariant.img,
         id: product.id,
         variantId: currentVariant.id,
         product: product.title,
@@ -124,7 +124,7 @@ const ProductCard = ({ product }: { product: Product }) => {
           alt={product.title}
           className="card-image"
           height={222}
-          src={product.img}
+          src={currentVariant?.img ?? '/images/default.png'}
           width={257}
         />
       )}
@@ -225,7 +225,7 @@ const ProductCard = ({ product }: { product: Product }) => {
               tabIndex={0}
               aria-label="Edit quantity"
               suppressContentEditableWarning
-              className="card-buttons-span outline-none border rounded-md px-2"
+              className="card-buttons-span px-2"
               onBlur={(e) => {
                 const text = e.currentTarget.textContent?.trim() || '1';
                 let newQty = Number(text);

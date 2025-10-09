@@ -1,5 +1,6 @@
 export interface ProductVariant {
   id: string;
+  img: string;
   color: string;
   colorCode: string;
   size: string;
@@ -9,9 +10,7 @@ export interface ProductVariant {
 
 export interface Product {
   id: string;
-  variantId: string;
   title: string;
-  img: string;
   isDeleted: boolean;
   createdAt: string;
   updatedAt: string;

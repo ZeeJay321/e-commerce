@@ -8,6 +8,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Size {
+  S
+  M
+  L
+  XL
+}
+
 model User {
   id                  String     @id @default(uuid())
   fullname            String
@@ -26,11 +33,9 @@ model User {
   orders              Order[]
 }
 
-
 model Product {
   id          String            @id @default(uuid())
   title       String
-  img         String
   isDeleted   Boolean           @default(false)
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
@@ -46,16 +51,17 @@ model ProductVariant {
   productId   String
   color       String
   colorCode   String?
-  size        String
+  size        Size
+  img         String
   price       Float
-  stock       Int         @default(0)
+  stock       Int          @default(0)
   metadata    Json?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
   // Relations
-  product     Product     @relation(fields: [productId], references: [id])
-  orderItems  OrderItem[] @relation("VariantOrderItems")
+  product     Product      @relation(fields: [productId], references: [id])
+  orderItems  OrderItem[]  @relation("VariantOrderItems")
 }
 
 model Order {

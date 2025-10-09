@@ -55,13 +55,13 @@ export async function GET(
             quantity: true,
             product: {
               select: {
-                title: true,
-                img: true
+                title: true
               }
             },
             variant: {
               select: {
-                stock: true
+                stock: true,
+                img: true
               }
             }
           }
