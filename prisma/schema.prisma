@@ -55,6 +55,7 @@ model ProductVariant {
   img         String
   price       Float
   stock       Int          @default(0)
+  isDeleted   Boolean      @default(false)
   metadata    Json?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
@@ -63,6 +64,7 @@ model ProductVariant {
   product     Product      @relation(fields: [productId], references: [id])
   orderItems  OrderItem[]  @relation("VariantOrderItems")
 }
+
 
 model Order {
   id          String      @id @default(uuid())

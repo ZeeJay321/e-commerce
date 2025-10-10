@@ -19,6 +19,7 @@ import { Product, ProductVariant } from '@/models';
 import {
   clearProducts,
   deleteProduct,
+  deleteVariant,
   fetchProducts,
   updateProduct
 } from '@/redux/slices/products-slice';
@@ -31,7 +32,8 @@ import ConfirmDeleteModal from '../delete-modal/delete-modal';
 import './admin-detail-table.css';
 
 const AdminDetailTable = () => {
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleteVariantModalOpen, setIsDeleteVariantModalOpen] = useState(false);
+  const [isDeleteProductModalOpen, setIsDeleteProductModalOpen] = useState(false);
   const [deleteKey, setDeleteKey] = useState<string | null>(null);
   const [reload, setReload] = useState(false);
   const [editProduct, setEditProduct] = useState<Product | null>(null);
@@ -46,23 +48,43 @@ const AdminDetailTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
 
+  const handleDeleteVariant = (deleteId: string | null) => {
+    if (!deleteId) return;
+    dispatch(deleteVariant(deleteId));
+  };
+
+  const confirmVariantDelete = () => {
+    if (deleteKey !== null) {
+      handleDeleteVariant(deleteKey);
+    }
+    setReload((prev) => !prev);
+    setIsDeleteVariantModalOpen(false);
+    setDeleteKey(null);
+    window.dispatchEvent(new Event('ProductUpdated'));
+  };
+
   const handleDeleteProduct = (deleteId: string | null) => {
     if (!deleteId) return;
     dispatch(deleteProduct(deleteId));
   };
 
-  const confirmDelete = () => {
+  const confirmProductDelete = () => {
     if (deleteKey !== null) {
       handleDeleteProduct(deleteKey);
     }
     setReload((prev) => !prev);
-    setIsDeleteModalOpen(false);
+    setIsDeleteProductModalOpen(false);
     setDeleteKey(null);
     window.dispatchEvent(new Event('ProductUpdated'));
   };
 
-  const cancelDelete = () => {
-    setIsDeleteModalOpen(false);
+  const cancelVariantDelete = () => {
+    setIsDeleteVariantModalOpen(false);
+    setDeleteKey(null);
+  };
+
+  const cancelProductDelete = () => {
+    setIsDeleteProductModalOpen(false);
     setDeleteKey(null);
   };
 
@@ -97,6 +119,21 @@ const AdminDetailTable = () => {
             className="cart-product-image"
           />
           <span className="font-display text-xs whitespace-normal">{text}</span>
+        </div>
+      )
+    },
+    {
+      title: <span className="table-span-head">Actions</span>,
+      key: 'actions',
+      render: (record) => (
+        <div className="table-div">
+          <DeleteOutlined
+            onClick={() => {
+              setDeleteKey(record.id);
+              setIsDeleteProductModalOpen(true);
+            }}
+            className="delete-button"
+          />
         </div>
       )
     }
@@ -148,7 +185,7 @@ const AdminDetailTable = () => {
             <DeleteOutlined
               onClick={() => {
                 setDeleteKey(variant.id);
-                setIsDeleteModalOpen(true);
+                setIsDeleteVariantModalOpen(true);
               }}
               className="delete-button"
             />
@@ -194,13 +231,22 @@ const AdminDetailTable = () => {
         rowKey="id"
       />
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Confirmation Variant Modal */}
       <ConfirmDeleteModal
-        open={isDeleteModalOpen}
+        open={isDeleteVariantModalOpen}
+        title="Remove Product Variant"
+        text="Are you sure you want to delete this item?"
+        onCancel={cancelVariantDelete}
+        onConfirm={confirmVariantDelete}
+      />
+
+      {/* Delete Confirmation Product Modal */}
+      <ConfirmDeleteModal
+        open={isDeleteProductModalOpen}
         title="Remove Product"
         text="Are you sure you want to delete this item?"
-        onCancel={cancelDelete}
-        onConfirm={confirmDelete}
+        onCancel={cancelProductDelete}
+        onConfirm={confirmProductDelete}
       />
 
       {/* Edit Modal */}

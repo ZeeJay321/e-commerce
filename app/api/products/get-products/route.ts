@@ -123,7 +123,8 @@ export async function GET(req: Request) {
             size: true,
             price: true,
             stock: true
-          }
+          },
+          where: { isDeleted: false }
         }
       }
     });

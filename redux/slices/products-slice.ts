@@ -146,6 +146,28 @@ export const deleteProduct = createAsyncThunk<
   }
 });
 
+export const deleteVariant = createAsyncThunk<
+  string,
+  string,
+  { rejectValue: string }
+>('products/deleteVariant', async (variantId, { rejectWithValue }) => {
+  try {
+    const res = await fetch(`/api/products/delete-variant/${variantId}`, {
+      method: 'PUT',
+      credentials: 'include'
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      return rejectWithValue(data.error || 'Failed to delete product variant');
+    }
+
+    return variantId;
+  } catch (err) {
+    return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
+  }
+});
+
 export const updateProduct = createAsyncThunk<
   Product,
   { id: string; formData: FormData },
@@ -271,6 +293,18 @@ const productsSlice = createSlice({
         state.loading = false;
       })
       .addCase(deleteProduct.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to delete product';
+      })
+
+      .addCase(deleteVariant.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteVariant.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(deleteVariant.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to delete product';
       })

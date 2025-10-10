@@ -33,7 +33,7 @@ export async function PUT(
       );
     }
 
-    const updatedProduct = await prisma.$transaction(async (tx) => tx.product.update({
+    const updatedVariant = await prisma.$transaction(async (tx) => tx.productVariant.update({
       where: { id: value.id },
       data: { isDeleted: true }
     }));
@@ -41,8 +41,8 @@ export async function PUT(
     return NextResponse.json(
       {
         success: true,
-        message: `Product ${updatedProduct.id} deleted successfully`,
-        product: { id: updatedProduct.id }
+        message: `Product Variant ${updatedVariant.id} deleted successfully`,
+        product: { id: updatedVariant.id }
       },
       { status: 200 }
     );
