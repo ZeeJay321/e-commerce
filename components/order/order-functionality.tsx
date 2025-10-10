@@ -21,6 +21,7 @@ import { OrderRow } from '@/models';
 import { fetchOrders } from '@/redux/slices/orders-slice';
 import { AppDispatch, RootState } from '@/redux/store';
 
+import 'antd/dist/reset.css';
 import './order.css';
 
 interface OrdersTableProps {

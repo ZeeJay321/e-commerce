@@ -14,7 +14,6 @@ import LoadingSpinner from '@/components/loading/loading-spinner';
 
 import SearchBar from '@/components/search-bar/search-bar-functionality';
 
-import 'antd/dist/reset.css';
 import './home.css';
 
 import OrdersTable from '@/components/order/order-functionality';

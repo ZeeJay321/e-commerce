@@ -13,7 +13,7 @@ import AdminDetailTable from '@/components/admin-details-table/admin-detail-tabl
 import EditProductModal from '@/components/admin-modal/admin-modal';
 import LoadingSpinner from '@/components/loading/loading-spinner';
 import 'antd/dist/reset.css';
-import './home.css';
+import './products.css';
 
 const Page = () => {
   const [isRendered, setIsRendered] = useState(false);
