@@ -64,17 +64,7 @@ const Page = () => {
         <EditProductModal
           open={addProductOpen}
           onClose={() => setAddProductOpen(false)}
-          mode="edit"
-          product={{
-            id: '',
-            name: '',
-            price: 0,
-            quantity: 0,
-            image: '',
-            color: '',
-            colorCode: '',
-            size: ''
-          }}
+          mode="create"
           showImage={false}
           title="Add a New Product"
           actionLabel="Save"

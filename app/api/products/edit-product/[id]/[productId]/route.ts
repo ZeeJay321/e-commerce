@@ -1,7 +1,6 @@
+import { IncomingHttpHeaders } from 'http';
 import { Readable } from 'stream';
 import type { ReadableStream as NodeReadableStream } from 'stream/web';
-
-import { IncomingHttpHeaders } from 'http';
 
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -9,7 +8,7 @@ import type { Response } from 'express';
 
 import { PrismaClient } from '@/app/generated/prisma';
 import { runMiddleware, upload } from '@/lib/multer';
-import { updateProductSchema } from '@/lib/validation/product-schemas';
+import { updateProductVariantSchema } from '@/lib/validation/product-schemas';
 
 const prisma = new PrismaClient();
 
@@ -24,10 +23,10 @@ interface MulterLikeRequest extends Readable {
 
 export async function PUT(
   req: NextRequest,
-  context: { params: { id: string } }
+  context: { params: { productId: string; id: string } }
 ) {
   try {
-    const { id } = context.params;
+    const { productId, id } = context.params;
 
     const nodeStream = Readable.fromWeb(
       req.body as NodeReadableStream<Uint8Array>
@@ -55,7 +54,9 @@ export async function PUT(
 
     const { body, file } = expressReq;
 
-    const { error, value } = updateProductSchema.validate(body, { abortEarly: false });
+    const { error, value } = updateProductVariantSchema.validate(body, {
+      abortEarly: false
+    });
 
     if (error) {
       return NextResponse.json(
@@ -65,23 +66,32 @@ export async function PUT(
     }
 
     const updateData: Record<string, unknown> = {};
-    if (value.name) updateData.title = value.name;
-    if (value.price) updateData.price = value.price;
-    if (value.quantity) updateData.stock = value.quantity;
+    if (value.price !== undefined) updateData.price = parseFloat(value.price);
+    if (value.quantity !== undefined) updateData.stock = parseInt(value.quantity, 10);
     if (value.color) updateData.color = value.color;
     if (value.colorCode) updateData.colorCode = value.colorCode;
     if (value.size) updateData.size = value.size;
     if (file) updateData.img = `/home/images/${file.filename}`;
+    updateData.isDeleted = false;
 
-    updateData.isDeleted = true;
-
-    const updated = await prisma.product.update({
+    const updated = await prisma.productVariant.update({
       where: { id },
-      data: updateData
+      data: {
+        ...updateData,
+        product: {
+          connect: { id: productId }
+        }
+      }
     });
 
-    return NextResponse.json(`Product ${updated.title} Updated Successfully`);
+    return NextResponse.json(
+      { message: `Variant ${updated.id} updated successfully` },
+      { status: 200 }
+    );
   } catch (err) {
-    return NextResponse.json({ error: (err as Error).message }, { status: 500 });
+    return NextResponse.json(
+      { error: (err as Error).message },
+      { status: 500 }
+    );
   }
 }

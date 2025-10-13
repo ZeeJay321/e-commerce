@@ -6,7 +6,11 @@ import {
   useState
 } from 'react';
 
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import {
+  DeleteOutlined,
+  EditOutlined,
+  PlusCircleOutlined
+} from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
 import {
   Alert,
@@ -17,11 +21,12 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { Product, ProductVariant } from '@/models';
 import {
+  addVariant,
   clearProducts,
   deleteProduct,
   deleteVariant,
   fetchProducts,
-  updateProduct
+  updateProductVariant
 } from '@/redux/slices/products-slice';
 import { AppDispatch, RootState } from '@/redux/store';
 
@@ -36,7 +41,9 @@ const AdminDetailTable = () => {
   const [isDeleteProductModalOpen, setIsDeleteProductModalOpen] = useState(false);
   const [deleteKey, setDeleteKey] = useState<string | null>(null);
   const [reload, setReload] = useState(false);
+  const [editVariant, setEditVariant] = useState<ProductVariant | null>(null);
   const [editProduct, setEditProduct] = useState<Product | null>(null);
+  const [addVariantProduct, setAddVariantProduct] = useState<Product | null>(null);
 
   const dispatch = useDispatch<AppDispatch>();
   const {
@@ -106,27 +113,26 @@ const AdminDetailTable = () => {
     return () => window.removeEventListener('ProductUpdated', getUpdatedProducts);
   }, [getUpdatedProducts, reload]);
 
-  // 🔹 Main product columns (no price/stock)
   const columns: TableColumnsType<Product> = [
     {
       title: <span className="table-span-head">Title</span>,
       dataIndex: 'title',
-      render: (text: string, record) => (
+      render: (text: string) => (
         <div className="cart-product-div">
-          <img
-            src={record.variants?.[0]?.img || '/placeholder.png'}
-            alt={text}
-            className="cart-product-image"
-          />
           <span className="font-display text-xs whitespace-normal">{text}</span>
         </div>
       )
-    },
-    {
+    }, {
       title: <span className="table-span-head">Actions</span>,
       key: 'actions',
       render: (record) => (
         <div className="table-div">
+          <PlusCircleOutlined
+            onClick={() => {
+              setAddVariantProduct(record);
+            }}
+            className="edit-button"
+          />
           <DeleteOutlined
             onClick={() => {
               setDeleteKey(record.id);
@@ -147,6 +153,10 @@ const AdminDetailTable = () => {
         dataIndex: 'color',
         render: (color: string, variant: ProductVariant) => (
           <div className="flex items-center gap-0.5 pl-3 py-4">
+            <img
+              src={variant.img || '/placeholder.png'}
+              className="cart-product-image"
+            />
             <span
               className="inline-block w-4 h-4 rounded-full border"
               style={{ backgroundColor: variant.colorCode }}
@@ -154,12 +164,10 @@ const AdminDetailTable = () => {
             {color}
           </div>
         )
-      },
-      {
+      }, {
         title: <span className="table-span-head">Size</span>,
         dataIndex: 'size'
-      },
-      {
+      }, {
         title: <span className="table-span-head">Price</span>,
         dataIndex: 'price',
         render: (price: number) => (
@@ -168,19 +176,20 @@ const AdminDetailTable = () => {
             {price.toFixed(2)}
           </span>
         )
-      },
-      {
+      }, {
         title: <span className="table-span-head">Stock</span>,
         dataIndex: 'stock'
-      },
-      {
+      }, {
         title: <span className="table-span-head">Actions</span>,
         key: 'actions',
         render: (_: unknown, variant: ProductVariant) => (
           <div className="table-div">
             <EditOutlined
               className="edit-button"
-              onClick={() => setEditProduct({ ...product, ...variant })}
+              onClick={() => {
+                setEditProduct(product);
+                setEditVariant(variant);
+              }}
             />
             <DeleteOutlined
               onClick={() => {
@@ -250,26 +259,68 @@ const AdminDetailTable = () => {
       />
 
       {/* Edit Modal */}
-      {editProduct && (
+      {editProduct && editVariant && (
         <EditProductModal
           open={!!editProduct}
-          onClose={() => setEditProduct(null)}
+          onClose={() => {
+            setEditProduct(null);
+            setEditVariant(null);
+          }}
           product={{
             id: editProduct.id,
-            name: editProduct.title,
-            price: editProduct.price,
-            quantity: editProduct.stock,
-            image: editProduct.img,
-            color: editProduct.color,
-            colorCode: editProduct.colorCode,
-            size: editProduct.size
+            name: editProduct.title
+          }}
+          variant={{
+            id: editVariant.id,
+            price: editVariant.price,
+            quantity: editVariant.stock,
+            image: editVariant.img,
+            color: editVariant.color,
+            colorCode: editVariant.colorCode,
+            size: editVariant.size
           }}
           showImage
           title="Edit Product"
           actionLabel="Update"
           onAction={async (formData) => {
-            await dispatch(updateProduct({ id: editProduct.id, formData }));
+            await dispatch(updateProductVariant({
+              id: editVariant.id,
+              productId: editProduct.id,
+              formData
+            }));
             setEditProduct(null);
+            window.dispatchEvent(new Event('ProductUpdated'));
+          }}
+        />
+      )}
+
+      {addVariantProduct && (
+        <EditProductModal
+          open={!!addVariantProduct}
+          onClose={() => setAddVariantProduct(null)}
+          mode="edit"
+          product={{
+            id: addVariantProduct.id,
+            name: addVariantProduct.title
+          }}
+          variant={{
+            id: '',
+            price: 0,
+            quantity: 0,
+            image: '',
+            color: '',
+            colorCode: '',
+            size: ''
+          }}
+          showImage={false}
+          title="Add New Variant"
+          actionLabel="Add"
+          onAction={async (formData) => {
+            await dispatch(addVariant({
+              productId: addVariantProduct.id,
+              formData
+            }));
+            setAddVariantProduct(null);
             window.dispatchEvent(new Event('ProductUpdated'));
           }}
         />

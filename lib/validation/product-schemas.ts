@@ -32,6 +32,15 @@ export const updateProductSchema = Joi.object({
   size: Joi.string()
 }).min(1);
 
+export const updateProductVariantSchema = Joi.object({
+  name: Joi.string().min(2).max(100),
+  price: Joi.number().positive(),
+  quantity: Joi.number().integer().min(0),
+  color: Joi.string(),
+  colorCode: Joi.string().pattern(/^#([0-9A-Fa-f]{6})$/),
+  size: Joi.string()
+}).min(1);
+
 export const disableSchema = Joi.object({
   id: Joi.string()
     .guid({ version: ['uuidv4', 'uuidv5'] })
@@ -48,6 +57,21 @@ export const addProductSchema = Joi.object({
       'string.empty': 'Name is required',
       'any.required': 'Name is required'
     }),
+
+  metadata: Joi.alternatives()
+    .try(
+      Joi.object(),
+      Joi.array(),
+      Joi.string()
+    )
+    .allow(null)
+    .optional()
+    .messages({
+      'object.base': 'Metadata must be an object, array, string, or null'
+    })
+});
+
+export const addVariantSchema = Joi.object({
   price: Joi.number().positive().required().messages({
     'number.base': 'Price must be a number',
     'any.required': 'Price is required'

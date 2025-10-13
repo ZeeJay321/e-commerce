@@ -3,7 +3,7 @@ import {
   createSlice
 } from '@reduxjs/toolkit';
 
-import { Product } from '@/models';
+import { Product, ProductVariant } from '@/models';
 
 type ProductsState = {
   items: Product[];
@@ -168,13 +168,21 @@ export const deleteVariant = createAsyncThunk<
   }
 });
 
-export const updateProduct = createAsyncThunk<
+export const updateProductVariant = createAsyncThunk<
   Product,
-  { id: string; formData: FormData },
+  {
+    id: string;
+    productId: string;
+    formData: FormData;
+  },
   { rejectValue: string }
->('products/updateProduct', async ({ id, formData }, { rejectWithValue }) => {
+>('products/updateProduct', async ({
+  id,
+  productId,
+  formData
+}, { rejectWithValue }) => {
   try {
-    const res = await fetch(`/api/products/edit-product/${id}`, {
+    const res = await fetch(`/api/products/edit-product-variant/${id}/${productId}`, {
       method: 'PUT',
       body: formData,
       credentials: 'include'
@@ -213,6 +221,35 @@ export const addProduct = createAsyncThunk<
     return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
   }
 });
+
+export const addVariant = createAsyncThunk<
+  ProductVariant,
+  { productId: string; formData: FormData },
+  { rejectValue: string }
+>(
+  'products/addVariant',
+  async ({ productId, formData }, { rejectWithValue }) => {
+    try {
+      const res = await fetch(`/api/products/add-product-variant?productId=${productId}`, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        return rejectWithValue(data.error || 'Failed to add variant');
+      }
+
+      return data.variant as ProductVariant;
+    } catch (err) {
+      return rejectWithValue(
+        err instanceof Error ? err.message : 'Unknown error'
+      );
+    }
+  }
+);
 
 const productsSlice = createSlice({
   name: 'products',
@@ -309,14 +346,14 @@ const productsSlice = createSlice({
         state.error = action.payload || 'Failed to delete product';
       })
 
-      .addCase(updateProduct.pending, (state) => {
+      .addCase(updateProductVariant.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(updateProduct.fulfilled, (state) => {
+      .addCase(updateProductVariant.fulfilled, (state) => {
         state.loading = false;
       })
-      .addCase(updateProduct.rejected, (state, action) => {
+      .addCase(updateProductVariant.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to update product';
       })
@@ -329,6 +366,18 @@ const productsSlice = createSlice({
         state.loading = false;
       })
       .addCase(addProduct.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to add product';
+      })
+
+      .addCase(addVariant.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addVariant.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(addVariant.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to add product';
       });
