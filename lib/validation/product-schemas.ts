@@ -52,22 +52,61 @@ export const disableSchema = Joi.object({
 });
 
 export const addProductSchema = Joi.object({
-  name: Joi.string().min(2).max(100).required()
+  name: Joi.string()
+    .min(2)
+    .max(100)
+    .required()
     .messages({
       'string.empty': 'Name is required',
       'any.required': 'Name is required'
     }),
 
-  metadata: Joi.alternatives()
-    .try(
-      Joi.object(),
-      Joi.array(),
-      Joi.string()
+  variants: Joi.array()
+    .items(
+      Joi.object({
+        id: Joi.string()
+          .guid({ version: ['uuidv4'] })
+          .required()
+          .messages({
+            'string.guid': 'Invalid variant ID format',
+            'any.required': 'Variant ID is required'
+          }),
+
+        price: Joi.number().min(0).required().messages({
+          'number.base': 'Price must be a number',
+          'any.required': 'Price is required'
+        }),
+
+        quantity: Joi.number().integer().min(0).required()
+          .messages({
+            'number.base': 'Quantity must be a number',
+            'any.required': 'Quantity is required'
+          }),
+
+        color: Joi.string().max(50).required().messages({
+          'string.empty': 'Color is required',
+          'any.required': 'Color is required'
+        }),
+
+        colorCode: Joi.string().max(10).required().messages({
+          'string.empty': 'Color code is required',
+          'any.required': 'Color code is required'
+        }),
+
+        size: Joi.string().valid('S', 'M', 'L', 'XL').required().messages({
+          'any.only': 'Size must be one of S, M, L, XL',
+          'any.required': 'Size is required'
+        }),
+
+        image: Joi.string().allow('').optional()
+      })
     )
-    .allow(null)
-    .optional()
+    .min(1)
+    .required()
     .messages({
-      'object.base': 'Metadata must be an object, array, string, or null'
+      'array.base': 'Variants must be an array',
+      'array.min': 'At least one variant is required',
+      'any.required': 'Variants are required'
     })
 });
 

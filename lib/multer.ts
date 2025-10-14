@@ -1,8 +1,6 @@
 import fs from 'fs';
-import path from 'path';
-
 import { IncomingHttpHeaders } from 'http';
-
+import path from 'path';
 import { Readable } from 'stream';
 
 import type { Request } from 'express';
@@ -39,15 +37,17 @@ const storage = multer.diskStorage({
   filename(request, file, cb) {
     const typedReq = request as MulterRequest;
 
+    const ext = path.extname(file.originalname);
+    const base = path.basename(file.originalname, ext);
+
     const productId = (typedReq.query?.id as string)
       || (typedReq.body?.id as string)
-      || 'unknown';
+      || base;
 
-    const ext = path.extname(file.originalname);
     const fileName = `${productId}${ext}`;
 
-    const fullPath = path.join(process.cwd(), 'public/home/images', fileName);
-    if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
+    const uploadPath = path.join(process.cwd(), 'public/home/images', fileName);
+    if (fs.existsSync(uploadPath)) fs.unlinkSync(uploadPath);
 
     cb(null, fileName);
   }

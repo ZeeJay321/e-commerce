@@ -75,7 +75,8 @@ export async function GET(req: Request) {
               size: true,
               price: true,
               stock: true
-            }
+            },
+            where: { isDeleted: false }
           }
         },
         orderBy: { createdAt: 'desc' },
@@ -134,7 +135,6 @@ export async function GET(req: Request) {
     return NextResponse.json({ products, total }, { status: 200 });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    console.error('❌ Product fetch failed:', message);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
