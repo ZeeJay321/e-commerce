@@ -29,6 +29,8 @@ model User {
   resetToken          String?    @unique
   resetTokenExpiresAt DateTime?
 
+  stripeCustomerId    String?    @unique
+
   // Relations
   orders              Order[]
 }

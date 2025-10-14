@@ -34,7 +34,7 @@
     "react-redux": "^9.2.0",
     "react-window": "^2.2.0",
     "react-window-infinite-loader": "^2.0.0",
-    "stripe": "^19.0.0",
+    "stripe": "^19.1.0",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
