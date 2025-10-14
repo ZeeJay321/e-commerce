@@ -81,7 +81,6 @@ export async function GET(
     return NextResponse.json(order, { status: 200 });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    console.error('❌ Failed to fetch order detail:', message);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
