@@ -84,10 +84,10 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    return NextResponse.json({
-      message: `Variant ${variant.id} added successfully`,
-      variant
-    });
+    return NextResponse.json(
+      { message: `Variant ${variant.id} added successfully` },
+      { status: 200 }
+    );
   } catch (err) {
     return NextResponse.json(
       { error: (err as Error).message },

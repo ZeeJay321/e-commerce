@@ -131,20 +131,29 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
     async jwt({ token, user, account }) {
-      if (account) {
+      // Run only on initial sign-in and only if provider is Google
+      if (account && account.provider === 'google') {
         token.accessToken = account.access_token;
       }
 
-      if (user) {
+      if (user && account?.provider === 'google') {
         const dbUser = await findUserByEmail(user.email!);
 
         if (dbUser) {
           token.id = dbUser.id;
           token.role = dbUser.role;
           token.rememberMe = false;
+
+          // Example: set token expiry to 30 minutes
           const maxAge = 30 * 60;
           token.exp = Math.floor(Date.now() / 1000 + maxAge);
         }
+      } else if (user) {
+        token.id = user.id;
+        token.role = user.role;
+        token.rememberMe = user.rememberMe;
+        const maxAge = user.rememberMe ? 30 * 24 * 60 * 60 : 30 * 60;
+        token.exp = Math.floor(Date.now() / 1000 + maxAge);
       }
 
       return token;
