@@ -3,8 +3,7 @@ import {
   createSlice
 } from '@reduxjs/toolkit';
 
-import { updateCartOnError } from '@/helper/cart-updater';
-import { Product } from '@/models';
+import { Product, ProductVariant } from '@/models';
 
 type ProductsState = {
   items: Product[];
@@ -147,13 +146,43 @@ export const deleteProduct = createAsyncThunk<
   }
 });
 
-export const updateProduct = createAsyncThunk<
-  Product,
-  { id: string; formData: FormData },
+export const deleteVariant = createAsyncThunk<
+  string,
+  string,
   { rejectValue: string }
->('products/updateProduct', async ({ id, formData }, { rejectWithValue }) => {
+>('products/deleteVariant', async (variantId, { rejectWithValue }) => {
   try {
-    const res = await fetch(`/api/products/edit-product/${id}`, {
+    const res = await fetch(`/api/products/delete-variant/${variantId}`, {
+      method: 'PUT',
+      credentials: 'include'
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      return rejectWithValue(data.error || 'Failed to delete product variant');
+    }
+
+    return variantId;
+  } catch (err) {
+    return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
+  }
+});
+
+export const updateProductVariant = createAsyncThunk<
+  Product,
+  {
+    id: string;
+    productId: string;
+    formData: FormData;
+  },
+  { rejectValue: string }
+>('products/updateProduct', async ({
+  id,
+  productId,
+  formData
+}, { rejectWithValue }) => {
+  try {
+    const res = await fetch(`/api/products/edit-product-variant/${id}/${productId}`, {
       method: 'PUT',
       body: formData,
       credentials: 'include'
@@ -193,37 +222,34 @@ export const addProduct = createAsyncThunk<
   }
 });
 
-export const fetchProductStock = createAsyncThunk<
-  Product[],
-  string[],
+export const addVariant = createAsyncThunk<
+  ProductVariant,
+  { productId: string; formData: FormData },
   { rejectValue: string }
->('products/fetchProductStock', async (productIds, { rejectWithValue }) => {
-  try {
-    const res = await fetch('/api/products/get-stock', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productIds }),
-      credentials: 'include'
-    });
+>(
+  'products/addVariant',
+  async ({ productId, formData }, { rejectWithValue }) => {
+    try {
+      const res = await fetch(`/api/products/add-product-variant?productId=${productId}`, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+      });
 
-    const data = await res.json();
-    if (!res.ok) {
-      return rejectWithValue(data.error || 'Failed to fetch product stock');
+      const data = await res.json();
+
+      if (!res.ok) {
+        return rejectWithValue(data.error || 'Failed to add variant');
+      }
+
+      return data.variant as ProductVariant;
+    } catch (err) {
+      return rejectWithValue(
+        err instanceof Error ? err.message : 'Unknown error'
+      );
     }
-
-    const outOfStock = data.products.map((p: Product) => ({
-      productId: p.id,
-      availableStock: p.stock
-    }));
-
-    const triggerEvent = true;
-    updateCartOnError(outOfStock, 'cartData', triggerEvent);
-
-    return data.products as Product[];
-  } catch (err) {
-    return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
   }
-});
+);
 
 const productsSlice = createSlice({
   name: 'products',
@@ -308,14 +334,26 @@ const productsSlice = createSlice({
         state.error = action.payload || 'Failed to delete product';
       })
 
-      .addCase(updateProduct.pending, (state) => {
+      .addCase(deleteVariant.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(updateProduct.fulfilled, (state) => {
+      .addCase(deleteVariant.fulfilled, (state) => {
         state.loading = false;
       })
-      .addCase(updateProduct.rejected, (state, action) => {
+      .addCase(deleteVariant.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to delete product';
+      })
+
+      .addCase(updateProductVariant.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateProductVariant.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(updateProductVariant.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to update product';
       })
@@ -332,17 +370,16 @@ const productsSlice = createSlice({
         state.error = action.payload || 'Failed to add product';
       })
 
-      .addCase(fetchProductStock.pending, (state) => {
+      .addCase(addVariant.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchProductStock.fulfilled, (state, action) => {
+      .addCase(addVariant.fulfilled, (state) => {
         state.loading = false;
-        state.items = action.payload;
       })
-      .addCase(fetchProductStock.rejected, (state, action) => {
+      .addCase(addVariant.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || 'Something went wrong';
+        state.error = action.payload || 'Failed to add product';
       });
   }
 });

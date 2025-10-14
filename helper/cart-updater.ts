@@ -1,6 +1,6 @@
 import { CartItem, OutOfStockItem } from '@/models';
 
-export function updateCartOnError(
+export function updateCartStockOnly(
   outOfStock: OutOfStockItem[],
   storageKey = 'cartData',
   triggerEvent = true
@@ -19,16 +19,14 @@ export function updateCartOnError(
     if (typeof avail === 'number') {
       return {
         ...c,
-        stock: Math.max(0, avail),
-        qty: Math.min(c.qty, avail)
+        stock: Math.max(0, avail)
       };
     }
     return c;
   });
 
-  cart = cart.filter((c) => c.qty > 0 && c.stock > 0);
-
   localStorage.setItem(storageKey, JSON.stringify(cart));
+
   if (triggerEvent === true) {
     window.dispatchEvent(new Event('cartUpdated'));
   }

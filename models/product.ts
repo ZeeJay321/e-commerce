@@ -1,10 +1,18 @@
-export interface Product {
+export interface ProductVariant {
   id: string;
-  title: string;
-  price: number;
   img: string;
   color: string;
   colorCode: string;
   size: string;
+  price: number;
   stock: number;
+}
+
+export interface Product {
+  id: string;
+  title: string;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+  variants: ProductVariant[];
 }

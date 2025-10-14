@@ -1,7 +1,8 @@
 export interface ProductItem {
   key: number;
-  id: string; // order item id
+  id: string;
   productId: string;
+  variantId: string;
   img: string;
   title: string;
   price: number;

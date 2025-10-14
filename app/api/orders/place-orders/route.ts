@@ -11,7 +11,10 @@ const prisma = new PrismaClient();
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { error, value } = placeOrderSchema.validate(body, { abortEarly: false, convert: true });
+    const { error, value } = placeOrderSchema.validate(body, {
+      abortEarly: false,
+      convert: true
+    });
 
     if (error) {
       return NextResponse.json(
@@ -24,28 +27,32 @@ export async function POST(req: Request) {
 
     const productIds = items.map((item) => item.productId);
     const products = await prisma.product.findMany({
-      where: { id: { in: productIds } }
+      where: { id: { in: productIds } },
+      include: { variants: true }
     });
 
     const { validItems, outOfStock } = items.reduce(
       (acc, item) => {
         const product = products.find((p) => p.id === item.productId);
+        const variant = product?.variants.find((v) => v.id === item.variantId);
 
-        if (!product) {
+        if (!product || !variant) {
           acc.outOfStock.push({
             productId: item.productId,
-            title: 'Unknown product',
+            variantId: item.variantId,
+            title: product?.title ?? 'Unknown Product',
             availableStock: 0,
             requested: item.quantity
           });
           return acc;
         }
 
-        if (product.stock < item.quantity) {
+        if (variant.stock < item.quantity) {
           acc.outOfStock.push({
             productId: product.id,
-            title: product.title,
-            availableStock: product.stock,
+            variantId: variant.id,
+            title: `${product.title} (${variant.color}, ${variant.size})`,
+            availableStock: variant.stock,
             requested: item.quantity
           });
           return acc;
@@ -53,16 +60,23 @@ export async function POST(req: Request) {
 
         acc.validItems.push({
           productId: product.id,
+          variantId: variant.id,
           quantity: item.quantity,
-          price: product.price
+          price: variant.price
         });
 
         return acc;
       },
       {
-        validItems: [] as { productId: string; quantity: number; price: number }[],
+        validItems: [] as {
+          productId: string;
+          variantId: string;
+          quantity: number;
+          price: number;
+        }[],
         outOfStock: [] as {
           productId: string;
+          variantId: string;
           title: string;
           availableStock: number;
           requested: number;
@@ -72,7 +86,7 @@ export async function POST(req: Request) {
 
     if (outOfStock.length > 0) {
       return NextResponse.json(
-        { error: 'Some products are out of stock', outOfStock },
+        { error: 'Some variants are out of stock', outOfStock },
         { status: 400 }
       );
     }
@@ -81,40 +95,49 @@ export async function POST(req: Request) {
       (sum, item) => sum + item.price * item.quantity,
       0
     );
-    total += total * 0.1; // 10% tax
+    total += total * 0.1;
 
     const formattedDate = moment().format('DD-MM-YY HH:mm:ss');
 
-    const order = await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx) => {
       await Promise.all(
-        validItems.map((item) => tx.product.update({
-          where: { id: item.productId, stock: { gte: item.quantity } },
+        validItems.map((item) => tx.productVariant.update({
+          where: { id: item.variantId },
           data: { stock: { decrement: item.quantity } }
         }))
       );
 
-      return tx.order.create({
+      await tx.order.create({
         data: {
           userId,
           amount: total,
           date: formattedDate,
-          products: { create: validItems },
+          products: {
+            create: validItems.map((item) => ({
+              productId: item.productId,
+              variantId: item.variantId,
+              quantity: item.quantity,
+              price: item.price
+            }))
+          },
           metadata: {}
-        },
-        include: { products: true }
+        }
       });
     });
 
     return NextResponse.json({
-      message: `New Order ${order.orderNumber} created successfully`
+      status: 'success',
+      message: 'Order placed successfully'
     }, {
       status: 201
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
-    return NextResponse.json(
-      { error: message || 'Failed to create an order' },
-      { status: 500 }
-    );
+    return NextResponse.json({
+      status: 'error',
+      message: message || 'Failed to create an order'
+    }, {
+      status: 500
+    });
   }
 }

@@ -20,7 +20,9 @@ export async function GET(req: Request) {
       sortOption: searchParams.get('sortOption') || undefined
     };
 
-    const { error, value } = getProductSchema.validate(params, { abortEarly: false });
+    const { error, value } = getProductSchema.validate(params, {
+      abortEarly: false
+    });
     if (error) {
       return NextResponse.json(
         { error: error.details.map((d) => d.message) },
@@ -39,23 +41,63 @@ export async function GET(req: Request) {
     const take = limit || 10;
     const offset = (page - 1) * take;
 
-    let where: Prisma.ProductWhereInput = { isDeleted: true };
-
-    if (query) {
-      where = {
-        ...where,
+    const where: Prisma.ProductWhereInput = {
+      isDeleted: false,
+      ...(query && {
         title: { contains: query, mode: 'insensitive' }
-      };
+      })
+    };
+
+    let orderBy: Prisma.ProductOrderByWithRelationInput = { createdAt: 'desc' };
+
+    if (sortOption === 'priceLowHigh' || sortOption === 'priceHighLow') {
+      const grouped = await prisma.productVariant.groupBy({
+        by: ['productId'],
+        _min: { price: true },
+        _max: { price: true }
+      });
+
+      grouped.sort((a, b) => (sortOption === 'priceLowHigh'
+        ? (a._min.price ?? 0) - (b._min.price ?? 0)
+        : (b._max.price ?? 0) - (a._max.price ?? 0)));
+
+      const orderedProductIds = grouped.map((g) => g.productId);
+
+      const products = await prisma.product.findMany({
+        where,
+        include: {
+          variants: {
+            select: {
+              id: true,
+              img: true,
+              color: true,
+              colorCode: true,
+              size: true,
+              price: true,
+              stock: true
+            },
+            where: { isDeleted: false }
+          }
+        },
+        orderBy: { createdAt: 'desc' },
+        take,
+        skip: offset
+      });
+
+      const sortedProducts = products.sort(
+        (a, b) => orderedProductIds.indexOf(a.id)
+          - orderedProductIds.indexOf(b.id)
+      );
+
+      const total = await prisma.product.count({ where });
+
+      return NextResponse.json(
+        { products: sortedProducts, total },
+        { status: 200 }
+      );
     }
 
-    let orderBy: Prisma.ProductOrderByWithRelationInput;
     switch (sortOption) {
-      case 'priceLowHigh':
-        orderBy = { price: 'asc' };
-        break;
-      case 'priceHighLow':
-        orderBy = { price: 'desc' };
-        break;
       case 'nameAZ':
         orderBy = { title: 'asc' };
         break;
@@ -72,15 +114,19 @@ export async function GET(req: Request) {
       take,
       where,
       orderBy,
-      select: {
-        id: true,
-        title: true,
-        price: true,
-        img: true,
-        color: true,
-        colorCode: true,
-        size: true,
-        stock: true
+      include: {
+        variants: {
+          select: {
+            id: true,
+            img: true,
+            color: true,
+            colorCode: true,
+            size: true,
+            price: true,
+            stock: true
+          },
+          where: { isDeleted: false }
+        }
       }
     });
 
@@ -89,7 +135,6 @@ export async function GET(req: Request) {
     return NextResponse.json({ products, total }, { status: 200 });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

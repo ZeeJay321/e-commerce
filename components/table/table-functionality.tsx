@@ -14,6 +14,7 @@ import {
 import { useSelector } from 'react-redux';
 
 import { CartItem } from '@/models';
+import 'antd/dist/reset.css';
 import './table.css';
 
 import { RootState } from '@/redux/store';
@@ -73,7 +74,7 @@ const CartTable = ({ cartItems, setCartItems }: CartTableProps) => {
 
   const updateQty = (key: string, type: 'increase' | 'decrease') => {
     setCartItems((prev) => prev.map((item) => {
-      if (item.id !== key) return item;
+      if (item.variantId !== key) return item;
 
       if (type === 'increase') {
         if (item.qty < item.stock) {
@@ -146,7 +147,7 @@ const CartTable = ({ cartItems, setCartItems }: CartTableProps) => {
           <Button
             className="card-buttons-layout"
             size="small"
-            onClick={() => updateQty(record.id, 'decrease')}
+            onClick={() => updateQty(record.variantId, 'decrease')}
           >
             -
           </Button>
@@ -182,7 +183,7 @@ const CartTable = ({ cartItems, setCartItems }: CartTableProps) => {
           <Button
             className="card-buttons-layout"
             size="small"
-            onClick={() => updateQty(record.id, 'increase')}
+            onClick={() => updateQty(record.variantId, 'increase')}
             disabled={record.qty >= record.stock}
           >
             +

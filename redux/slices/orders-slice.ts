@@ -1,10 +1,9 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { updateCartOnError } from '@/helper/cart-updater';
+import { updateCartStockOnly } from '@/helper/cart-updater';
 import {
   Order,
   OrderInfo,
-  OrderItem,
   PlaceOrderInput,
   ProductItem
 } from '@/models';
@@ -147,21 +146,36 @@ export const fetchOrderDetail = createAsyncThunk<
         date: string;
         createdAt: string;
         updatedAt: string;
-        products: OrderItem[];
+        products: {
+          id: string;
+          productId: string;
+          variantId: string;
+          price: number;
+          quantity: number;
+          product: { title: string };
+          variant: {
+            img: string;
+            stock: number;
+            color?: string;
+            colorCode?: string;
+            size?: string;
+          };
+        }[];
       } = await res.json();
 
       const products: ProductItem[] = order.products.map((item, index) => ({
         key: index + 1,
         id: item.id,
         productId: item.productId,
-        img: item.product.img,
+        variantId: item.variantId,
+        img: item.variant.img,
         title: item.product.title,
         price: item.price,
         quantity: item.quantity,
-        stock: item.product.stock,
-        color: item.product.color,
-        colorCode: item.product.colorCode,
-        size: item.product.size
+        stock: item.variant.stock,
+        color: item.variant.color || '',
+        colorCode: item.variant.colorCode || '',
+        size: item.variant.size || ''
       }));
 
       const orderInfo: OrderInfo = {
@@ -235,7 +249,7 @@ const ordersSlice = createSlice({
         if (action.payload && typeof action.payload === 'object' && 'error' in action.payload) {
           errorMessage = action.payload.error;
           if (action.payload.outOfStock) {
-            updateCartOnError(action.payload.outOfStock);
+            updateCartStockOnly(action.payload.outOfStock);
           }
         } else if (typeof action.payload === 'string') {
           errorMessage = action.payload;

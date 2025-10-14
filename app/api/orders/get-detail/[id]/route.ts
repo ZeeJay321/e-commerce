@@ -20,6 +20,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Validate route param
     const { error, value } = getDetailSchema.validate({
       id: Number(resolvedParams.id)
     });
@@ -31,12 +32,13 @@ export async function GET(
       );
     }
 
-    const { id: orderId } = value;
+    const orderId = value.id;
     const isAdmin = session.user.role === 'admin';
 
+    // Only admins can access any order; users only their own
     const whereCondition = isAdmin
       ? { orderNumber: orderId }
-      : { userId: session.user.id, orderNumber: orderId };
+      : { orderNumber: orderId, userId: session.user.id };
 
     const order = await prisma.order.findFirst({
       where: whereCondition,
@@ -45,21 +47,23 @@ export async function GET(
         userId: true,
         amount: true,
         date: true,
-        user: { select: { fullname: true } },
+        user: { select: { fullname: true, email: true } },
         products: {
           select: {
             id: true,
             productId: true,
+            variantId: true,
             price: true,
             quantity: true,
             product: {
               select: {
-                img: true,
-                title: true,
+                title: true
+              }
+            },
+            variant: {
+              select: {
                 stock: true,
-                color: true,
-                colorCode: true,
-                size: true
+                img: true
               }
             }
           }
@@ -77,6 +81,7 @@ export async function GET(
     return NextResponse.json(order, { status: 200 });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
+    console.error('❌ Failed to fetch order detail:', message);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

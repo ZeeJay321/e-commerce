@@ -1,5 +1,6 @@
 export type OrderItemInput = {
   productId: string;
+  variantId: string;
   quantity: number;
   price: number;
 };

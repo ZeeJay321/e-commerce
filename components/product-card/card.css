@@ -54,11 +54,11 @@
 }
 
 .cart-color {
-  @apply flex items-center gap-0.5;
+  @apply flex gap-0.5;
 }
 
 .cart-color-span {
-  @apply inline-block w-4 h-4 rounded-full border border-gray-300;
+  @apply inline-block w-4 h-4 rounded-full border border-gray-300 mb-3.5;
 }
 
 .add-to-cart {

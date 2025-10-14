@@ -1,18 +1,19 @@
 import bcrypt from 'bcrypt';
 import moment from 'moment';
-
-// eslint-disable-next-line import/no-relative-packages
-import { PrismaClient } from '../app/generated/prisma';
+import { PrismaClient, Size } from '../app/generated/prisma';
 
 const prisma = new PrismaClient();
 
 async function main() {
+  console.log('🌱 Starting seed...');
+
   const userPassword = await bcrypt.hash('user123', 10);
   const adminPassword = await bcrypt.hash('admin123', 10);
 
-  // Clear existing data
+  // ---- CLEAR EXISTING DATA ----
   await prisma.orderItem.deleteMany();
   await prisma.order.deleteMany();
+  await prisma.productVariant.deleteMany();
   await prisma.product.deleteMany();
   await prisma.user.deleteMany();
 
@@ -34,7 +35,7 @@ async function main() {
 
   // ---- ADMINS ----
   const admins = await Promise.all(
-    Array.from({ length: 4 }).map((_, i) =>
+    Array.from({ length: 2 }).map((_, i) =>
       prisma.user.create({
         data: {
           fullname: `Admin ${i + 1}`,
@@ -48,53 +49,85 @@ async function main() {
     )
   );
 
-  // ---- PRODUCTS ----
-  const productImages = [
+  // ---- PRODUCT BASE DATA ----
+  const baseImages = [
     '/images/pajamas.png',
     '/images/headphones.png',
     '/images/shelf.png',
     '/images/trouser.png',
   ];
 
+  const colors = [
+    { name: 'Red', code: '#FF0000' },
+    { name: 'Green', code: '#00FF00' },
+    { name: 'Blue', code: '#0000FF' },
+    { name: 'Black', code: '#000000' },
+  ];
+
+  const sizes: Size[] = [Size.S, Size.M, Size.L, Size.XL];
+
+  // ---- CREATE PRODUCTS ----
   const products = await Promise.all(
-    Array.from({ length: 60 }).map((_, i) =>
+    Array.from({ length: 80 }).map((_, i) =>
       prisma.product.create({
         data: {
           title: `Product ${i + 1}`,
-          price: Math.floor(Math.random() * 100) + 10,
-          img: productImages[i % productImages.length],
-          colorCode: ['#000000', '#FF0000', '#00FF00', '#0000FF'][i % 4],
-          color: ['Black', 'Red', 'Green', 'Blue'][i % 4],
-          size: ['S', 'M', 'L', 'XL'][i % 4],
-          stock: Math.floor(Math.random() * 50) + 1,
-          isDeleted: true,
+          isDeleted: false,
           metadata: {},
         },
       })
     )
   );
 
-  // ---- ORDERS ----
+  // ---- CREATE VARIANTS ----
+  const variants: any[] = [];
+  for (const product of products) {
+    for (const color of colors) {
+      for (const size of sizes) {
+        const variant = await prisma.productVariant.create({
+          data: {
+            productId: product.id,
+            color: color.name,
+            colorCode: color.code,
+            size,
+            img: baseImages[Math.floor(Math.random() * baseImages.length)],
+            price: Math.floor(Math.random() * 100) + 10,
+            stock: Math.floor(Math.random() * 50) + 1,
+            metadata: {},
+          },
+        });
+        variants.push(variant);
+      }
+    }
+  }
+
+  // ---- CREATE ORDERS ----
   const orders = await Promise.all(
     Array.from({ length: 4 }).map(async (_, i) => {
+      const user = users[i];
+      const variant1 = variants[(i * 5) % variants.length];
+      const variant2 = variants[(i * 5 + 1) % variants.length];
+
       const order = await prisma.order.create({
         data: {
-          userId: users[i].id, // UUID now
-          amount: 0, // will update later
+          userId: user.id,
+          amount: 0, // will be updated later
           metadata: {},
           date: moment().subtract(i, 'days').format('DD MMM YYYY'),
           products: {
             create: [
               {
-                productId: products[(i * 2) % products.length].id,
+                variantId: variant1.id,
+                productId: variant1.productId,
                 quantity: 1,
-                price: products[(i * 2) % products.length].price,
+                price: variant1.price,
                 metadata: {},
               },
               {
-                productId: products[(i * 2 + 1) % products.length].id,
+                variantId: variant2.id,
+                productId: variant2.productId,
                 quantity: 2,
-                price: products[(i * 2 + 1) % products.length].price,
+                price: variant2.price,
                 metadata: {},
               },
             ],
@@ -104,8 +137,7 @@ async function main() {
       });
 
       const total = order.products.reduce(
-        (sum: number, item: { price: number; quantity: number }) =>
-          sum + item.price * item.quantity,
+        (sum, item) => sum + item.price * item.quantity,
         0
       );
 
@@ -116,14 +148,19 @@ async function main() {
     })
   );
 
-  console.log(
-    `✅ Seed complete: ${users.length} users, ${admins.length} admins, ${products.length} products, ${orders.length} orders`
-  );
+  console.log(`
+✅ Seed complete!
+👤 ${users.length} users
+👑 ${admins.length} admins
+🛍️ ${products.length} products
+🎨 ${variants.length} variants
+📦 ${orders.length} orders
+`);
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error('❌ Seed failed:', e);
     process.exit(1);
   })
   .finally(async () => {
