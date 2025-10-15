@@ -97,7 +97,7 @@ const Page = () => {
     }
 
     try {
-      const response = await dispatch(
+      await dispatch(
         placeOrder({
           userId: session.user.id,
           items: cartItems.map((item) => ({
@@ -123,11 +123,7 @@ const Page = () => {
 
       setTimeout(() => {
         setNotification(null);
-        if (response?.url) {
-          window.location.href = response.url;
-        } else {
-          router.push('/orders');
-        }
+        router.push('/orders');
       }, 2000);
     } catch (err) {
       const message = typeof err === 'string' ? err : 'Order placement failed';
