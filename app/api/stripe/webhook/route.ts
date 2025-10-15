@@ -4,7 +4,6 @@ import Stripe from 'stripe';
 
 import { PrismaClient } from '@/app/generated/prisma';
 import stripe from '@/lib/stripe';
-import { createAndSendInvoice } from '@/services/stripe';
 
 const prisma = new PrismaClient();
 
@@ -33,7 +32,6 @@ export async function POST(req: Request) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
-        console.log('Session: ', session);
 
         const order = await prisma.order.findFirst({
           where: { sessionId: session.id },
@@ -45,14 +43,6 @@ export async function POST(req: Request) {
             where: { id: order.id },
             data: { orderStatus: 'FULFILLED' }
           });
-
-          const items = order.products.map((item) => ({
-            title: `Product (${item.variantId})`,
-            price: item.price,
-            quantity: item.quantity
-          }));
-
-          await createAndSendInvoice(session.customer as string, items);
         }
 
         break;
