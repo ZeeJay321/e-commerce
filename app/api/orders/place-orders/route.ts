@@ -120,7 +120,8 @@ export async function POST(req: Request) {
 
     const session = await createCheckoutSession({
       customerId: user.stripeCustomerId,
-      items: validItems
+      items: validItems,
+      email: user.email
     });
 
     await prisma.$transaction(async (tx) => {
