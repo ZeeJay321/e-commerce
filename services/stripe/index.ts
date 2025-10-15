@@ -29,6 +29,18 @@ export async function createCheckoutSession({
     quantity: item.quantity
   }));
 
+  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const taxAmount = subtotal * 0.1;
+
+  lineItems.push({
+    price_data: {
+      currency: 'usd',
+      product_data: { name: 'Sales Tax (10%)' },
+      unit_amount: Math.round(taxAmount * 100)
+    },
+    quantity: 1
+  });
+
   const baseUrl = process.env.NEXT_PUBLIC_URL;
 
   if (!baseUrl) {

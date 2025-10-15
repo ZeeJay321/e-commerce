@@ -12,9 +12,10 @@ export interface Order {
   id: string;
   orderNumber: number;
   userId: string;
-  user?: string; // fullName
+  user?: string;
   amount: number;
   date: string;
+  orderStatus: string
   createdAt: string;
   updatedAt: string;
   productsCount: number;
