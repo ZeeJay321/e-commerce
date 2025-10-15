@@ -52,9 +52,49 @@ export async function createCheckoutSession({
     payment_method_types: ['card'],
     customer: customerId,
     line_items: lineItems,
-    success_url: `${baseUrl}checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${baseUrl}checkout/cancel`
+    success_url: `${baseUrl}orders`,
+    cancel_url: `${baseUrl}`
   });
 
   return session;
+}
+
+export async function createAndSendInvoice(
+  customerId: string,
+  items: LineItem[]
+) {
+  if (!customerId) {
+    throw new Error('Missing customerId');
+  }
+
+  if (!items.length) {
+    throw new Error('At least one invoice item is required');
+  }
+
+  await Promise.all(
+    items.map((item) => stripe.invoiceItems.create({
+      customer: customerId,
+      description: `${item.title} (x${item.quantity})`,
+      amount: Math.round(item.price * item.quantity * 100),
+      currency: 'usd'
+    }))
+  );
+
+  const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const taxAmount = subtotal * 0.1;
+  await stripe.invoiceItems.create({
+    customer: customerId,
+    description: 'Sales Tax (10%)',
+    amount: Math.round(taxAmount * 100),
+    currency: 'usd'
+  });
+
+  const invoice = await stripe.invoices.create({
+    customer: customerId,
+    auto_advance: true
+  });
+
+  await stripe.invoices.sendInvoice(invoice.id);
+
+  return invoice;
 }

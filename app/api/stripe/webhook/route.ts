@@ -4,6 +4,7 @@ import Stripe from 'stripe';
 
 import { PrismaClient } from '@/app/generated/prisma';
 import stripe from '@/lib/stripe';
+import { createAndSendInvoice } from '@/services/stripe';
 
 const prisma = new PrismaClient();
 
@@ -14,9 +15,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Missing Stripe signature' }, { status: 400 });
   }
 
-  let event: Stripe.Event;
-
   const body = await req.text();
+
+  let event: Stripe.Event;
 
   try {
     event = stripe.webhooks.constructEvent(
@@ -25,7 +26,7 @@ export async function POST(req: Request) {
       process.env.STRIPE_WEBHOOK_SECRET as string
     );
   } catch (err) {
-    return NextResponse.json({ error: `Invalid signature ${err}` }, { status: 400 });
+    return NextResponse.json({ error: `Invalid signature: ${err}` }, { status: 400 });
   }
 
   try {
@@ -34,7 +35,8 @@ export async function POST(req: Request) {
         const session = event.data.object as Stripe.Checkout.Session;
 
         const order = await prisma.order.findFirst({
-          where: { sessionId: session.id }
+          where: { sessionId: session.id },
+          include: { products: true }
         });
 
         if (order) {
@@ -42,6 +44,14 @@ export async function POST(req: Request) {
             where: { id: order.id },
             data: { orderStatus: 'FULFILLED' }
           });
+
+          const items = order.products.map((item) => ({
+            title: `Product (${item.variantId})`,
+            price: item.price,
+            quantity: item.quantity
+          }));
+
+          await createAndSendInvoice(session.customer as string, items);
         }
 
         break;
@@ -70,6 +80,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ received: true }, { status: 200 });
   } catch (err) {
-    return NextResponse.json({ error: `Webhook handler failed ${err}` }, { status: 500 });
+    return NextResponse.json({ error: `Webhook handler failed: ${err}` }, { status: 500 });
   }
 }
