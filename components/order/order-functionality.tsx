@@ -75,6 +75,7 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
       user: order.user ?? 'Unknown',
       productsCount: order.productsCount || 0,
       date: order.date,
+      orderStatus: order.orderStatus,
       amount: order.amount
     })),
     [orders]
@@ -87,8 +88,7 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
       dataIndex: 'date',
       key: 'date',
       render: (text: string) => <span className="table-span">{text}</span>
-    },
-    {
+    }, {
       title: <span className="table-span-head">Order #</span>,
       dataIndex: 'orderNumber',
       key: 'orderNumber',
@@ -119,8 +119,7 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
           item(s)
         </span>
       )
-    },
-    {
+    }, {
       title: <span className="table-span-head">Amount</span>,
       dataIndex: 'amount',
       key: 'amount',
@@ -130,8 +129,16 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
           {amount.toFixed(2)}
         </span>
       )
-    },
-    {
+    }, {
+      title: <span className="table-span-head">Status</span>,
+      dataIndex: 'orderStatus',
+      key: 'orderStatus',
+      render: (orderStatus: string) => (
+        <span className="table-span">
+          {orderStatus}
+        </span>
+      )
+    }, {
       title: <span className="table-span-head">Actions</span>,
       key: 'actions',
       render: (_, record) => (

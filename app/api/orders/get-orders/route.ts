@@ -101,6 +101,7 @@ export async function GET(req: Request) {
         userId: true,
         amount: true,
         date: true,
+        orderStatus: true,
         user: {
           select: { fullname: true }
         },
