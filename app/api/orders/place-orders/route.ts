@@ -5,6 +5,7 @@ import moment from 'moment';
 import { PrismaClient } from '@/app/generated/prisma';
 import { placeOrderSchema } from '@/lib/validation/order-schemas';
 import { OrderItemInput } from '@/models';
+import { createCheckoutSession } from '@/services/stripe';
 
 const prisma = new PrismaClient();
 
@@ -31,58 +32,57 @@ export async function POST(req: Request) {
       include: { variants: true }
     });
 
-    const { validItems, outOfStock } = items.reduce(
-      (acc, item) => {
-        const product = products.find((p) => p.id === item.productId);
-        const variant = product?.variants.find((v) => v.id === item.variantId);
+    const { validItems, outOfStock } = items.reduce((acc, item) => {
+      const product = products.find((p) => p.id === item.productId);
+      const variant = product?.variants.find((v) => v.id === item.variantId);
 
-        if (!product || !variant) {
-          acc.outOfStock.push({
-            productId: item.productId,
-            variantId: item.variantId,
-            title: product?.title ?? 'Unknown Product',
-            availableStock: 0,
-            requested: item.quantity
-          });
-          return acc;
-        }
+      if (!product || !variant) {
+        acc.outOfStock.push({
+          productId: item.productId,
+          variantId: item.variantId,
+          title: product?.title ?? 'Unknown Product',
+          availableStock: 0,
+          requested: item.quantity
+        });
+        return acc;
+      }
 
-        if (variant.stock < item.quantity) {
-          acc.outOfStock.push({
-            productId: product.id,
-            variantId: variant.id,
-            title: `${product.title} (${variant.color}, ${variant.size})`,
-            availableStock: variant.stock,
-            requested: item.quantity
-          });
-          return acc;
-        }
-
-        acc.validItems.push({
+      if (variant.stock < item.quantity) {
+        acc.outOfStock.push({
           productId: product.id,
           variantId: variant.id,
-          quantity: item.quantity,
-          price: variant.price
+          title: `${product.title} (${variant.color}, ${variant.size})`,
+          availableStock: variant.stock,
+          requested: item.quantity
         });
-
         return acc;
-      },
-      {
-        validItems: [] as {
-          productId: string;
-          variantId: string;
-          quantity: number;
-          price: number;
-        }[],
-        outOfStock: [] as {
-          productId: string;
-          variantId: string;
-          title: string;
-          availableStock: number;
-          requested: number;
-        }[]
       }
-    );
+
+      acc.validItems.push({
+        productId: product.id,
+        variantId: variant.id,
+        quantity: item.quantity,
+        title: `${product.title} (${variant.color}, ${variant.size})`,
+        price: variant.price
+      });
+
+      return acc;
+    }, {
+      validItems: [] as {
+        productId: string;
+        variantId: string;
+        quantity: number;
+        title: string;
+        price: number;
+      }[],
+      outOfStock: [] as {
+        productId: string;
+        variantId: string;
+        title: string;
+        availableStock: number;
+        requested: number;
+      }[]
+    });
 
     if (outOfStock.length > 0) {
       return NextResponse.json(
@@ -99,6 +99,30 @@ export async function POST(req: Request) {
 
     const formattedDate = moment().format('DD-MM-YY HH:mm:ss');
 
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { stripeCustomerId: true }
+    });
+
+    if (!user?.stripeCustomerId) {
+      return NextResponse.json(
+        { error: 'Stripe customer not found for this user' },
+        { status: 400 }
+      );
+    }
+
+    if (!user?.stripeCustomerId) {
+      return NextResponse.json(
+        { error: 'Stripe customer not found for this user' },
+        { status: 400 }
+      );
+    }
+
+    const session = await createCheckoutSession({
+      customerId: user.stripeCustomerId,
+      items: validItems
+    });
+
     await prisma.$transaction(async (tx) => {
       await Promise.all(
         validItems.map((item) => tx.productVariant.update({
@@ -112,6 +136,7 @@ export async function POST(req: Request) {
           userId,
           amount: total,
           date: formattedDate,
+          sessionId: session.id,
           products: {
             create: validItems.map((item) => ({
               productId: item.productId,
@@ -127,7 +152,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       status: 'success',
-      message: 'Order placed successfully'
+      url: session.url
     }, {
       status: 201
     });

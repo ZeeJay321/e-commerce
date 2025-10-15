@@ -1,8 +1,7 @@
 import crypto from 'crypto';
 
-import stripe from '@/lib/stripe';
-
 import { PrismaClient } from '@/app/generated/prisma';
+import { createStripeCustomer } from '@/services/stripe';
 
 const prisma = new PrismaClient();
 
@@ -17,10 +16,7 @@ export async function createGoogleUser({
 }) {
   const randomPassword = crypto.randomBytes(16).toString('hex');
 
-  const customer = await stripe.customers.create({
-    name,
-    email
-  });
+  const customer = await createStripeCustomer(name, email);
 
   return prisma.user.create({
     data: {

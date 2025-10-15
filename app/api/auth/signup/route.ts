@@ -3,8 +3,8 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
 
 import { PrismaClient } from '@/app/generated/prisma';
-import stripe from '@/lib/stripe';
 import { signupSchema } from '@/lib/validation/auth-schemas';
+import { createStripeCustomer } from '@/services/stripe';
 
 const prisma = new PrismaClient();
 
@@ -28,10 +28,7 @@ export async function POST(req: Request) {
     } = value;
     const emailLower = email.toLowerCase();
 
-    const customer = await stripe.customers.create({
-      name: fullName,
-      email
-    });
+    const customer = await createStripeCustomer(fullName, email);
 
     const user = await prisma.$transaction(async (tx) => {
       const existingUser = await tx.user.findFirst({
