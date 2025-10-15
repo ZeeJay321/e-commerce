@@ -14,12 +14,10 @@ export async function createStripeCustomer(name: string, email: string) {
 
 export async function createCheckoutSession({
   customerId,
-  items,
-  email
+  items
 }: {
   customerId: string;
   items: LineItem[];
-  email: string;
 }) {
   const lineItems = items.map((item) => ({
     price_data: {
@@ -54,7 +52,6 @@ export async function createCheckoutSession({
     mode: 'payment',
     payment_method_types: ['card'],
     customer: customerId,
-    customer_email: email,
     line_items: lineItems,
     success_url: `${baseUrl}orders`,
     cancel_url: `${baseUrl}`
