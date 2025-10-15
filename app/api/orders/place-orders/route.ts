@@ -101,7 +101,7 @@ export async function POST(req: Request) {
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { stripeCustomerId: true }
+      select: { stripeCustomerId: true, email: true }
     });
 
     if (!user?.stripeCustomerId) {
@@ -120,7 +120,8 @@ export async function POST(req: Request) {
 
     const session = await createCheckoutSession({
       customerId: user.stripeCustomerId,
-      items: validItems
+      items: validItems,
+      email: user.email
     });
 
     await prisma.$transaction(async (tx) => {
