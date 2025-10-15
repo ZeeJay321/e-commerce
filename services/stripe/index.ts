@@ -40,8 +40,8 @@ export async function createCheckoutSession({
     payment_method_types: ['card'],
     customer: customerId,
     line_items: lineItems,
-    success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${baseUrl}/checkout/cancel`
+    success_url: `${baseUrl}checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${baseUrl}checkout/cancel`
   });
 
   return session;
