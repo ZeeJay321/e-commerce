@@ -4,7 +4,7 @@ import {
   PayloadAction
 } from '@reduxjs/toolkit';
 import { User } from 'next-auth';
-import { signIn } from 'next-auth/react';
+import { getSession, signIn } from 'next-auth/react';
 
 interface UserState {
   user: User | null;
@@ -166,14 +166,9 @@ export const loginWithGoogle = createAsyncThunk<
       return rejectWithValue(result.error);
     }
 
-    const sessionRes = await fetch('/api/auth/session');
-    const sessionData = await sessionRes.json().catch(() => ({}));
+    await getSession();
 
-    if (!sessionData?.user) {
-      return rejectWithValue('Google session not found');
-    }
-
-    return sessionData.user as User;
+    return {} as User;
   } catch (err) {
     return rejectWithValue(err instanceof Error ? err.message : 'Something went wrong with Google login');
   }

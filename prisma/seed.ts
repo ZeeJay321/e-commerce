@@ -111,7 +111,7 @@ async function main() {
       const order = await prisma.order.create({
         data: {
           userId: user.id,
-          amount: 0, // will be updated later
+          amount: 0,
           metadata: {},
           date: moment().subtract(i, 'days').format('DD MMM YYYY'),
           products: {

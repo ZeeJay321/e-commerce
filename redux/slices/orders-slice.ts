@@ -41,6 +41,13 @@ interface OrderErrorPayload {
   outOfStock?: { productId: string; availableStock: number }[];
 }
 
+export interface PlaceOrderResponse {
+  status: 'success' | 'error';
+  url?: string;
+  message?: string;
+  error?: string;
+}
+
 const initialState: OrdersState = {
   items: [],
   total: 0,
@@ -57,7 +64,7 @@ const initialState: OrdersState = {
 };
 
 export const placeOrder = createAsyncThunk<
-  Order,
+  PlaceOrderResponse,
   PlaceOrderInput,
   { rejectValue: OrderErrorPayload }
 >(
@@ -77,7 +84,7 @@ export const placeOrder = createAsyncThunk<
         return rejectWithValue(data as OrderErrorPayload);
       }
 
-      return data as Order;
+      return data as PlaceOrderResponse;
     } catch (err) {
       return rejectWithValue({
         error: err instanceof Error ? err.message : 'Unknown error'

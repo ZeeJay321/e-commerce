@@ -81,13 +81,13 @@ const Page = () => {
 
   const handleGoogleLogin = async () => {
     try {
-      const user = await dispatch(loginWithGoogle()).unwrap();
+      await dispatch(loginWithGoogle()).unwrap();
       setNotification({ type: 'success', message: 'Google Login Successful' });
       setIsNextPage(true);
 
       setTimeout(() => {
-        window.location.href = user.role === 'admin' ? '/admin/products' : '/';
-      }, 1200);
+        window.location.href = '/';
+      }, 5000);
     } catch (err) {
       setNotification({
         type: 'error',

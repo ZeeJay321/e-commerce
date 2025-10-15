@@ -118,10 +118,10 @@ export async function POST(req: NextRequest) {
       include: { variants: true }
     });
 
-    return NextResponse.json({
-      message: `✅ Product ${created.id} created successfully.`,
-      product: created
-    });
+    return NextResponse.json(
+      { message: `Product ${created.id} created successfully.` },
+      { status: 200 }
+    );
   } catch (err) {
     return NextResponse.json(
       { error: (err as Error).message },
