@@ -10,10 +10,10 @@ const prisma = new PrismaClient();
 
 export async function PUT(
   req: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const resolvedParams = await params;
+    const resolvedParams = params;
     const session = await getServerSession(authOptions);
 
     if (!session || session.user?.role !== 'admin') {

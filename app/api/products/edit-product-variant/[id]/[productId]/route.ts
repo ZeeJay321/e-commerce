@@ -23,10 +23,10 @@ interface MulterLikeRequest extends Readable {
 
 export async function PUT(
   req: NextRequest,
-  context: { params: Promise<{ id: string, productId: string }> }
+  context: { params: { id: string, productId: string } }
 ) {
   try {
-    const { id, productId } = await context.params;
+    const { id, productId } = context.params;
 
     const nodeStream = Readable.fromWeb(
       req.body as NodeReadableStream<Uint8Array>

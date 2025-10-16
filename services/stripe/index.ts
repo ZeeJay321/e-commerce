@@ -60,12 +60,6 @@ export async function createCheckoutSession({
       description: 'Order payment via E-Commerce App',
       setup_future_usage: 'off_session'
     },
-    saved_payment_method_options: {
-      allow_redisplay_filters: ['always']
-    },
-    saved_payment_method_options: {
-      allow_redisplay_filters: ['always']
-    },
     success_url: `${baseUrl}orders`,
     cancel_url: `${baseUrl}`
   });
