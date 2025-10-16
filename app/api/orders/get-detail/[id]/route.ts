@@ -10,9 +10,11 @@ const prisma = new PrismaClient();
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params;
+
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -20,7 +22,7 @@ export async function GET(
 
     // Validate route param
     const { error, value } = getDetailSchema.validate({
-      id: Number(params.id)
+      id: Number(resolvedParams.id)
     });
 
     if (error) {

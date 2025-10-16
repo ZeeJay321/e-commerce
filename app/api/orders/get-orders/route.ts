@@ -79,6 +79,8 @@ export async function GET(req: Request) {
 
     const totalOrders = await prisma.order.count({ where: baseCondition });
 
+    const totalPagination = await prisma.order.count({ where: whereCondition });
+
     const amountAgg = await prisma.order.aggregate({
       _sum: { amount: true },
       where: baseCondition
@@ -116,6 +118,7 @@ export async function GET(req: Request) {
         totalOrders,
         totalAmount,
         totalProducts,
+        totalPagination,
         limit,
         skip,
         query,

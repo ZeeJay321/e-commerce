@@ -1,0 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
+
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-display: Inter, sans-serif;
+
+  --color-nav: #F8F9FA;
+  --color-nav-text: #007BFF;
+  --color-site-text: #343A40;
+  --color-card-text: #212529;
+  --color-card-price: #868E96;
+  --color-login-background: #E9ECEF;
+}
+
+.place-button {
+  @apply font-display text-xl font-normal rounded-[0px];
+}

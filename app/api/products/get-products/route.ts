@@ -10,14 +10,10 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
 
     const params = {
-      skip: searchParams.get('skip')
-        ? Number(searchParams.get('skip'))
-        : undefined,
-      limit: searchParams.get('limit')
-        ? Number(searchParams.get('limit'))
-        : undefined,
+      skip: Number(searchParams.get('skip')) || 1,
+      limit: Number(searchParams.get('limit')) || 10,
       query: searchParams.get('query') || '',
-      sortOption: searchParams.get('sortOption') || undefined
+      sortOption: searchParams.get('sortOption') || ''
     };
 
     const { error, value } = getProductSchema.validate(params, {

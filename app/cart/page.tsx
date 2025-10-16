@@ -19,6 +19,7 @@ import CartTable from '@/components/table/table-functionality';
 import 'antd/dist/reset.css';
 import './cart.css';
 
+import AddCardSidebar from '@/components/form-drawer';
 import { CartItem } from '@/models';
 import { placeOrder } from '@/redux/slices/orders-slice';
 
@@ -194,6 +195,10 @@ const Page = () => {
               {totals.total.toFixed(2)}
             </span>
           </span>
+        </div>
+
+        <div className="pt-6">
+          <AddCardSidebar />
         </div>
 
         <div className="pt-6">
