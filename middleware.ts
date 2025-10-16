@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 
 import { getToken } from 'next-auth/jwt';
 
+import { routeSchemas } from '@/lib/validation';
+
 const USER_PUBLIC_PATHS = [
   '/',
   '/login',
@@ -31,6 +33,41 @@ export async function middleware(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
   const { pathname } = req.nextUrl;
+
+  if (pathname.startsWith('/api/')) {
+    const { method } = req;
+    const matched = Object.entries(routeSchemas).find(
+      ([path, config]) => pathname.startsWith(path) && config.method === method
+    );
+
+    if (matched) {
+      const [, { schema }] = matched;
+
+      if (schema) {
+        let data: Record<string, string> = {};
+
+        if (method === 'GET') {
+          data = Object.fromEntries(req.nextUrl.searchParams.entries());
+        } else {
+          try {
+            data = await req.json();
+          } catch {
+            return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+          }
+        }
+
+        const { error } = schema.validate(data, { abortEarly: false });
+        if (error) {
+          return NextResponse.json(
+            { error: error.details.map((d) => d.message) },
+            { status: 400 }
+          );
+        }
+      }
+    }
+
+    return NextResponse.next();
+  }
 
   if (token && AUTH_PATHS.includes(pathname)) {
     if (token.role === 'admin') return NextResponse.redirect(new URL('/admin/products', req.url));
