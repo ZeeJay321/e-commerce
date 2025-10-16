@@ -19,7 +19,7 @@ export const getProductSchema = Joi.object({
     }),
   query: Joi.string().allow('').optional(),
   sortOption: Joi.string()
-    .valid('priceLowHigh', 'priceHighLow', 'nameAZ', 'nameZA')
+    .valid('priceLowHigh', 'priceHighLow', 'nameAZ', 'nameZA', '')
     .optional()
 });
 

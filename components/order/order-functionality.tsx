@@ -51,7 +51,7 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
     dispatch(fetchOrders({
       limit: pageSize,
       skip: current,
-      query: search || undefined
+      query: search || ''
     }));
     setIsRendered(true);
   }, [

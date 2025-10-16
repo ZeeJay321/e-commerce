@@ -7,6 +7,10 @@ export type FieldType = {
   password?: string;
   confirmPassword?: string;
   remember?: boolean;
+
+  cardNumber?: string;
+  expiry?: string;
+  cvc?: string;
 };
 
 export type FieldConfig = {
