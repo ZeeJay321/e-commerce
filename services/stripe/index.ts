@@ -59,6 +59,9 @@ export async function createCheckoutSession({
       receipt_email: email,
       description: 'Order payment via E-Commerce App'
     },
+    saved_payment_method_options: {
+      allow_redisplay_filters: ['always']
+    },
     success_url: `${baseUrl}orders`,
     cancel_url: `${baseUrl}`
   });
