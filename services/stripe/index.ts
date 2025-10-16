@@ -56,11 +56,11 @@ export async function createCheckoutSession({
     line_items: lineItems,
     payment_intent_data: {
       receipt_email: email,
-      description: 'Order payment via E-Commerce App'
+      description: 'Order payment via E-Commerce App',
+      setup_future_usage: 'off_session'
     },
     success_url: `${baseUrl}orders`,
     cancel_url: `${baseUrl}`
-
   });
   return session;
 }
