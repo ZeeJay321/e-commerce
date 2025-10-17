@@ -9,7 +9,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { PrismaClient } from '@/app/generated/prisma';
 import { runMiddleware, upload } from '@/lib/multer';
-import { addProductSchema } from '@/lib/validation/product-schemas';
 
 const prisma = new PrismaClient();
 
@@ -28,7 +27,7 @@ type VariantForm = {
   quantity: string;
   color: string;
   colorCode?: string;
-  size: string;
+  size: 'S' | 'M' | 'L' | 'XL';
   image?: string;
 };
 
@@ -56,17 +55,7 @@ export async function POST(req: NextRequest) {
       ) => void
     );
 
-    console.log('🧩 Multer Body:', expressReq.body);
-    console.log('🖼️ Multer Files:', expressReq.files?.map((f) => ({
-      fieldname: f.fieldname,
-      originalname: f.originalname,
-      filename: f.filename,
-      path: f.path
-    })));
-
     const { body, files } = expressReq;
-
-    console.log('Files :', files);
 
     const variants: VariantForm[] = Array.isArray(body.variants) ? body.variants : [];
 
@@ -89,21 +78,12 @@ export async function POST(req: NextRequest) {
       variants
     };
 
-    const { error, value } = addProductSchema.validate(productData, { abortEarly: false });
-    if (error) {
-      return NextResponse.json(
-        { error: error.details.map((d) => d.message) },
-        { status: 400 }
-      );
-    }
-
-    // Create product in Prisma
     const created = await prisma.product.create({
       data: {
         id: newId,
-        title: value.name,
+        title: productData.name,
         variants: {
-          create: value.variants.map((v: VariantForm) => ({
+          create: productData.variants.map((v: VariantForm) => ({
             id: v.id,
             price: Number(v.price),
             stock: Number(v.quantity),

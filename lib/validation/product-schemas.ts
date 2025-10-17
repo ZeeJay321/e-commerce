@@ -129,10 +129,14 @@ export const addVariantSchema = Joi.object({
     'string.pattern.base': 'ColorCode must be a valid hex code',
     'any.required': 'ColorCode is required'
   }),
-  size: Joi.string().required().messages({
-    'string.empty': 'Size is required',
-    'any.required': 'Size is required'
-  })
+  size: Joi.string()
+    .valid('S', 'M', 'L', 'XL')
+    .required()
+    .messages({
+      'any.only': 'Size must be one of S, M, L, or XL',
+      'string.empty': 'Size is required',
+      'any.required': 'Size is required'
+    })
 });
 
 export const stockSchema = Joi.object({

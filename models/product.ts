@@ -3,7 +3,7 @@ export interface ProductVariant {
   img: string;
   color: string;
   colorCode: string;
-  size: string;
+  size: 'S' | 'M' | 'L' | 'XL';
   price: number;
   stock: number;
 }
