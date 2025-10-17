@@ -2,12 +2,8 @@
 
 import { useEffect, useState } from 'react';
 
-import {
-  Dropdown,
-  Layout,
-  MenuProps
-} from 'antd';
-import { signOut } from 'next-auth/react';
+import { Dropdown, Layout, MenuProps } from 'antd';
+import { signOut, useSession } from 'next-auth/react';
 import './admin-navbar.css';
 
 const { Header } = Layout;
@@ -27,33 +23,19 @@ const items: MenuProps['items'] = [
 ];
 
 const AdminNavBar = () => {
+  const { data: session, status } = useSession();
   const [adminName, setAdminName] = useState<string>('Loading...');
 
   useEffect(() => {
-    const fetchAdmin = async () => {
-      try {
-        const res = await fetch('/api/admin/user', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          cache: 'no-store'
-        });
+    if (status === 'loading') return;
 
-        if (!res.ok) {
-          throw new Error('Failed to fetch admin');
-        }
+    if (status === 'unauthenticated' || !session?.user) {
+      setAdminName('Not logged in');
+      return;
+    }
 
-        const data = await res.json();
-        setAdminName(data.fullname || 'Unknown');
-      } catch (error) {
-        console.error(error);
-        setAdminName('Not logged in');
-      }
-    };
-
-    fetchAdmin();
-  }, []);
+    setAdminName(session.user.name || 'Admin');
+  }, [session, status]);
 
   return (
     <Header className="navigation-bar">

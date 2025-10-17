@@ -43,15 +43,23 @@ export async function middleware(req: NextRequest) {
       const [, { schema }] = matched;
 
       if (schema) {
-        let data: Record<string, string> = {};
+        let data: Record<string, unknown> = {};
+        const contentType = req.headers.get('content-type') || '';
 
         if (method === 'GET') {
           data = Object.fromEntries(req.nextUrl.searchParams.entries());
-        } else {
+        } else if (contentType.includes('application/json')) {
           try {
             data = await req.json();
           } catch {
             return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+          }
+        } else if (contentType.includes('multipart/form-data')) {
+          try {
+            const formData = await req.formData();
+            data = Object.fromEntries(formData.entries());
+          } catch {
+            return NextResponse.json({ error: 'Invalid FormData body' }, { status: 400 });
           }
         }
 

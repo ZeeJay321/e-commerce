@@ -6,7 +6,6 @@ import {
 } from './auth-schemas';
 
 import {
-  getDetailSchema,
   getOrderSchema,
   placeOrderSchema
 } from './order-schemas';
@@ -28,7 +27,6 @@ export const routeSchemas = {
   '/api/products/delete-variant': { method: 'DELETE', schema: disableSchema },
   '/api/orders/place-orders': { method: 'POST', schema: placeOrderSchema },
   '/api/orders/get-orders': { method: 'GET', schema: getOrderSchema },
-  '/api/orders/get-detail': { method: 'GET', schema: getDetailSchema },
   '/api/auth/signup': { method: 'POST', schema: signupSchema },
   '/api/auth/forget-password': { method: 'POST', schema: forgotPasswordSchema },
   '/api/auth/reset-password': { method: 'POST', schema: resetPasswordSchema }

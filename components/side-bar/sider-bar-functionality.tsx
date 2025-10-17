@@ -38,7 +38,7 @@ const AdminSidebar = ({ active }: AdminSidebarProps) => (
             block
             className="sidebar-button"
             onClick={() => {
-              window.location.href = '/admin/products';
+              window.location.href = '/admin/orders';
             }}
           >
             <CodeSandboxOutlined />
