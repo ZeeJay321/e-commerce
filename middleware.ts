@@ -19,7 +19,12 @@ const USER_PRIVATE_PATHS = [
 ];
 
 const ADMIN_PUBLIC_PATHS = ['/admin/login'];
-const ADMIN_PRIVATE_PATHS = ['/admin/products', '/admin/orders', '/admin/order-details'];
+
+const ADMIN_PRIVATE_PATHS = [
+  '/admin/products',
+  '/admin/orders',
+  '/admin/order-details'
+];
 
 const AUTH_PATHS = [
   '/login',
@@ -35,6 +40,7 @@ export async function middleware(req: NextRequest) {
 
   if (pathname.startsWith('/api/')) {
     const { method } = req;
+
     const matched = Object.entries(routeSchemas).find(
       ([path, config]) => pathname.startsWith(path) && config.method === method
     );
@@ -46,24 +52,44 @@ export async function middleware(req: NextRequest) {
         let data: Record<string, unknown> = {};
         const contentType = req.headers.get('content-type') || '';
 
-        if (method === 'GET') {
-          data = Object.fromEntries(req.nextUrl.searchParams.entries());
-        } else if (contentType.includes('application/json')) {
-          try {
-            data = await req.json();
-          } catch {
-            return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
-          }
-        } else if (contentType.includes('multipart/form-data')) {
-          try {
+        try {
+          if (method === 'GET') {
+            data = Object.fromEntries(req.nextUrl.searchParams.entries());
+          } else if (contentType.includes('multipart/form-data')) {
             const formData = await req.formData();
-            data = Object.fromEntries(formData.entries());
-          } catch {
-            return NextResponse.json({ error: 'Invalid FormData body' }, { status: 400 });
+            const entries = Array.from(formData.entries());
+            const parsed: Record<string, unknown> = {};
+
+            entries.forEach(([key, value]) => {
+              if (typeof value === 'string') {
+                try {
+                  parsed[key] = JSON.parse(value);
+                } catch {
+                  const asNumber = Number(value);
+                  if (!Number.isNaN(asNumber) && value.trim() !== '') {
+                    parsed[key] = asNumber;
+                  } else {
+                    parsed[key] = value;
+                  }
+                }
+              } else {
+                parsed[key] = value;
+              }
+            });
+
+            const queryParams = Object.fromEntries(req.nextUrl.searchParams.entries());
+            data = { ...queryParams, ...parsed };
+          } else if (contentType.includes('application/json')) {
+            data = await req.json();
+            const queryParams = Object.fromEntries(req.nextUrl.searchParams.entries());
+            data = { ...queryParams, ...data };
           }
+        } catch {
+          return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
         }
 
         const { error } = schema.validate(data, { abortEarly: false });
+
         if (error) {
           return NextResponse.json(
             { error: error.details.map((d) => d.message) },
