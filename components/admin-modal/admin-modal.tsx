@@ -17,6 +17,7 @@ import {
   Upload
 } from 'antd';
 
+import { Size } from '@/models';
 import './admin-modal.css';
 
 type VariantForm = {
@@ -26,7 +27,7 @@ type VariantForm = {
   image?: string;
   color: string;
   colorCode: string;
-  size: string;
+  size: Size;
   file?: File | null;
 };
 
@@ -73,7 +74,7 @@ const EditProductModal = ({
       quantity: 0,
       color: '',
       colorCode: '',
-      size: '',
+      size: Size.S,
       file: null,
       image: ''
     }
@@ -114,7 +115,7 @@ const EditProductModal = ({
         quantity: 0,
         color: '',
         colorCode: '',
-        size: '',
+        size: Size.S,
         file: null
       }
     ]);

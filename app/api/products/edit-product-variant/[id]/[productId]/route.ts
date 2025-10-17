@@ -8,7 +8,6 @@ import type { Response } from 'express';
 
 import { PrismaClient } from '@/app/generated/prisma';
 import { runMiddleware, upload } from '@/lib/multer';
-import { updateProductVariantSchema } from '@/lib/validation/product-schemas';
 
 const prisma = new PrismaClient();
 
@@ -54,23 +53,12 @@ export async function PUT(
 
     const { body, file } = expressReq;
 
-    const { error, value } = updateProductVariantSchema.validate(body, {
-      abortEarly: false
-    });
-
-    if (error) {
-      return NextResponse.json(
-        { error: error.details.map((d) => d.message) },
-        { status: 400 }
-      );
-    }
-
     const updateData: Record<string, unknown> = {};
-    if (value.price !== undefined) updateData.price = parseFloat(value.price);
-    if (value.quantity !== undefined) updateData.stock = parseInt(value.quantity, 10);
-    if (value.color) updateData.color = value.color;
-    if (value.colorCode) updateData.colorCode = value.colorCode;
-    if (value.size) updateData.size = value.size;
+    if (body.price !== undefined) updateData.price = parseFloat(body.price);
+    if (body.quantity !== undefined) updateData.stock = parseInt(body.quantity, 10);
+    if (body.color) updateData.color = body.color;
+    if (body.colorCode) updateData.colorCode = body.colorCode;
+    if (body.size) updateData.size = body.size;
     if (file) updateData.img = `/home/images/${file.filename}`;
     updateData.isDeleted = false;
 

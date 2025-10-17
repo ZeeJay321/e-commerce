@@ -1,9 +1,16 @@
+export enum Size {
+  S = 'S',
+  M = 'M',
+  L = 'L',
+  XL = 'XL'
+}
+
 export interface ProductVariant {
   id: string;
   img: string;
   color: string;
   colorCode: string;
-  size: 'S' | 'M' | 'L' | 'XL';
+  size: Size;
   price: number;
   stock: number;
 }

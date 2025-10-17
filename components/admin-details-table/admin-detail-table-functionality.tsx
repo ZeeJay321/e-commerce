@@ -19,7 +19,7 @@ import {
 } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Product, ProductVariant } from '@/models';
+import { Product, ProductVariant, Size } from '@/models';
 import {
   addVariant,
   clearProducts,
@@ -310,7 +310,7 @@ const AdminDetailTable = () => {
             image: '',
             color: '',
             colorCode: '',
-            size: ''
+            size: Size.S
           }}
           showImage={false}
           title="Add New Variant"

@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { PrismaClient } from '@/app/generated/prisma';
 import { runMiddleware, upload } from '@/lib/multer';
-import { addVariantSchema } from '@/lib/validation/product-schemas';
+import { Size } from '@/models';
 
 const prisma = new PrismaClient();
 
@@ -62,23 +62,15 @@ export async function POST(req: NextRequest) {
 
     const { body, file } = expressReq;
 
-    const { error, value } = addVariantSchema.validate(body, { abortEarly: false });
-    if (error) {
-      return NextResponse.json(
-        { error: error.details.map((d) => d.message) },
-        { status: 400 }
-      );
-    }
-
     const variant = await prisma.productVariant.create({
       data: {
         id: newId,
         productId,
-        color: value.color,
-        colorCode: value.colorCode,
-        size: value.size,
-        price: parseFloat(value.price),
-        stock: parseInt(value.quantity, 10),
+        color: body.color,
+        colorCode: body.colorCode,
+        size: body.size as Size,
+        price: parseFloat(body.price),
+        stock: parseInt(body.quantity, 10),
         isDeleted: false,
         img: file ? `/home/images/${file.filename}` : ''
       }
