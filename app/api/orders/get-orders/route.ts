@@ -4,7 +4,6 @@ import { getServerSession } from 'next-auth';
 
 import { PrismaClient } from '@/app/generated/prisma';
 import { authOptions } from '@/lib/auth';
-import { getOrderSchema } from '@/lib/validation/order-schemas';
 
 const prisma = new PrismaClient();
 
@@ -17,37 +16,11 @@ export async function GET(req: Request) {
     }
 
     const { searchParams } = new URL(req.url);
-    const params = {
-      limit: searchParams.get('limit'),
-      skip: searchParams.get('skip'),
-      query: searchParams.get('query')
-    };
+    const limit = Number(searchParams.get('limit')) || 10;
+    const skip = Number(searchParams.get('skip')) || 1;
+    const query = searchParams.get('query') || '';
 
-    const { error, value } = getOrderSchema.validate(params, {
-      abortEarly: false,
-      convert: true
-    });
-
-    if (error) {
-      return NextResponse.json(
-        { error: error.details.map((d) => d.message) },
-        { status: 400 }
-      );
-    }
-
-    const {
-      limit,
-      skip,
-      query
-    } = value as {
-      limit: number;
-      skip: number;
-      query?: string | null;
-    };
-
-    const baseCondition = session.user.role === 'admin'
-      ? {}
-      : { userId: session.user.id };
+    const baseCondition = session.user.role === 'admin' ? {} : { userId: session.user.id };
 
     let whereCondition: Record<string, unknown> = { ...baseCondition };
 

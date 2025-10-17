@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 
 import { Prisma, PrismaClient } from '@/app/generated/prisma';
-import { getProductSchema } from '@/lib/validation/product-schemas';
 
 const prisma = new PrismaClient();
 
@@ -9,32 +8,13 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
 
-    const params = {
-      skip: Number(searchParams.get('skip')) || 1,
-      limit: Number(searchParams.get('limit')) || 10,
-      query: searchParams.get('query') || '',
-      sortOption: searchParams.get('sortOption') || ''
-    };
+    const skip = Number(searchParams.get('skip')) || 1;
+    const limit = Number(searchParams.get('limit')) || 10;
+    const query = searchParams.get('query') || '';
+    const sortOption = searchParams.get('sortOption') || '';
 
-    const { error, value } = getProductSchema.validate(params, {
-      abortEarly: false
-    });
-    if (error) {
-      return NextResponse.json(
-        { error: error.details.map((d) => d.message) },
-        { status: 400 }
-      );
-    }
-
-    const {
-      skip,
-      limit,
-      query,
-      sortOption
-    } = value;
-
-    const page = skip || 1;
-    const take = limit || 10;
+    const page = skip;
+    const take = limit;
     const offset = (page - 1) * take;
 
     const where: Prisma.ProductWhereInput = {

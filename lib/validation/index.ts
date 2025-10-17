@@ -32,5 +32,4 @@ export const routeSchemas = {
   '/api/auth/signup': { method: 'POST', schema: signupSchema },
   '/api/auth/forget-password': { method: 'POST', schema: forgotPasswordSchema },
   '/api/auth/reset-password': { method: 'POST', schema: resetPasswordSchema }
-
 };

@@ -4,23 +4,13 @@ import bcrypt from 'bcrypt';
 
 import { PrismaClient } from '@/app/generated/prisma';
 
-import { resetPasswordSchema } from '@/lib/validation/auth-schemas';
-
 const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    const { error, value } = resetPasswordSchema.validate(body, { abortEarly: false });
-    if (error) {
-      return NextResponse.json(
-        { error: error.details.map((d) => d.message) },
-        { status: 400 }
-      );
-    }
-
-    const { token, password } = value;
+    const { token, password } = body;
 
     const user = await prisma.user.findFirst({
       where: {

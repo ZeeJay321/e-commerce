@@ -3,7 +3,6 @@ import { NextResponse } from 'next/server';
 import moment from 'moment';
 
 import { PrismaClient } from '@/app/generated/prisma';
-import { placeOrderSchema } from '@/lib/validation/order-schemas';
 import { OrderItemInput } from '@/models';
 import { createCheckoutSession } from '@/services/stripe';
 
@@ -12,19 +11,14 @@ const prisma = new PrismaClient();
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { error, value } = placeOrderSchema.validate(body, {
-      abortEarly: false,
-      convert: true
-    });
+    const { userId, items } = body as { userId: string; items: OrderItemInput[] };
 
-    if (error) {
+    if (!userId || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
-        { error: error.details.map((d) => d.message) },
+        { error: 'Invalid request: userId and items are required' },
         { status: 400 }
       );
     }
-
-    const { userId, items } = value as { userId: string; items: OrderItemInput[] };
 
     const productIds = items.map((item) => item.productId);
     const products = await prisma.product.findMany({

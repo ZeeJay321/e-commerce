@@ -31,7 +31,6 @@ const AUTH_PATHS = [
 
 export async function middleware(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-
   const { pathname } = req.nextUrl;
 
   if (pathname.startsWith('/api/')) {
@@ -121,5 +120,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next|static|favicon.ico|images).*)']
+  matcher: ['/((?!_next|static|favicon.ico|images).*)']
 };

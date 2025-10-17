@@ -3,7 +3,6 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
 
 import { PrismaClient } from '@/app/generated/prisma';
-import { signupSchema } from '@/lib/validation/auth-schemas';
 import { createStripeCustomer } from '@/services/stripe';
 
 const prisma = new PrismaClient();
@@ -11,13 +10,6 @@ const prisma = new PrismaClient();
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { error, value } = signupSchema.validate(body, { abortEarly: false });
-    if (error) {
-      return NextResponse.json(
-        { error: error.details.map((d) => d.message) },
-        { status: 400 }
-      );
-    }
 
     const {
       fullName,
@@ -25,7 +17,7 @@ export async function POST(req: Request) {
       phoneNumber,
       password,
       confirmPassword
-    } = value;
+    } = body;
     const emailLower = email.toLowerCase();
 
     const customer = await createStripeCustomer(fullName, email);

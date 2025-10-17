@@ -5,8 +5,6 @@ import { NextResponse } from 'next/server';
 import { PrismaClient } from '@/app/generated/prisma';
 import { sendResetLink } from '@/helper/reset-email';
 
-import { forgotPasswordSchema } from '@/lib/validation/auth-schemas';
-
 const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
@@ -17,15 +15,7 @@ export async function POST(req: Request) {
     const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
     const baseUrl = `${protocol}://${host}`;
 
-    const { error, value } = forgotPasswordSchema.validate(body, { abortEarly: false });
-    if (error) {
-      return NextResponse.json(
-        { error: error.details.map((d) => d.message) },
-        { status: 400 }
-      );
-    }
-
-    const { email } = value;
+    const { email } = body.email;
 
     const token = crypto.randomBytes(32).toString('hex');
     const tokenExpiry = new Date(Date.now() + 1000 * 60 * 10);

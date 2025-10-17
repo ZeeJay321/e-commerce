@@ -4,7 +4,6 @@ import { getServerSession } from 'next-auth';
 
 import { PrismaClient } from '@/app/generated/prisma';
 import { authOptions } from '@/lib/auth';
-import { getDetailSchema } from '@/lib/validation/order-schemas';
 
 const prisma = new PrismaClient();
 
@@ -20,22 +19,9 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Validate route param
-    const { error, value } = getDetailSchema.validate({
-      id: Number(resolvedParams.id)
-    });
-
-    if (error) {
-      return NextResponse.json(
-        { error: error.details.map((d) => d.message) },
-        { status: 400 }
-      );
-    }
-
-    const orderId = value.id;
+    const orderId = Number(resolvedParams.id);
     const isAdmin = session.user.role === 'admin';
 
-    // Only admins can access any order; users only their own
     const whereCondition = isAdmin
       ? { orderNumber: orderId }
       : { orderNumber: orderId, userId: session.user.id };
