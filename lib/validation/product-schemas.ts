@@ -38,7 +38,8 @@ export const updateProductVariantSchema = Joi.object({
   quantity: Joi.number().integer().min(0),
   color: Joi.string(),
   colorCode: Joi.string().pattern(/^#([0-9A-Fa-f]{6})$/),
-  size: Joi.string()
+  size: Joi.string(),
+  image: Joi.any().optional()
 }).min(1);
 
 export const disableSchema = Joi.object({
@@ -108,45 +109,50 @@ export const addProductSchema = Joi.object({
       'array.min': 'At least one variant is required',
       'any.required': 'Variants are required'
     })
-});
+}).pattern(/^image_/, Joi.any());
 
 export const addVariantSchema = Joi.object({
+  productId: Joi.string()
+    .guid({ version: ['uuidv4', 'uuidv5'] })
+    .required()
+    .messages({
+      'string.guid': 'Invalid product ID format',
+      'any.required': 'Product ID is required'
+    }),
+
   price: Joi.number().positive().required().messages({
     'number.base': 'Price must be a number',
     'any.required': 'Price is required'
   }),
+
   quantity: Joi.number().integer().min(1).required()
     .messages({
       'number.base': 'Quantity must be a number',
       'number.min': 'Quantity must be at least 1',
       'any.required': 'Quantity is required'
     }),
+
   color: Joi.string().required().messages({
     'string.empty': 'Color is required',
     'any.required': 'Color is required'
   }),
-  colorCode: Joi.string().pattern(/^#([0-9A-Fa-f]{6})$/).required().messages({
-    'string.pattern.base': 'ColorCode must be a valid hex code',
-    'any.required': 'ColorCode is required'
-  }),
+
+  colorCode: Joi.string()
+    .pattern(/^#([0-9A-Fa-f]{6})$/)
+    .required()
+    .messages({
+      'string.pattern.base': 'ColorCode must be a valid hex code',
+      'any.required': 'ColorCode is required'
+    }),
+
   size: Joi.string()
     .valid('S', 'M', 'L', 'XL')
     .required()
     .messages({
       'any.only': 'Size must be one of S, M, L, or XL',
-      'string.empty': 'Size is required',
       'any.required': 'Size is required'
-    })
+    }),
+
+  image: Joi.any().optional()
 });
 
-export const stockSchema = Joi.object({
-  productIds: Joi.array()
-    .items(Joi.string().uuid().message('Each productId must be a valid UUID'))
-    .min(1)
-    .required()
-    .messages({
-      'array.base': 'productIds must be an array',
-      'array.min': 'At least one productId is required',
-      'any.required': 'productIds field is required'
-    })
-});

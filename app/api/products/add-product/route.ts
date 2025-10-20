@@ -57,19 +57,19 @@ export async function POST(req: NextRequest) {
 
     const { body, files } = expressReq;
 
-    const variants: VariantForm[] = Array.isArray(body.variants) ? body.variants : [];
-
-    variants.forEach((v) => {
-      v.id = v.id || uuidv4();
-    });
+    let variants: VariantForm[] = [];
+    try {
+      variants = JSON.parse(body.variants);
+    } catch {
+      variants = [];
+    }
 
     (files || []).forEach((file) => {
-      const match = file.fieldname.match(/variants\[(\d+)\]\[image\]/);
-      if (match && match[1]) {
-        const index = parseInt(match[1], 10);
-        if (variants[index]) {
-          variants[index].image = `/home/images/${file.filename}`;
-        }
+      const idMatch = file.fieldname.match(/^image_(.+)$/);
+      if (idMatch) {
+        const variantId = idMatch[1];
+        const variant = variants.find((v) => v.id === variantId);
+        if (variant) variant.image = `/home/images/${file.filename}`;
       }
     });
 

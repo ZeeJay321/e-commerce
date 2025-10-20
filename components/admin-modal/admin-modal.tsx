@@ -127,17 +127,23 @@ const EditProductModal = ({
     if (mode === 'create') {
       formData.append('name', name);
 
-      variants.forEach((v, i) => {
-        formData.append(`variants[${i}][id]`, v.id);
-        formData.append(`variants[${i}][price]`, v.price.toString());
-        formData.append(`variants[${i}][quantity]`, v.quantity.toString());
-        formData.append(`variants[${i}][color]`, v.color);
-        formData.append(`variants[${i}][colorCode]`, v.colorCode);
-        formData.append(`variants[${i}][size]`, v.size);
+      const plainVariants = variants.map((v) => ({
+        id: v.id,
+        price: v.price,
+        quantity: v.quantity,
+        color: v.color,
+        colorCode: v.colorCode,
+        size: v.size,
+        image: v.image
+      }));
+
+      formData.append('variants', JSON.stringify(plainVariants));
+
+      variants.forEach((v) => {
         if (v.file) {
           const ext = v.file.name.split('.').pop();
           const newFile = new File([v.file], `${v.id}.${ext}`, { type: v.file.type });
-          formData.append(`variants[${i}][image]`, newFile);
+          formData.append(`image_${v.id}`, newFile);
         }
       });
     } else if (mode === 'edit') {
