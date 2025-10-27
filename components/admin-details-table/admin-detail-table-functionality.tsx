@@ -13,7 +13,6 @@ import {
 } from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
 import {
-  Alert,
   Spin,
   Table
 } from 'antd';
@@ -161,6 +160,18 @@ const AdminDetailTable = () => {
     return () => window.removeEventListener('ProductUpdated', getUpdatedProducts);
   }, [getUpdatedProducts, reload]);
 
+  useEffect(() => {
+    if (error) {
+      setNotification({
+        type: 'error',
+        message: 'Operation Failed',
+        description: error
+      });
+
+      setTimeout(() => setNotification(null), 1000);
+    }
+  }, [error]);
+
   const columns: TableColumnsType<Product> = [
     {
       title: <span className="table-span-head">Title</span>,
@@ -266,10 +277,6 @@ const AdminDetailTable = () => {
 
   if (loading) {
     return <Spin size="large" className="flex justify-center py-10" />;
-  }
-
-  if (error) {
-    return <Alert type="error" message={error} showIcon className="mb-4" />;
   }
 
   return (
