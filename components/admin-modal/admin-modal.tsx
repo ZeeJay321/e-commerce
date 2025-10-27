@@ -62,6 +62,7 @@ const EditProductModal = ({
   const [quantity, setQuantity] = useState(variant?.quantity || 0);
   const [color, setColor] = useState(variant?.color || '');
   const [colorCode, setColorCode] = useState(variant?.colorCode || '');
+  const [colorError, setColorError] = useState(false);
   const [image, setImage] = useState(variant?.image || '');
   const [size, setSize] = useState(variant?.size || '');
   const [file, setFile] = useState<File | null>(null);
@@ -319,9 +320,19 @@ const EditProductModal = ({
                       <label className="edit-field">Color Code</label>
                       <Input
                         value={v.colorCode}
-                        onChange={(e) => updateVariant(v.id, 'colorCode', e.target.value)}
-                        className="edit-field-sub-input"
+                        onChange={(e) => {
+                          const hexPattern = /^#([0-9A-Fa-f]{6})$/;
+                          const { value } = e.target;
+                          updateVariant(v.id, 'colorCode', value);
+                          setColorError(!hexPattern.test(value));
+                        }}
+                        className={`edit-field-sub-input ${colorError ? 'border-red-500' : ''}`}
+                        placeholder="#FFFFFF"
+                        maxLength={7}
                       />
+                      {colorError && (
+                        <p className="text-red-500 text-xs mt-1">Invalid color code. Use format #RRGGBB.</p>
+                      )}
                     </div>
                     <div className="flex-1">
                       <label className="edit-field">Size</label>
@@ -469,9 +480,21 @@ const EditProductModal = ({
                   <label className="edit-field">Color Code</label>
                   <Input
                     value={colorCode}
-                    onChange={(e) => setColorCode(e.target.value)}
-                    className="edit-field-sub-input"
+                    onChange={(e) => {
+                      const hexPattern = /^#([0-9A-Fa-f]{6})$/;
+                      const { value } = e.target;
+                      setColorCode(value);
+                      setColorError(value !== '' && !hexPattern.test(value));
+                    }}
+                    className={`edit-field-sub-input ${colorError ? 'border-red-500' : ''}`}
+                    placeholder="#FFFFFF"
+                    maxLength={7}
                   />
+                  {colorError && (
+                    <p className="text-red-500 text-xs mt-1">
+                      Invalid color code. Use format #RRGGBB.
+                    </p>
+                  )}
                 </div>
                 <div className="flex-1">
                   <label className="edit-field">Size</label>

@@ -12,6 +12,7 @@ import { AppDispatch } from '@/redux/store';
 import AdminDetailTable from '@/components/admin-details-table/admin-detail-table-functionality';
 import EditProductModal from '@/components/admin-modal/admin-modal';
 import LoadingSpinner from '@/components/loading/loading-spinner';
+import CustomNotification from '@/components/notifications/notifications-functionality';
 import 'antd/dist/reset.css';
 import './products.css';
 
@@ -20,11 +21,37 @@ const Page = () => {
   const [addProductOpen, setAddProductOpen] = useState(false);
   const [addMultipleOpen, setAddMultipleOpen] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
+  const [notification, setNotification] = useState<{
+    type: 'success' | 'error';
+    message: string;
+    description?: string;
+  } | null>(null);
 
   const handleAddProduct = async (formData: FormData) => {
-    await dispatch(addProduct(formData));
-    setAddProductOpen(false);
-    window.dispatchEvent(new Event('ProductUpdated'));
+    try {
+      const res = await dispatch(addProduct(formData)).unwrap();
+
+      if (res) {
+        setAddProductOpen(false);
+        window.dispatchEvent(new Event('ProductUpdated'));
+
+        setNotification({
+          type: 'success',
+          message: 'Product added successfully'
+        });
+
+        setTimeout(() => setNotification(null), 3000);
+      }
+    } catch (err) {
+      const errMessage = err as string || '';
+      setNotification({
+        type: 'error',
+        message: 'Operation Failed',
+        description: errMessage || 'Something went wrong while adding the product.'
+      });
+
+      setTimeout(() => setNotification(null), 3000);
+    }
   };
 
   useEffect(() => {
@@ -37,6 +64,15 @@ const Page = () => {
 
   return (
     <div className="cover">
+      {notification && (
+        <CustomNotification
+          type={notification.type}
+          message={notification.message}
+          description={notification.description}
+          placement="topRight"
+          onClose={() => setNotification(null)}
+        />
+      )}
       <div className="content-div">
         <span className="content-paragraph">Our Products</span>
         <div className="content-features w-full">
@@ -78,7 +114,7 @@ const Page = () => {
         <EditProductModal
           open={addMultipleOpen}
           onClose={() => setAddMultipleOpen(false)}
-          mode="upload" // 👈 upload mode from Figma design
+          mode="upload"
           title="Add Multiple Products"
         />
       )}

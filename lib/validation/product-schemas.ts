@@ -73,12 +73,12 @@ export const addProductSchema = Joi.object({
             'any.required': 'Variant ID is required'
           }),
 
-        price: Joi.number().min(0).required().messages({
+        price: Joi.number().min(1).required().messages({
           'number.base': 'Price must be a number',
           'any.required': 'Price is required'
         }),
 
-        quantity: Joi.number().integer().min(0).required()
+        quantity: Joi.number().integer().min(1).required()
           .messages({
             'number.base': 'Quantity must be a number',
             'any.required': 'Quantity is required'

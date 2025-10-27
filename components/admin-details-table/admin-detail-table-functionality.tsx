@@ -31,6 +31,7 @@ import {
 import { AppDispatch, RootState } from '@/redux/store';
 
 import EditProductModal from '@/components/admin-modal/admin-modal';
+import CustomNotification from '@/components/notifications/notifications-functionality';
 
 import ConfirmDeleteModal from '../delete-modal/delete-modal';
 
@@ -44,6 +45,11 @@ const AdminDetailTable = () => {
   const [editVariant, setEditVariant] = useState<ProductVariant | null>(null);
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [addVariantProduct, setAddVariantProduct] = useState<Product | null>(null);
+  const [notification, setNotification] = useState<{
+    type: 'success' | 'error';
+    message: string;
+    description?: string;
+  } | null>(null);
 
   const dispatch = useDispatch<AppDispatch>();
   const {
@@ -55,9 +61,56 @@ const AdminDetailTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
 
-  const handleDeleteVariant = (deleteId: string | null) => {
+  const handleDeleteVariant = async (deleteId: string | null) => {
     if (!deleteId) return;
-    dispatch(deleteVariant(deleteId));
+
+    try {
+      const res = await dispatch(deleteVariant(deleteId)).unwrap();
+
+      if (res) {
+        setNotification({
+          type: 'success',
+          message: 'Variant deleted successfully'
+        });
+        setTimeout(() => setNotification(null), 3000);
+        window.dispatchEvent(new Event('ProductUpdated'));
+      }
+    } catch (err) {
+      const errMessage = (err as string) || '';
+      setNotification({
+        type: 'error',
+        message: 'Operation Failed',
+        description:
+          errMessage || 'Something went wrong while deleting the variant.'
+      });
+      setTimeout(() => setNotification(null), 3000);
+    }
+  };
+
+  const handleDeleteProduct = async (deleteId: string | null) => {
+    if (!deleteId) return;
+
+    try {
+      const res = await dispatch(deleteProduct(deleteId)).unwrap();
+
+      if (res) {
+        setNotification({
+          type: 'success',
+          message: 'Product deleted successfully'
+        });
+        setTimeout(() => setNotification(null), 3000);
+        window.dispatchEvent(new Event('ProductUpdated'));
+      }
+    } catch (err) {
+      const errMessage = (err as string) || '';
+      setNotification({
+        type: 'error',
+        message: 'Operation Failed',
+        description:
+          errMessage || 'Something went wrong while deleting the product.'
+      });
+      setTimeout(() => setNotification(null), 3000);
+    }
   };
 
   const confirmVariantDelete = () => {
@@ -68,11 +121,6 @@ const AdminDetailTable = () => {
     setIsDeleteVariantModalOpen(false);
     setDeleteKey(null);
     window.dispatchEvent(new Event('ProductUpdated'));
-  };
-
-  const handleDeleteProduct = (deleteId: string | null) => {
-    if (!deleteId) return;
-    dispatch(deleteProduct(deleteId));
   };
 
   const confirmProductDelete = () => {
@@ -226,6 +274,16 @@ const AdminDetailTable = () => {
 
   return (
     <div className="cart-items-div">
+      {notification && (
+        <CustomNotification
+          type={notification.type}
+          message={notification.message}
+          description={notification.description}
+          placement="topRight"
+          onClose={() => setNotification(null)}
+        />
+      )}
+
       <Table<Product>
         columns={columns}
         dataSource={products}
@@ -258,7 +316,7 @@ const AdminDetailTable = () => {
         onConfirm={confirmProductDelete}
       />
 
-      {/* Edit Modal */}
+      {/* Edit Variant Modal */}
       {editProduct && editVariant && (
         <EditProductModal
           open={!!editProduct}
@@ -283,17 +341,41 @@ const AdminDetailTable = () => {
           title="Edit Product"
           actionLabel="Update"
           onAction={async (formData) => {
-            await dispatch(updateProductVariant({
-              id: editVariant.id,
-              productId: editProduct.id,
-              formData
-            }));
-            setEditProduct(null);
-            window.dispatchEvent(new Event('ProductUpdated'));
+            try {
+              const res = await dispatch(
+                updateProductVariant({
+                  id: editVariant.id,
+                  productId: editProduct.id,
+                  formData
+                })
+              ).unwrap();
+
+              if (res) {
+                setNotification({
+                  type: 'success',
+                  message: 'Product Variant updated successfully'
+                });
+                setTimeout(() => setNotification(null), 3000);
+                window.dispatchEvent(new Event('ProductUpdated'));
+                setEditProduct(null);
+                setEditVariant(null);
+              }
+            } catch (err) {
+              const errMessage = (err as string) || '';
+              setNotification({
+                type: 'error',
+                message: 'Operation Failed',
+                description:
+                  errMessage
+                  || 'Something went wrong while updating the product variant.'
+              });
+              setTimeout(() => setNotification(null), 3000);
+            }
           }}
         />
       )}
 
+      {/* Add Variant Modal */}
       {addVariantProduct && (
         <EditProductModal
           open={!!addVariantProduct}
@@ -316,12 +398,34 @@ const AdminDetailTable = () => {
           title="Add New Variant"
           actionLabel="Add"
           onAction={async (formData) => {
-            await dispatch(addVariant({
-              productId: addVariantProduct.id,
-              formData
-            }));
-            setAddVariantProduct(null);
-            window.dispatchEvent(new Event('ProductUpdated'));
+            try {
+              const res = await dispatch(
+                addVariant({
+                  productId: addVariantProduct.id,
+                  formData
+                })
+              ).unwrap();
+
+              if (res) {
+                setNotification({
+                  type: 'success',
+                  message: 'Product Variant added successfully'
+                });
+                setTimeout(() => setNotification(null), 3000);
+                window.dispatchEvent(new Event('ProductUpdated'));
+                setAddVariantProduct(null);
+              }
+            } catch (err) {
+              const errMessage = (err as string) || '';
+              setNotification({
+                type: 'error',
+                message: 'Operation Failed',
+                description:
+                  errMessage
+                  || 'Something went wrong while adding the product variant.'
+              });
+              setTimeout(() => setNotification(null), 3000);
+            }
           }}
         />
       )}

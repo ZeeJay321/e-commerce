@@ -25,7 +25,7 @@ export async function PUT(
     const { id } = resolvedParams;
 
     const updatedVariant = await prisma.$transaction(async (tx) => tx.productVariant.update({
-      where: { id },
+      where: { id, isDeleted: false },
       data: { isDeleted: true }
     }));
 

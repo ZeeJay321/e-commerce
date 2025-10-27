@@ -52,8 +52,6 @@ export async function middleware(req: NextRequest) {
       if (schema) {
         let data: Record<string, unknown> = {};
         const contentType = req.headers.get('content-type') || '';
-        console.log('method', method);
-        console.log('contentType', contentType);
 
         try {
           if (method === 'GET') {
@@ -90,8 +88,6 @@ export async function middleware(req: NextRequest) {
         } catch {
           return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
         }
-
-        console.log('Data: ', data);
 
         const { error } = schema.validate(data, { abortEarly: false });
 
