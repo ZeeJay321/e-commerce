@@ -203,6 +203,34 @@ export const fetchOrderDetail = createAsyncThunk<
   }
 );
 
+export const fulfillOrder = createAsyncThunk<
+  { message: string },
+  { orderId: number },
+  { rejectValue: string }
+>(
+  'orders/fulfillOrder',
+  async ({ orderId }, { rejectWithValue }) => {
+    try {
+      const res = await fetch(`/api/orders/fulfill-order/${orderId}`, {
+        method: 'PUT',
+        credentials: 'include'
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        return rejectWithValue(data.error || 'Failed to fulfill order');
+      }
+
+      return data as { message: string };
+    } catch (err) {
+      return rejectWithValue(
+        err instanceof Error ? err.message : 'Unknown error'
+      );
+    }
+  }
+);
+
 const ordersSlice = createSlice({
   name: 'orders',
   initialState,
@@ -285,6 +313,20 @@ const ordersSlice = createSlice({
       .addCase(fetchOrderDetail.rejected, (state, action) => {
         state.detailLoading = false;
         state.error = action.payload || action.error.message || 'Failed to fetch order detail';
+      });
+
+    builder
+      .addCase(fulfillOrder.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fulfillOrder.fulfilled, (state) => {
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(fulfillOrder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error.message || 'Failed to fulfill order';
       });
   }
 });

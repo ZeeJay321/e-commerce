@@ -52,7 +52,11 @@ const AdminDetailTable = () => {
 
   const dispatch = useDispatch<AppDispatch>();
   const {
-    items: products, total, loading, error
+    items:
+    products,
+    total,
+    loading,
+    error
   } = useSelector(
     (state: RootState) => state.products
   );

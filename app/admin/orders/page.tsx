@@ -24,14 +24,19 @@ const Page = () => {
   const [search, setSearch] = useState('');
 
   const {
-    total, totalProducts, totalAmount
+    total,
+    totalProducts,
+    totalAmount
   } = useSelector(
     (state: RootState) => state.orders
   );
 
   useEffect(() => {
     setIsRendered(true);
-  }, [search, total, totalProducts, totalAmount]);
+  }, [search,
+    total,
+    totalProducts,
+    totalAmount]);
 
   if (!isRendered) {
     return <LoadingSpinner />;

@@ -1,12 +1,13 @@
 'use client';
 
 import {
+  useCallback,
   useEffect,
   useMemo,
   useState
 } from 'react';
 
-import { ArrowsAltOutlined } from '@ant-design/icons';
+import { ArrowsAltOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
 import {
   Alert,
@@ -18,10 +19,12 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import OrderDetailsDrawer from '@/components/order-drawer';
 import { OrderRow } from '@/models';
-import { fetchOrders } from '@/redux/slices/orders-slice';
+import { fetchOrders, fulfillOrder } from '@/redux/slices/orders-slice';
 import { AppDispatch, RootState } from '@/redux/store';
 
 import 'antd/dist/reset.css';
+import ConfirmDeleteModal from '../delete-modal/delete-modal';
+import CustomNotification from '../notifications/notifications-functionality';
 import './order.css';
 
 interface OrdersTableProps {
@@ -42,29 +45,78 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
 
   const [current, setCurrent] = useState(1);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [isRendered, setIsRendered] = useState(false);
+  const [notification, setNotification] = useState<{
+    type: 'success' | 'error';
+    message: string;
+    description?: string;
+  } | null>(null);
 
   const pageSize = admin ? 12 : 8;
 
-  useEffect(() => {
+  const getUpdatedOrders = useCallback(() => {
     dispatch(fetchOrders({
       limit: pageSize,
       skip: current,
       query: search || ''
     }));
-    setIsRendered(true);
   }, [
     dispatch,
     current,
-    search,
-    pageSize
+    pageSize,
+    search
+  ]);
+
+  useEffect(() => {
+    getUpdatedOrders();
+    setIsRendered(true);
+    window.addEventListener('OrderUpdated', getUpdatedOrders);
+    return () => window.removeEventListener('OrderUpdated', getUpdatedOrders);
+  }, [
+    getUpdatedOrders
   ]);
 
   // Reset to first page on search change
   useEffect(() => {
     setCurrent(1);
   }, [search]);
+
+  const cancelStatusUpdate = () => {
+    setModalOpen(false);
+  };
+
+  const confirmStatusUpdate = async () => {
+    try {
+      if (selectedOrderId === null) return;
+
+      const res = await dispatch(
+        fulfillOrder({ orderId: selectedOrderId })
+      ).unwrap();
+
+      if (res) {
+        setNotification({
+          type: 'success',
+          message: 'Product Shipped successfully'
+        });
+        setTimeout(() => setNotification(null), 3000);
+        window.dispatchEvent(new Event('ProductUpdated'));
+      }
+    } catch (err) {
+      const errMessage = (err as string) || '';
+      setNotification({
+        type: 'error',
+        message: 'Operation Failed',
+        description:
+          errMessage || 'Something went wrong while Shipping the product.'
+      });
+      setTimeout(() => setNotification(null), 3000);
+    } finally {
+      setModalOpen(false);
+      window.dispatchEvent(new Event('OrderUpdated'));
+    }
+  };
 
   // Map order data for the table
   const mappedOrders: (OrderRow & { user?: string })[] = useMemo(
@@ -142,28 +194,48 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
       title: <span className="table-span-head">Actions</span>,
       key: 'actions',
       render: (_, record) => (
-        <ArrowsAltOutlined
-          className="cursor-pointer hover:text-blue-600 py-4 pl-3"
-          onClick={() => {
-            setSelectedOrderId(record.orderNumber);
-            setDrawerOpen(true);
-          }}
-        />
+        <div>
+          <CheckCircleOutlined
+            className="table-action-fulfill"
+            onClick={() => {
+              setSelectedOrderId(record.orderNumber);
+              setModalOpen(true);
+            }}
+          />
+          <ArrowsAltOutlined
+            className="table-action-open"
+            onClick={() => {
+              setSelectedOrderId(record.orderNumber);
+              setDrawerOpen(true);
+            }}
+          />
+        </div>
+
       )
     }
   ];
 
   return (
     <div className="orders-items-div">
+      {notification && (
+        <CustomNotification
+          type={notification.type}
+          message={notification.message}
+          description={notification.description}
+          placement="topRight"
+          onClose={() => setNotification(null)}
+        />
+      )}
+
+      {error && <Alert type="error" message={error} showIcon className="mb-4" />}
+
       {(loading || !loadTable || !isRendered) && (
         <div className="flex justify-center py-10">
           <Spin size="large" />
         </div>
       )}
 
-      {error && <Alert type="error" message={error} showIcon className="mb-4" />}
-
-      {!loading && !error && loadTable && (
+      {!loading && loadTable && (
         <>
           <Table
             columns={columns}
@@ -196,6 +268,15 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
         onClose={() => setDrawerOpen(false)}
         orderId={selectedOrderId}
       />
+
+      <ConfirmDeleteModal
+        open={modalOpen}
+        title="Fulfill Order Status"
+        text="Are you sure you want to fulfill this order?"
+        onCancel={cancelStatusUpdate}
+        onConfirm={confirmStatusUpdate}
+      />
+
     </div>
   );
 };

@@ -53,3 +53,11 @@
 .table-span-head {
   @apply pl-3 py-2
 }
+
+.table-action-fulfill {
+  @apply cursor-pointer text-green-600 hover:text-green-800 py-4 pl-3
+}
+
+.table-action-open {
+  @apply cursor-pointer hover:text-blue-600 py-4 pl-3
+}
