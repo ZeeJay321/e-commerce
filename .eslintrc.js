@@ -32,7 +32,7 @@ module.exports = {
       }
     }
   ],
-  ignorePatterns: ['.next/*', 'node_modules/*', 'prisma/*', 'app/generated/*'],
+  ignorePatterns: ['.next/*', 'node_modules/*', 'prisma/*', 'app/generated/*', 'jest.config.js'],
   rules: {
     'comma-dangle': [
       'error',
