@@ -18,7 +18,7 @@ describe('POST /api/auth/forget-password', () => {
   it('should return 400 if email is missing from request body', async () => {
     const req = new Request('http://localhost/api/auth/forget-password', {
       method: 'POST',
-      body: JSON.stringify({}), // missing email
+      body: JSON.stringify({}),
       headers: { 'Content-Type': 'application/json' }
     });
 
