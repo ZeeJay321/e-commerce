@@ -9,7 +9,7 @@ type LineItem = {
 
 export async function createStripeCustomer(name: string, email: string) {
   const customer = await stripe.customers.create({ name, email });
-  return customer;
+  return customer.id;
 }
 
 export async function createCheckoutSession({

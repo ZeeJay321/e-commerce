@@ -10,15 +10,17 @@ module.exports = {
     ...tsJestTransformCfg
   },
   moduleFileExtensions: ['ts', 'js', 'json'],
+
   collectCoverage: true,
-  collectCoverageFrom: [
-    'src/api/**/*.ts'
-  ],
+  collectCoverageFrom: ['app/api/**/*.ts'],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'json', 'html'],
-  testMatch: [
-    '**/tests/**/*.test.ts'
-  ],
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
-  verbose: true
+
+  testMatch: ['**/tests/**/*.test.ts'],
+  setupFilesAfterEnv: ['<rootDir>/tests/jest.setup.ts'],
+  verbose: true,
+
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/$1',
+  },
 };

@@ -25,7 +25,7 @@ export async function createGoogleUser({
       phoneNumber: `google_${Date.now()}`,
       password: randomPassword,
       role: 'user',
-      stripeCustomerId: customer.id,
+      stripeCustomerId: customer,
       metadata: {
         provider: 'google',
         image

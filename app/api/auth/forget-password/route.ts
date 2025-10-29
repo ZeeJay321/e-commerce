@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
     const baseUrl = `${protocol}://${host}`;
 
-    const { email } = body.email;
+    const { email } = body;
 
     const token = crypto.randomBytes(32).toString('hex');
     const tokenExpiry = new Date(Date.now() + 1000 * 60 * 10);
@@ -23,6 +23,13 @@ export async function POST(req: Request) {
     const user = await prisma.user.findFirst({
       where: { email }
     });
+
+    if (!body?.email || typeof body.email !== 'string') {
+      return NextResponse.json(
+        { error: 'Email is required' },
+        { status: 400 }
+      );
+    }
 
     if (!user) {
       return NextResponse.json(

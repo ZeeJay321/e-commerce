@@ -12,6 +12,10 @@ export async function POST(req: Request) {
 
     const { token, password } = body;
 
+    if (!token || !password) {
+      return NextResponse.json({ error: 'Token and password are required' }, { status: 400 });
+    }
+
     const user = await prisma.user.findFirst({
       where: {
         resetToken: token,
