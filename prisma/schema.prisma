@@ -109,3 +109,14 @@ model OrderItem {
   product      Product?        @relation("ProductOrderItems", fields: [productId], references: [id])
   variant      ProductVariant? @relation("VariantOrderItems", fields: [variantId], references: [id])
 }
+
+model OrderSummary {
+  id                      String    @id @default(uuid())
+  totalOrders             Int
+  totalProductsInOrders   Int
+  totalOrderAmount        Float
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime      @updatedAt
+
+  metadata                Json?
+}
