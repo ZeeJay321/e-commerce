@@ -116,7 +116,6 @@ model OrderSummary {
   totalProductsInOrders   Int
   totalOrderAmount        Float
   createdAt               DateTime  @default(now())
-  updatedAt               DateTime      @updatedAt
 
   metadata                Json?
 }
