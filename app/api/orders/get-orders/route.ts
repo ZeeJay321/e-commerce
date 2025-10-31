@@ -40,31 +40,6 @@ export async function GET(req: Request) {
       summaryCreatedAt = latestSummary.createdAt;
     }
 
-    const newOrdersCondition = summaryCreatedAt
-      ? {
-        ...baseCondition,
-        createdAt: { gt: summaryCreatedAt }
-      }
-      : baseCondition;
-
-    const newOrdersCount = await prisma.order.count({
-      where: newOrdersCondition
-    });
-
-    const newOrdersAmountAgg = await prisma.order.aggregate({
-      _sum: { amount: true },
-      where: newOrdersCondition
-    });
-
-    const newOrderItemsAgg = await prisma.orderItem.aggregate({
-      _sum: { quantity: true },
-      where: { order: newOrdersCondition }
-    });
-
-    totalOrders += newOrdersCount;
-    totalAmount += newOrdersAmountAgg._sum.amount || 0;
-    totalProducts += newOrderItemsAgg._sum.quantity || 0;
-
     let whereCondition: Record<string, unknown> = { ...baseCondition };
 
     if (query && query.trim() !== '') {
@@ -118,24 +93,23 @@ export async function GET(req: Request) {
       ...(limit && skip ? { skip: (skip - 1) * limit, take: limit } : {})
     });
 
-    return NextResponse.json(
-      {
-        totalOrders,
-        totalAmount,
-        totalProducts,
-        summaryCreatedAt,
-        totalPagination,
-        limit,
-        skip,
-        query,
-        orders: orders.map((order) => ({
-          ...order,
-          user: order.user.fullname,
-          productsCount: order._count.products
-        }))
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({
+      totalOrders,
+      totalAmount,
+      totalProducts,
+      summaryCreatedAt,
+      totalPagination,
+      limit,
+      skip,
+      query,
+      orders: orders.map((order) => ({
+        ...order,
+        user: order.user.fullname,
+        productsCount: order._count.products
+      }))
+    }, {
+      status: 200
+    });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: message }, { status: 500 });
