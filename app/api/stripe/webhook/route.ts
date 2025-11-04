@@ -41,7 +41,7 @@ export async function POST(req: Request) {
         if (order) {
           await prisma.order.update({
             where: { id: order.id },
-            data: { orderStatus: 'SHIPPED' }
+            data: { orderStatus: 'FULFILLED' }
           });
         }
 
