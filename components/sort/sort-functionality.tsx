@@ -17,20 +17,20 @@ const Sort = ({ onChange }: SortProps) => (
     allowClear
     options={[
       {
-        value: 'priceLowHigh',
+        value: 'dateNewest',
         label: (
           <span>
-            Price: Low to High
+            Date: Newest First
             {' '}
             <ArrowUpOutlined style={{ fontSize: 12 }} />
           </span>
         )
       },
       {
-        value: 'priceHighLow',
+        value: 'dateOldest',
         label: (
           <span>
-            Price: High to Low
+            Date: Oldest First
             {' '}
             <ArrowDownOutlined style={{ fontSize: 12 }} />
           </span>
