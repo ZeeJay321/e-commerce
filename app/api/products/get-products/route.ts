@@ -24,54 +24,7 @@ export async function GET(req: Request) {
       })
     };
 
-    let orderBy: Prisma.ProductOrderByWithRelationInput = { createdAt: 'desc' };
-
-    if (sortOption === 'priceLowHigh' || sortOption === 'priceHighLow') {
-      const grouped = await prisma.productVariant.groupBy({
-        by: ['productId'],
-        _min: { price: true },
-        _max: { price: true }
-      });
-
-      grouped.sort((a, b) => (sortOption === 'priceLowHigh'
-        ? (a._min.price ?? 0) - (b._min.price ?? 0)
-        : (b._max.price ?? 0) - (a._max.price ?? 0)));
-
-      const orderedProductIds = grouped.map((g) => g.productId);
-
-      const products = await prisma.product.findMany({
-        where,
-        include: {
-          variants: {
-            select: {
-              id: true,
-              img: true,
-              color: true,
-              colorCode: true,
-              size: true,
-              price: true,
-              stock: true
-            },
-            where: { isDeleted: false }
-          }
-        },
-        orderBy: { createdAt: 'desc' },
-        take,
-        skip: offset
-      });
-
-      const sortedProducts = products.sort(
-        (a, b) => orderedProductIds.indexOf(a.id)
-          - orderedProductIds.indexOf(b.id)
-      );
-
-      const total = await prisma.product.count({ where });
-
-      return NextResponse.json(
-        { products: sortedProducts, total },
-        { status: 200 }
-      );
-    }
+    let orderBy: Prisma.ProductOrderByWithRelationInput;
 
     switch (sortOption) {
       case 'nameAZ':
@@ -79,6 +32,12 @@ export async function GET(req: Request) {
         break;
       case 'nameZA':
         orderBy = { title: 'desc' };
+        break;
+      case 'dateNewest':
+        orderBy = { createdAt: 'desc' };
+        break;
+      case 'dateOldest':
+        orderBy = { createdAt: 'asc' };
         break;
       default:
         orderBy = { createdAt: 'desc' };

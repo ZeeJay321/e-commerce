@@ -193,25 +193,34 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
     }, {
       title: <span className="table-span-head">Actions</span>,
       key: 'actions',
-      render: (_, record) => (
-        <div>
-          <CheckCircleOutlined
-            className="table-action-fulfill"
-            onClick={() => {
-              setSelectedOrderId(record.orderNumber);
-              setModalOpen(true);
-            }}
-          />
-          <ArrowsAltOutlined
-            className="table-action-open"
-            onClick={() => {
-              setSelectedOrderId(record.orderNumber);
-              setDrawerOpen(true);
-            }}
-          />
-        </div>
+      render: (_, record) => {
+        const isFulfilled = (record.orderStatus?.toLowerCase() === 'fulfilled'
+          && record.orderStatus?.toLowerCase() !== 'shipped');
 
-      )
+        return (
+          <div className="flex gap-3">
+            <CheckCircleOutlined
+              className={`table-action-fulfill ${!isFulfilled ? 'opacity-40 cursor-not-allowed' : ''}`}
+              onClick={() => {
+                if (!isFulfilled) return;
+                setSelectedOrderId(record.orderNumber);
+                setModalOpen(true);
+              }}
+              style={{
+                pointerEvents: !isFulfilled ? 'none' : 'auto',
+                color: !isFulfilled ? '#9ca3af' : '#52c41a'
+              }}
+            />
+            <ArrowsAltOutlined
+              className="table-action-open"
+              onClick={() => {
+                setSelectedOrderId(record.orderNumber);
+                setDrawerOpen(true);
+              }}
+            />
+          </div>
+        );
+      }
     }
   ];
 

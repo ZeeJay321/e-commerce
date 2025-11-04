@@ -20,7 +20,25 @@ export async function GET(req: Request) {
     const skip = Number(searchParams.get('skip')) || 1;
     const query = searchParams.get('query') || '';
 
-    const baseCondition = session.user.role === 'admin' ? {} : { userId: session.user.id };
+    const baseCondition = session.user.role === 'admin'
+      ? {}
+      : { userId: session.user.id };
+
+    const latestSummary = await prisma.orderSummary.findFirst({
+      orderBy: { createdAt: 'desc' }
+    });
+
+    let totalOrders = 0;
+    let totalProducts = 0;
+    let totalAmount = 0;
+    let summaryCreatedAt: Date | null = null;
+
+    if (latestSummary) {
+      totalOrders = latestSummary.totalOrders;
+      totalProducts = latestSummary.totalProductsInOrders;
+      totalAmount = latestSummary.totalOrderAmount;
+      summaryCreatedAt = latestSummary.createdAt;
+    }
 
     let whereCondition: Record<string, unknown> = { ...baseCondition };
 
@@ -50,21 +68,9 @@ export async function GET(req: Request) {
       };
     }
 
-    const totalOrders = await prisma.order.count({ where: baseCondition });
-
-    const totalPagination = await prisma.order.count({ where: whereCondition });
-
-    const amountAgg = await prisma.order.aggregate({
-      _sum: { amount: true },
-      where: baseCondition
+    const totalPagination = await prisma.order.count({
+      where: whereCondition
     });
-    const totalAmount = amountAgg._sum.amount || 0;
-
-    const productsAgg = await prisma.orderItem.aggregate({
-      _sum: { quantity: true },
-      where: { order: baseCondition }
-    });
-    const totalProducts = productsAgg._sum.quantity || 0;
 
     const orders = await prisma.order.findMany({
       where: whereCondition,
@@ -74,6 +80,7 @@ export async function GET(req: Request) {
         userId: true,
         amount: true,
         date: true,
+        createdAt: true,
         orderStatus: true,
         user: {
           select: { fullname: true }
@@ -86,23 +93,23 @@ export async function GET(req: Request) {
       ...(limit && skip ? { skip: (skip - 1) * limit, take: limit } : {})
     });
 
-    return NextResponse.json(
-      {
-        totalOrders,
-        totalAmount,
-        totalProducts,
-        totalPagination,
-        limit,
-        skip,
-        query,
-        orders: orders.map((order) => ({
-          ...order,
-          user: order.user.fullname,
-          productsCount: order._count.products
-        }))
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({
+      totalOrders,
+      totalAmount,
+      totalProducts,
+      summaryCreatedAt,
+      totalPagination,
+      limit,
+      skip,
+      query,
+      orders: orders.map((order) => ({
+        ...order,
+        user: order.user.fullname,
+        productsCount: order._count.products
+      }))
+    }, {
+      status: 200
+    });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: message }, { status: 500 });

@@ -32,7 +32,6 @@ export async function POST(req: Request) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
-        console.log(session);
 
         const order = await prisma.order.findFirst({
           where: { sessionId: session.id },
@@ -42,7 +41,7 @@ export async function POST(req: Request) {
         if (order) {
           await prisma.order.update({
             where: { id: order.id },
-            data: { orderStatus: 'SHIPPED' }
+            data: { orderStatus: 'FULFILLED' }
           });
         }
 

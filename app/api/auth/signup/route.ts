@@ -18,6 +18,21 @@ export async function POST(req: Request) {
       password,
       confirmPassword
     } = body;
+
+    const missingFields: string[] = [];
+    if (!fullName) missingFields.push('"fullName" is required');
+    if (!email) missingFields.push('"email" is required');
+    if (!phoneNumber) missingFields.push('"phoneNumber" is required');
+    if (!password) missingFields.push('"password" is required');
+    if (!confirmPassword) missingFields.push('"confirmPassword" is required');
+
+    if (missingFields.length > 0) {
+      return new Response(
+        JSON.stringify({ error: missingFields }),
+        { status: 400 }
+      );
+    }
+
     const emailLower = email.toLowerCase();
 
     const customer = await createStripeCustomer(fullName, email);
@@ -43,7 +58,7 @@ export async function POST(req: Request) {
           email: emailLower,
           phoneNumber,
           password: hashedPassword,
-          stripeCustomerId: customer.id
+          stripeCustomerId: customer
         }
       });
     });

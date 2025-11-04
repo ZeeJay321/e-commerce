@@ -251,6 +251,41 @@ export const addVariant = createAsyncThunk<
   }
 );
 
+export const importProductsCsv = createAsyncThunk<
+  { message: string },
+  File,
+  { rejectValue: string }
+>(
+  'products/importProductsCsv',
+  async (file, { rejectWithValue }) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      console.log('📤 Uploading CSV:', file.name);
+
+      const response = await fetch('http://127.0.0.1:8000/products/import-csv', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+      console.log('✅ Upload successful:', data);
+
+      if (!response.ok) {
+        return rejectWithValue(data.error || 'Upload failed');
+      }
+
+      return data;
+    } catch (err) {
+      console.error('❌ Upload error:', err);
+      return rejectWithValue(
+        err instanceof Error ? err.message : 'Unknown error'
+      );
+    }
+  }
+);
+
 const productsSlice = createSlice({
   name: 'products',
   initialState,
@@ -285,9 +320,9 @@ const productsSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
-        state.loading = false;
         state.items = action.payload.products;
         state.total = action.payload.total;
+        state.loading = false;
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
@@ -299,9 +334,14 @@ const productsSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchPrevProducts.fulfilled, (state, action) => {
-        state.loading = false;
-        state.items = [...action.payload.products, ...state.items];
+        state.items = [
+          ...action.payload.products.filter(
+            (p) => !state.items.some((existing) => existing.id === p.id)
+          ),
+          ...state.items
+        ];
         state.total = action.payload.total;
+        state.loading = false;
       })
       .addCase(fetchPrevProducts.rejected, (state, action) => {
         state.loading = false;
@@ -313,9 +353,14 @@ const productsSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchNextProducts.fulfilled, (state, action) => {
-        state.loading = false;
-        state.items = [...state.items, ...action.payload.products];
+        state.items = [
+          ...state.items,
+          ...action.payload.products.filter(
+            (p) => !state.items.some((existing) => existing.id === p.id)
+          )
+        ];
         state.total = action.payload.total;
+        state.loading = false;
       })
       .addCase(fetchNextProducts.rejected, (state, action) => {
         state.loading = false;
@@ -380,6 +425,18 @@ const productsSlice = createSlice({
       .addCase(addVariant.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to add product';
+      })
+
+      .addCase(importProductsCsv.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(importProductsCsv.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(importProductsCsv.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'CSV import failed';
       });
   }
 });

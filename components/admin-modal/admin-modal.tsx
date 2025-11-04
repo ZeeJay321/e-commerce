@@ -17,8 +17,13 @@ import {
   Upload
 } from 'antd';
 
+import { useSelector } from 'react-redux';
+
 import { Size } from '@/models';
+
 import './admin-modal.css';
+
+import { RootState } from '@/redux/store';
 
 type VariantForm = {
   id: string;
@@ -44,6 +49,8 @@ type EditProductModalProps = {
   title?: string;
   actionLabel?: string;
   onAction?: (formData: FormData) => Promise<void> | void;
+  onUploadAction?: (file: File) => Promise<void> | void;
+
 };
 
 const EditProductModal = ({
@@ -55,7 +62,8 @@ const EditProductModal = ({
   showImage = true,
   title = 'Orders Details',
   actionLabel = 'Update',
-  onAction
+  onAction,
+  onUploadAction
 }: EditProductModalProps) => {
   const [name, setName] = useState(product?.name || '');
   const [price, setPrice] = useState(variant?.price || 0);
@@ -66,6 +74,11 @@ const EditProductModal = ({
   const [image, setImage] = useState(variant?.image || '');
   const [size, setSize] = useState(variant?.size || '');
   const [file, setFile] = useState<File | null>(null);
+  const {
+    loading
+  } = useSelector(
+    (state: RootState) => state.products
+  );
 
   // for create mode (multiple variants)
   const [variants, setVariants] = useState<VariantForm[]>([
@@ -183,6 +196,7 @@ const EditProductModal = ({
 
           <div className="flex flex-col items-center border-2 border-dashed border-gray-300 rounded-lg p-6">
             <Upload
+              accept=".csv"
               beforeUpload={(uploadFile) => {
                 setFile(uploadFile);
                 setImage(URL.createObjectURL(uploadFile));
@@ -213,7 +227,16 @@ const EditProductModal = ({
           )}
 
           <div className="flex justify-end mt-6">
-            <Button type="primary" disabled={!file}>
+            <Button
+              type="primary"
+              disabled={!file}
+              loading={loading}
+              onClick={() => {
+                if (onUploadAction && file) {
+                  onUploadAction(file);
+                }
+              }}
+            >
               Upload File
             </Button>
           </div>
@@ -236,7 +259,9 @@ const EditProductModal = ({
               className="edit-field-input"
             />
 
-            <Divider>Product Variants</Divider>
+            <Divider>
+              Product Variants
+            </Divider>
 
             {variants.map((v) => (
               <div
@@ -262,6 +287,7 @@ const EditProductModal = ({
                       style={{ width: 145, height: 145 }}
                     >
                       <Upload
+                        accept=".jpg,.jpeg,.png"
                         beforeUpload={(uploadFile) => {
                           updateVariant(v.id, 'file', uploadFile);
                           updateVariant(v.id, 'image', URL.createObjectURL(uploadFile));
@@ -414,6 +440,7 @@ const EditProductModal = ({
                     style={{ width: 145, height: 145 }}
                   >
                     <Upload
+                      accept=".jpg,.jpeg,.png"
                       beforeUpload={(uploadFile) => {
                         setFile(uploadFile);
                         setImage(URL.createObjectURL(uploadFile));

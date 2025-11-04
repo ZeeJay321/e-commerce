@@ -7,7 +7,8 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint .",
-    "lint:fix": "eslint --fix"
+    "lint:fix": "eslint --fix",
+    "test": "jest"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -15,6 +16,7 @@
   "dependencies": {
     "@ant-design/icons": "^6.0.0",
     "@google-cloud/local-auth": "^2.1.0",
+    "@jest/globals": "^30.2.0",
     "@prisma/client": "^6.18.0",
     "@prisma/extension-accelerate": "^2.0.2",
     "@reduxjs/toolkit": "^2.9.0",
@@ -41,11 +43,13 @@
     "@eslint/js": "^9.34.0",
     "@tailwindcss/postcss": "^4",
     "@types/bcrypt": "^6.0.0",
+    "@types/jest": "^30.0.0",
     "@types/multer": "^2.0.0",
     "@types/node": "^20.19.11",
     "@types/nodemailer": "^7.0.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/supertest": "^6.0.3",
     "@typescript-eslint/parser": "^8.42.0",
     "eslint": "^8.57.1",
     "eslint-config-airbnb": "^19.0.4",
@@ -57,12 +61,15 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^4.6.2",
     "globals": "^16.3.0",
+    "jest": "^30.2.0",
     "jiti": "^2.5.1",
     "next-auth": "^4.24.11",
     "nodemon": "^3.1.10",
     "prettier": "^3.6.2",
     "prisma": "^6.18.0",
+    "supertest": "^7.1.4",
     "tailwindcss": "^4",
+    "ts-jest": "^29.4.5",
     "tsx": "^4.20.5",
     "typescript": "^5",
     "typescript-eslint": "^8.42.0"
