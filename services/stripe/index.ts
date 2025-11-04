@@ -1,3 +1,4 @@
+import { headers } from 'next/headers';
 
 import stripe from '@/lib/stripe';
 
@@ -44,7 +45,10 @@ export async function createCheckoutSession({
     quantity: 1
   });
 
-  const baseUrl = process.env.NEXT_PUBLIC_URL;
+  const headersList = await headers();
+  const protocol = headersList.get('x-forwarded-proto') || 'http';
+  const host = headersList.get('host');
+  const baseUrl = `${protocol}://${host}/`;
 
   if (!baseUrl) {
     throw new Error('Missing NEXT_PUBLIC_URL in environment variables');
