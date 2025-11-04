@@ -2,6 +2,9 @@
 
 import { WarningOutlined } from '@ant-design/icons';
 import { Button, Modal } from 'antd';
+import { useSelector } from 'react-redux';
+
+import { RootState } from '@/redux/store';
 
 import './delete-modal.css';
 
@@ -19,33 +22,45 @@ const ConfirmDeleteModal = ({
   text,
   onCancel,
   onConfirm
-}: ConfirmDeleteModalProps) => (
-  <Modal
-    open={open}
-    footer={(
-      <div className="flex justify-center gap-8">
-        <Button className="max-w-20 w-full" onClick={onCancel}>
-          No
-        </Button>
-        <Button
-          className="max-w-20 w-full"
-          type="primary"
-          danger
-          onClick={onConfirm}
-        >
-          Yes
-        </Button>
+}: ConfirmDeleteModalProps) => {
+  const { productsLoading, ordersLoading } = useSelector((state: RootState) => ({
+    productsLoading: state.products.loading,
+    ordersLoading: state.orders.loading
+  }));
+
+  return (
+    <Modal
+      open={open}
+      footer={(
+        <div className="flex justify-center gap-8">
+          <Button
+            className="max-w-20 w-full"
+            onClick={onCancel}
+            disabled={productsLoading || ordersLoading}
+          >
+            No
+          </Button>
+          <Button
+            className="max-w-20 w-full"
+            type="primary"
+            danger
+            onClick={onConfirm}
+            loading={productsLoading || ordersLoading}
+          >
+            Yes
+          </Button>
+        </div>
+      )}
+      onCancel={onCancel}
+      centered
+    >
+      <div className="delete-modal-div">
+        <h2 className="delete-modal-title">{title}</h2>
+        <WarningOutlined className="delete-modal-icon" />
+        <p className="delete-modal-text">{text}</p>
       </div>
-    )}
-    onCancel={onCancel}
-    centered
-  >
-    <div className="delete-modal-div">
-      <h2 className="delete-modal-title">{title}</h2>
-      <WarningOutlined className="delete-modal-icon" />
-      <p className="delete-modal-text">{text}</p>
-    </div>
-  </Modal>
-);
+    </Modal>
+  );
+};
 
 export default ConfirmDeleteModal;

@@ -202,7 +202,7 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
             <CheckCircleOutlined
               className={`table-action-fulfill ${!isFulfilled ? 'opacity-40 cursor-not-allowed' : ''}`}
               onClick={() => {
-                if (isFulfilled) return;
+                if (!isFulfilled) return;
                 setSelectedOrderId(record.orderNumber);
                 setModalOpen(true);
               }}
