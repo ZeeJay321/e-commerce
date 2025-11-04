@@ -137,7 +137,7 @@ const ProductGrid = ({ search, sortOption }: ProductGridProps) => {
           setTopLoading(false);
           isFetching.current = false;
         }
-      }, 50);
+      }, 200);
     };
 
     scrollContainer.addEventListener('scroll', onScroll);

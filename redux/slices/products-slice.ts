@@ -320,9 +320,9 @@ const productsSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
-        state.loading = false;
         state.items = action.payload.products;
         state.total = action.payload.total;
+        state.loading = false;
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
@@ -334,9 +334,14 @@ const productsSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchPrevProducts.fulfilled, (state, action) => {
-        state.loading = false;
-        state.items = [...action.payload.products, ...state.items];
+        state.items = [
+          ...action.payload.products.filter(
+            (p) => !state.items.some((existing) => existing.id === p.id)
+          ),
+          ...state.items
+        ];
         state.total = action.payload.total;
+        state.loading = false;
       })
       .addCase(fetchPrevProducts.rejected, (state, action) => {
         state.loading = false;
@@ -348,9 +353,14 @@ const productsSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchNextProducts.fulfilled, (state, action) => {
-        state.loading = false;
-        state.items = [...state.items, ...action.payload.products];
+        state.items = [
+          ...state.items,
+          ...action.payload.products.filter(
+            (p) => !state.items.some((existing) => existing.id === p.id)
+          )
+        ];
         state.total = action.payload.total;
+        state.loading = false;
       })
       .addCase(fetchNextProducts.rejected, (state, action) => {
         state.loading = false;
