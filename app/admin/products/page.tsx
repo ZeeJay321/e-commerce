@@ -6,7 +6,7 @@ import { Button } from 'antd';
 
 import { useDispatch } from 'react-redux';
 
-import { addProduct } from '@/redux/slices/products-slice';
+import { addProduct, importProductsCsv } from '@/redux/slices/products-slice';
 import { AppDispatch } from '@/redux/store';
 
 import AdminDetailTable from '@/components/admin-details-table/admin-detail-table-functionality';
@@ -26,6 +26,33 @@ const Page = () => {
     message: string;
     description?: string;
   } | null>(null);
+
+  const handleImportProducts = async (file: File) => {
+    try {
+      const res = await dispatch(importProductsCsv(file)).unwrap();
+
+      if (res) {
+        setAddMultipleOpen(false);
+        window.dispatchEvent(new Event('ProductUpdated'));
+
+        setNotification({
+          type: 'success',
+          message: 'Products CSV uploaded successfully'
+        });
+
+        setTimeout(() => setNotification(null), 3000);
+      }
+    } catch (err) {
+      const errMessage = (err as string) || '';
+      setNotification({
+        type: 'error',
+        message: 'Import Failed',
+        description: errMessage || 'Something went wrong while importing products.'
+      });
+
+      setTimeout(() => setNotification(null), 3000);
+    }
+  };
 
   const handleAddProduct = async (formData: FormData) => {
     try {
@@ -116,6 +143,7 @@ const Page = () => {
           onClose={() => setAddMultipleOpen(false)}
           mode="upload"
           title="Add Multiple Products"
+          onUploadAction={handleImportProducts}
         />
       )}
     </div>

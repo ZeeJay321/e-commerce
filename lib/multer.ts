@@ -53,7 +53,25 @@ const storage = multer.diskStorage({
   }
 });
 
-export const upload = multer({ storage });
+function fileFilter(
+  _req: Express.Request,
+  file: Express.Multer.File,
+  cb: multer.FileFilterCallback
+) {
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+
+  if (!allowedTypes.includes(file.mimetype)) {
+    cb(new Error('Only JPG, JPEG, and PNG files are allowed.'));
+    return;
+  }
+
+  cb(null, true);
+}
+
+export const upload = multer({
+  storage,
+  fileFilter
+});
 
 export function runMiddleware<
   Req extends MulterLikeRequest,

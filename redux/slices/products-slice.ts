@@ -251,6 +251,41 @@ export const addVariant = createAsyncThunk<
   }
 );
 
+export const importProductsCsv = createAsyncThunk<
+  { message: string },
+  File,
+  { rejectValue: string }
+>(
+  'products/importProductsCsv',
+  async (file, { rejectWithValue }) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      console.log('📤 Uploading CSV:', file.name);
+
+      const response = await fetch('http://127.0.0.1:8000/products/import-csv', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+      console.log('✅ Upload successful:', data);
+
+      if (!response.ok) {
+        return rejectWithValue(data.error || 'Upload failed');
+      }
+
+      return data;
+    } catch (err) {
+      console.error('❌ Upload error:', err);
+      return rejectWithValue(
+        err instanceof Error ? err.message : 'Unknown error'
+      );
+    }
+  }
+);
+
 const productsSlice = createSlice({
   name: 'products',
   initialState,
@@ -380,6 +415,18 @@ const productsSlice = createSlice({
       .addCase(addVariant.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to add product';
+      })
+
+      .addCase(importProductsCsv.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(importProductsCsv.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(importProductsCsv.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'CSV import failed';
       });
   }
 });
