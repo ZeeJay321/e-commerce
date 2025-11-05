@@ -303,6 +303,7 @@ const AdminDetailTable = () => {
           current: currentPage,
           pageSize,
           total,
+          showSizeChanger: false,
           onChange: (page) => setCurrentPage(page)
         }}
         bordered

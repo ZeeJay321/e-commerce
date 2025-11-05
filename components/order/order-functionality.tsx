@@ -199,18 +199,20 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
 
         return (
           <div className="flex gap-3">
-            <CheckCircleOutlined
-              className={`table-action-fulfill ${!isFulfilled ? 'opacity-40 cursor-not-allowed' : ''}`}
-              onClick={() => {
-                if (!isFulfilled) return;
-                setSelectedOrderId(record.orderNumber);
-                setModalOpen(true);
-              }}
-              style={{
-                pointerEvents: !isFulfilled ? 'none' : 'auto',
-                color: !isFulfilled ? '#9ca3af' : '#52c41a'
-              }}
-            />
+            {admin && (
+              <CheckCircleOutlined
+                className={`table-action-fulfill ${!isFulfilled ? 'opacity-40 cursor-not-allowed' : ''}`}
+                onClick={() => {
+                  if (!isFulfilled) return;
+                  setSelectedOrderId(record.orderNumber);
+                  setModalOpen(true);
+                }}
+                style={{
+                  pointerEvents: !isFulfilled ? 'none' : 'auto',
+                  color: !isFulfilled ? '#9ca3af' : '#52c41a'
+                }}
+              />
+            )}
             <ArrowsAltOutlined
               className="table-action-open"
               onClick={() => {
