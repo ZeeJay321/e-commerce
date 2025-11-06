@@ -21,9 +21,20 @@ export async function POST(req: Request) {
     }
 
     const productIds = items.map((item) => item.productId);
+
     const products = await prisma.product.findMany({
-      where: { id: { in: productIds } },
-      include: { variants: true }
+      where: {
+        id: { in: productIds },
+        isDeleted: false,
+        variants: {
+          some: { isDeleted: false }
+        }
+      },
+      include: {
+        variants: {
+          where: { isDeleted: false }
+        }
+      }
     });
 
     const { validItems, outOfStock } = items.reduce((acc, item) => {
