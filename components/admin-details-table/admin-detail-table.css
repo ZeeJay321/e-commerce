@@ -93,6 +93,10 @@
   @apply cursor-pointer text-red-500;
 }
 
+.undo-button {
+  @apply cursor-pointer text-green-500;
+}
+
 .delete-modal-div {
   @apply flex flex-col items-center justify-between text-center space-y-10 py-6 font-display;
 }

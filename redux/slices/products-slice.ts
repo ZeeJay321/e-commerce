@@ -146,13 +146,13 @@ export const deleteProduct = createAsyncThunk<
   }
 });
 
-export const deleteVariant = createAsyncThunk<
+export const toggleVariant = createAsyncThunk<
   string,
   string,
   { rejectValue: string }
->('products/deleteVariant', async (variantId, { rejectWithValue }) => {
+>('products/toggleVariant', async (variantId, { rejectWithValue }) => {
   try {
-    const res = await fetch(`/api/products/delete-variant/${variantId}`, {
+    const res = await fetch(`/api/products/toggle-variant/${variantId}`, {
       method: 'PUT',
       credentials: 'include'
     });
@@ -379,14 +379,14 @@ const productsSlice = createSlice({
         state.error = action.payload || 'Failed to delete product';
       })
 
-      .addCase(deleteVariant.pending, (state) => {
+      .addCase(toggleVariant.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(deleteVariant.fulfilled, (state) => {
+      .addCase(toggleVariant.fulfilled, (state) => {
         state.loading = false;
       })
-      .addCase(deleteVariant.rejected, (state, action) => {
+      .addCase(toggleVariant.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to delete product';
       })

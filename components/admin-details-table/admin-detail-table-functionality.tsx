@@ -9,7 +9,8 @@ import {
 import {
   DeleteOutlined,
   EditOutlined,
-  PlusCircleOutlined
+  PlusCircleOutlined,
+  UndoOutlined
 } from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
 import {
@@ -23,8 +24,8 @@ import {
   addVariant,
   clearProducts,
   deleteProduct,
-  deleteVariant,
   fetchProducts,
+  toggleVariant,
   updateProductVariant
 } from '@/redux/slices/products-slice';
 import { AppDispatch, RootState } from '@/redux/store';
@@ -38,9 +39,9 @@ import './admin-detail-table.css';
 
 const AdminDetailTable = () => {
   const [isDeleteVariantModalOpen, setIsDeleteVariantModalOpen] = useState(false);
+  const [isReActiveVariantModalOpen, setIsReActiveVariantModalOpen] = useState(false);
   const [isDeleteProductModalOpen, setIsDeleteProductModalOpen] = useState(false);
   const [deleteKey, setDeleteKey] = useState<string | null>(null);
-  const [reload, setReload] = useState(false);
   const [editVariant, setEditVariant] = useState<ProductVariant | null>(null);
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [addVariantProduct, setAddVariantProduct] = useState<Product | null>(null);
@@ -68,7 +69,7 @@ const AdminDetailTable = () => {
     if (!deleteId) return;
 
     try {
-      const res = await dispatch(deleteVariant(deleteId)).unwrap();
+      const res = await dispatch(toggleVariant(deleteId)).unwrap();
 
       if (res) {
         setNotification({
@@ -76,7 +77,6 @@ const AdminDetailTable = () => {
           message: 'Variant deleted successfully'
         });
         setTimeout(() => setNotification(null), 3000);
-        window.dispatchEvent(new Event('ProductUpdated'));
       }
     } catch (err) {
       const errMessage = (err as string) || '';
@@ -102,7 +102,6 @@ const AdminDetailTable = () => {
           message: 'Product deleted successfully'
         });
         setTimeout(() => setNotification(null), 3000);
-        window.dispatchEvent(new Event('ProductUpdated'));
       }
     } catch (err) {
       const errMessage = (err as string) || '';
@@ -116,22 +115,54 @@ const AdminDetailTable = () => {
     }
   };
 
-  const confirmVariantDelete = () => {
-    if (deleteKey !== null) {
-      handleDeleteVariant(deleteKey);
+  const handleReactivateVariant = async (deleteId: string | null) => {
+    if (!deleteId) return;
+
+    try {
+      const res = await dispatch(toggleVariant(deleteId)).unwrap();
+
+      if (res) {
+        setNotification({
+          type: 'success',
+          message: 'Variant Reactivated successfully'
+        });
+        setTimeout(() => setNotification(null), 3000);
+      }
+    } catch (err) {
+      const errMessage = (err as string) || '';
+      setNotification({
+        type: 'error',
+        message: 'Operation Failed',
+        description:
+          errMessage || 'Something went wrong while deleting the variant.'
+      });
+      setTimeout(() => setNotification(null), 3000);
     }
-    setReload((prev) => !prev);
+  };
+
+  const confirmVariantDelete = async () => {
+    if (deleteKey !== null) {
+      await handleDeleteVariant(deleteKey);
+    }
     setIsDeleteVariantModalOpen(false);
     setDeleteKey(null);
     window.dispatchEvent(new Event('ProductUpdated'));
   };
 
-  const confirmProductDelete = () => {
+  const confirmProductDelete = async () => {
     if (deleteKey !== null) {
-      handleDeleteProduct(deleteKey);
+      await handleDeleteProduct(deleteKey);
     }
-    setReload((prev) => !prev);
     setIsDeleteProductModalOpen(false);
+    setDeleteKey(null);
+    window.dispatchEvent(new Event('ProductUpdated'));
+  };
+
+  const confirmVariantReactivate = async () => {
+    if (deleteKey !== null) {
+      await handleReactivateVariant(deleteKey);
+    }
+    setIsReActiveVariantModalOpen(false);
     setDeleteKey(null);
     window.dispatchEvent(new Event('ProductUpdated'));
   };
@@ -143,6 +174,11 @@ const AdminDetailTable = () => {
 
   const cancelProductDelete = () => {
     setIsDeleteProductModalOpen(false);
+    setDeleteKey(null);
+  };
+
+  const cancelVariantReactivate = () => {
+    setIsReActiveVariantModalOpen(false);
     setDeleteKey(null);
   };
 
@@ -162,7 +198,7 @@ const AdminDetailTable = () => {
     getUpdatedProducts();
     window.addEventListener('ProductUpdated', getUpdatedProducts);
     return () => window.removeEventListener('ProductUpdated', getUpdatedProducts);
-  }, [getUpdatedProducts, reload]);
+  }, [getUpdatedProducts]);
 
   useEffect(() => {
     if (error) {
@@ -256,27 +292,33 @@ const AdminDetailTable = () => {
         render: (_: unknown, variant: ProductVariant) => (
           <div className="table-div">
             <EditOutlined
-              className={`edit-button ${variant.isDeleted ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}
+              className="edit-button"
               onClick={() => {
-                if (!variant.isDeleted) {
-                  setEditProduct(product);
-                  setEditVariant(variant);
-                }
+                setEditProduct(product);
+                setEditVariant(variant);
               }}
             />
-            <DeleteOutlined
-              onClick={() => {
-                if (!variant.isDeleted) {
+
+            {variant.isDeleted ? (
+              <UndoOutlined
+                onClick={() => {
+                  setDeleteKey(variant.id);
+                  setIsReActiveVariantModalOpen(true);
+                }}
+                className="undo-button"
+              />
+            ) : (
+              <DeleteOutlined
+                onClick={() => {
                   setDeleteKey(variant.id);
                   setIsDeleteVariantModalOpen(true);
-                }
-              }}
-              className={`delete-button ${variant.isDeleted ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}
-            />
+                }}
+                className="delete-button"
+              />
+            )}
           </div>
         )
       }
-
     ];
 
     return (
@@ -321,6 +363,14 @@ const AdminDetailTable = () => {
         }}
         bordered
         rowKey="id"
+      />
+
+      <ConfirmDeleteModal
+        open={isReActiveVariantModalOpen}
+        title="Reactivate Product Variant"
+        text="Are you sure you want to reactivate this item?"
+        onCancel={cancelVariantReactivate}
+        onConfirm={confirmVariantReactivate}
       />
 
       {/* Delete Confirmation Variant Modal */}
@@ -437,6 +487,7 @@ const AdminDetailTable = () => {
                   message: 'Product Variant added successfully'
                 });
                 setTimeout(() => setNotification(null), 3000);
+                window.dispatchEvent(new Event('ProductUpdated'));
                 setAddVariantProduct(null);
               }
             } catch (err) {
