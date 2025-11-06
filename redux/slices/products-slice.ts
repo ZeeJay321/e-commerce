@@ -216,7 +216,7 @@ export const addProduct = createAsyncThunk<
       return rejectWithValue(data.error || 'Failed to add product');
     }
 
-    return data as Product;
+    return data;
   } catch (err) {
     return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
   }
@@ -242,7 +242,7 @@ export const addVariant = createAsyncThunk<
         return rejectWithValue(data.error || 'Failed to add variant');
       }
 
-      return data.variant as ProductVariant;
+      return data;
     } catch (err) {
       return rejectWithValue(
         err instanceof Error ? err.message : 'Unknown error'

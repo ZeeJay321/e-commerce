@@ -13,6 +13,7 @@ export interface ProductVariant {
   size: Size;
   price: number;
   stock: number;
+  isDeleted?: boolean;
 }
 
 export interface Product {

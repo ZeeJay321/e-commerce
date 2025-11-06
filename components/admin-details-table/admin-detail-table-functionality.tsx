@@ -243,27 +243,40 @@ const AdminDetailTable = () => {
         title: <span className="table-span-head">Stock</span>,
         dataIndex: 'stock'
       }, {
+        title: <span className="table-span-head">Status</span>,
+        dataIndex: 'isDeleted',
+        render: (isDeleted: boolean) => (
+          <span className="table-span">
+            {isDeleted ? 'Inactive' : 'Active'}
+          </span>
+        )
+      }, {
         title: <span className="table-span-head">Actions</span>,
         key: 'actions',
         render: (_: unknown, variant: ProductVariant) => (
           <div className="table-div">
             <EditOutlined
-              className="edit-button"
+              className={`edit-button ${variant.isDeleted ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}
               onClick={() => {
-                setEditProduct(product);
-                setEditVariant(variant);
+                if (!variant.isDeleted) {
+                  setEditProduct(product);
+                  setEditVariant(variant);
+                }
               }}
             />
             <DeleteOutlined
               onClick={() => {
-                setDeleteKey(variant.id);
-                setIsDeleteVariantModalOpen(true);
+                if (!variant.isDeleted) {
+                  setDeleteKey(variant.id);
+                  setIsDeleteVariantModalOpen(true);
+                }
               }}
-              className="delete-button"
+              className={`delete-button ${variant.isDeleted ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}
             />
           </div>
         )
       }
+
     ];
 
     return (
@@ -416,7 +429,7 @@ const AdminDetailTable = () => {
                   productId: addVariantProduct.id,
                   formData
                 })
-              ).unwrap();
+              );
 
               if (res) {
                 setNotification({
@@ -424,7 +437,6 @@ const AdminDetailTable = () => {
                   message: 'Product Variant added successfully'
                 });
                 setTimeout(() => setNotification(null), 3000);
-                window.dispatchEvent(new Event('ProductUpdated'));
                 setAddVariantProduct(null);
               }
             } catch (err) {
