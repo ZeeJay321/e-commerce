@@ -82,8 +82,6 @@ export async function GET(req: Request) {
         where: { isDeleted: false }
       };
 
-    console.log('Include Variants', includeVariants);
-
     const products = await prisma.product.findMany({
       skip: offset,
       take,
