@@ -15,7 +15,7 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
 
     const skip = Number(searchParams.get('skip')) || 1;
-    const limit = Number(searchParams.get('limit')) || 10;
+    const limit = Number(searchParams.get('limit')) || 8;
     const query = searchParams.get('query') || '';
     const sortOption = searchParams.get('sortOption') || '';
 
@@ -81,6 +81,8 @@ export async function GET(req: Request) {
         },
         where: { isDeleted: false }
       };
+
+    console.log('Include Variants', includeVariants);
 
     const products = await prisma.product.findMany({
       skip: offset,
