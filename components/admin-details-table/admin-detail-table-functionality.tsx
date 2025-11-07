@@ -281,11 +281,38 @@ const AdminDetailTable = () => {
       }, {
         title: <span className="table-span-head">Status</span>,
         dataIndex: 'isDeleted',
-        render: (isDeleted: boolean) => (
-          <span className="table-span">
-            {isDeleted ? 'Inactive' : 'Active'}
-          </span>
-        )
+        render: (isDeleted: boolean) => {
+          const statusLabel = isDeleted ? 'Inactive' : 'Active';
+          const styles = isDeleted
+            ? {
+              bg: '#fecaca',
+              color: '#7f1d1d'
+            }
+            : {
+              bg: '#bbf7d0',
+              color: '#065f46'
+            };
+
+          return (
+            <span
+              style={{
+                backgroundColor: styles.bg,
+                color: styles.color,
+                borderRadius: '9999px',
+                padding: '5px 14px',
+                fontWeight: 600,
+                display: 'inline-block',
+                textAlign: 'center',
+                fontSize: '0.8rem',
+                boxShadow: '0 0 6px rgba(0,0,0,0.1)',
+                letterSpacing: '0.3px',
+                minWidth: 90
+              }}
+            >
+              {statusLabel}
+            </span>
+          );
+        }
       }, {
         title: <span className="table-span-head">Actions</span>,
         key: 'actions',

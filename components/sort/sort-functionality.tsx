@@ -20,7 +20,7 @@ const Sort = ({ onChange }: SortProps) => (
         value: 'dateNewest',
         label: (
           <span>
-            Date: Newest First
+            Newest
             {' '}
             <ArrowUpOutlined style={{ fontSize: 12 }} />
           </span>
@@ -30,7 +30,7 @@ const Sort = ({ onChange }: SortProps) => (
         value: 'dateOldest',
         label: (
           <span>
-            Date: Oldest First
+            Oldest
             {' '}
             <ArrowDownOutlined style={{ fontSize: 12 }} />
           </span>
@@ -40,7 +40,7 @@ const Sort = ({ onChange }: SortProps) => (
         value: 'nameAZ',
         label: (
           <span>
-            Name: A → Z
+            A → Z
             {' '}
             <ArrowUpOutlined style={{ fontSize: 12 }} />
           </span>
@@ -50,7 +50,7 @@ const Sort = ({ onChange }: SortProps) => (
         value: 'nameZA',
         label: (
           <span>
-            Name: Z → A
+            Z → A
             {' '}
             <ArrowDownOutlined style={{ fontSize: 12 }} />
           </span>

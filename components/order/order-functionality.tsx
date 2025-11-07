@@ -37,7 +37,7 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
 
   const {
     items: orders,
-    total,
+    totalPagination,
     loading,
     loadTable,
     error
@@ -185,11 +185,60 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
       title: <span className="table-span-head">Status</span>,
       dataIndex: 'orderStatus',
       key: 'orderStatus',
-      render: (orderStatus: string) => (
-        <span className="table-span">
-          {orderStatus}
-        </span>
-      )
+      render: (orderStatus: string) => {
+        const status = orderStatus?.toUpperCase();
+
+        const statusStyles: Record<string, { bg: string; color: string; label: string }> = {
+          PENDING: {
+            bg: '#fde68a', // bright yellow
+            color: '#92400e',
+            label: 'Pending'
+          },
+          FAILED: {
+            bg: '#fecaca', // bright red
+            color: '#7f1d1d',
+            label: 'Failed'
+          },
+          FULFILLED: {
+            bg: '#bfdbfe', // bright blue
+            color: '#1e3a8a',
+            label: 'Fulfilled'
+          },
+          SHIPPED: {
+            bg: '#bbf7d0', // bright green
+            color: '#065f46',
+            label: 'Shipped'
+          }
+        };
+
+        const { bg, color, label } = statusStyles[status] || {
+          bg: '#e5e7eb',
+          color: '#374151',
+          label: status || 'Unknown'
+        };
+
+        return (
+          <span className="table-span">
+            <span
+              style={{
+                backgroundColor: bg,
+                color,
+                borderRadius: '9999px',
+                padding: '5px 14px',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                display: 'inline-block',
+                minWidth: 90,
+                textAlign: 'center',
+                boxShadow: '0 0 4px rgba(0,0,0,0.1)',
+                letterSpacing: '0.3px'
+              }}
+            >
+              {label}
+            </span>
+          </span>
+        );
+      }
     }, {
       title: <span className="table-span-head">Actions</span>,
       key: 'actions',
@@ -257,7 +306,7 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
           <div className="orders-footer-div">
             <div>
               <span className="orders-footer-span">
-                {total}
+                {totalPagination}
                 {' '}
                 Total Count
               </span>
@@ -266,7 +315,7 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
               <Pagination
                 current={current}
                 pageSize={pageSize}
-                total={total}
+                total={totalPagination}
                 onChange={(page) => setCurrent(page)}
               />
             </div>

@@ -69,7 +69,7 @@ export async function GET(req: Request) {
     }
 
     const totalPagination = await prisma.order.count({
-      where: whereCondition
+      where: baseCondition
     });
 
     const orders = await prisma.order.findMany({

@@ -148,8 +148,8 @@ const Page = () => {
         />
       )}
 
-      {(isLoadPage && (
-        <div className="fixed inset-0 bg-white z-50 flex items-center justify-center">
+      {((isLoadPage || loading) && (
+        <div className="fixed inset-0 bg-white opacity-40 z-50 flex items-center justify-center">
           <LoadingSpinner />
         </div>
       ))}
