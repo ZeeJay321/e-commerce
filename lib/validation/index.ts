@@ -21,7 +21,7 @@ import {
 export const routeSchemas = {
   '/api/products/add-product-variant': { method: 'POST', schema: addVariantSchema },
   '/api/products/edit-product-variant': { method: 'PUT', schema: updateProductVariantSchema },
-  '/api/products/delete-variant': { method: 'DELETE', schema: disableSchema },
+  '/api/products/toggle-variant': { method: 'DELETE', schema: disableSchema },
 
   '/api/products/get-products': { method: 'GET', schema: getProductSchema },
   '/api/products/add-product': { method: 'POST', schema: addProductSchema },
