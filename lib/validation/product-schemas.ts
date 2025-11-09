@@ -156,3 +156,7 @@ export const addVariantSchema = Joi.object({
   image: Joi.any().optional()
 });
 
+export const updateTitleSchema = Joi.object({
+  title: Joi.string().trim().min(1).max(255)
+    .required()
+});

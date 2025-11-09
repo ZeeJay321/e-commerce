@@ -25,6 +25,22 @@ import './admin-modal.css';
 
 import { RootState } from '@/redux/store';
 
+const requiredColumns = [
+  'product_id',
+  'title',
+  'isDeleted',
+  'createdAt',
+  'updatedAt',
+  'variant_id',
+  'color',
+  'colorCode',
+  'size',
+  'img',
+  'price',
+  'stock',
+  'variant_isDeleted'
+];
+
 type VariantForm = {
   id: string;
   price: number;
@@ -197,7 +213,35 @@ const EditProductModal = ({
           <div className="flex flex-col items-center border-2 border-dashed border-gray-300 rounded-lg p-6">
             <Upload
               accept=".csv"
-              beforeUpload={(uploadFile) => {
+              beforeUpload={async (uploadFile) => {
+                const text = await uploadFile.text();
+                const firstLine = text.split('\n')[0];
+                const headers = firstLine
+                  .replace(/\r/g, '')
+                  .split(',')
+                  .map((h) => h.trim());
+
+                const missing = requiredColumns.filter(
+                  (col) => !headers.includes(col)
+                );
+
+                if (missing.length > 0) {
+                  Modal.error({
+                    title: 'Invalid CSV',
+                    content: (
+                      <div>
+                        <p>The following required columns are missing:</p>
+                        <ul className="list-disc ml-4 text-red-500">
+                          {missing.map((col) => (
+                            <li key={col}>{col}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )
+                  });
+                  return false;
+                }
+
                 setFile(uploadFile);
                 setImage(URL.createObjectURL(uploadFile));
                 return false;

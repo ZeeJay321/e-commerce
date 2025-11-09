@@ -286,6 +286,30 @@ export const importProductsCsv = createAsyncThunk<
   }
 );
 
+export const editProductTitle = createAsyncThunk<
+  Product,
+  { id: string; title: string },
+  { rejectValue: string }
+>('products/editProductTitle', async ({ id, title }, { rejectWithValue }) => {
+  try {
+    const res = await fetch(`/api/products/edit-product/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      return rejectWithValue(data.message || 'Failed to update title');
+    }
+
+    return data as Product;
+  } catch (err) {
+    return rejectWithValue(err instanceof Error ? err.message : 'Error updating title');
+  }
+});
+
 const productsSlice = createSlice({
   name: 'products',
   initialState,
@@ -425,6 +449,22 @@ const productsSlice = createSlice({
       .addCase(addVariant.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to add product';
+      })
+
+      .addCase(editProductTitle.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(editProductTitle.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.items.findIndex((p) => p.id === action.payload.id);
+        if (index !== -1) {
+          state.items[index].title = action.payload.title;
+        }
+      })
+      .addCase(editProductTitle.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to update product title';
       })
 
       .addCase(importProductsCsv.pending, (state) => {

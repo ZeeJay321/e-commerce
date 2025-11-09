@@ -7,6 +7,8 @@ import {
 } from 'react';
 
 import {
+  CheckOutlined,
+  CloseOutlined,
   DeleteOutlined,
   EditOutlined,
   PlusCircleOutlined,
@@ -14,8 +16,10 @@ import {
 } from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
 import {
+  Input,
   Spin,
-  Table
+  Table,
+  Tooltip
 } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -24,6 +28,7 @@ import {
   addVariant,
   clearProducts,
   deleteProduct,
+  editProductTitle,
   fetchProducts,
   toggleVariant,
   updateProductVariant
@@ -50,6 +55,8 @@ const AdminDetailTable = () => {
     message: string;
     description?: string;
   } | null>(null);
+  const [editingTitleId, setEditingTitleId] = useState<string | null>(null);
+  const [tempTitle, setTempTitle] = useState<string>('');
 
   const dispatch = useDispatch<AppDispatch>();
   const {
@@ -212,33 +219,106 @@ const AdminDetailTable = () => {
     }
   }, [error]);
 
+  const handleEditConfirm = async (
+    productId: string,
+    changeTitle: string,
+    currentTitle: string
+  ) => {
+    if (changeTitle.trim() === currentTitle.trim()) {
+      setNotification({
+        type: 'error',
+        message: 'Title is the same, nothing to update'
+      });
+      setEditingTitleId(null);
+      return;
+    }
+
+    try {
+      await dispatch(editProductTitle({
+        id: productId,
+        title: changeTitle
+      })).unwrap();
+
+      setNotification({
+        type: 'success',
+        message: `Product title updated to "${changeTitle}"`
+      });
+
+      setEditingTitleId(null);
+      window.dispatchEvent(new Event('ProductUpdated'));
+    } catch (err) {
+      setNotification({
+        type: 'error',
+        message: err instanceof Error ? err.message : (err as string) || 'Error updating title'
+      });
+    }
+  };
+
   const columns: TableColumnsType<Product> = [
     {
       title: <span className="table-span-head">Title</span>,
       dataIndex: 'title',
-      render: (text: string) => (
-        <div className="cart-product-div">
-          <span className="font-display text-xs whitespace-normal">{text}</span>
-        </div>
-      )
+      render: (text: string, record: Product) => {
+        const isEditing = editingTitleId === record.id;
+        return (
+          <div className="table-span flex items-center gap-2 p-2">
+            {isEditing ? (
+              <>
+                <Input
+                  value={tempTitle}
+                  onChange={(e) => setTempTitle(e.target.value)}
+                  style={{ width: 200 }}
+                  size="small"
+                />
+                <CheckOutlined
+                  className="add-button"
+                  onClick={() => handleEditConfirm(record.id, tempTitle, record.title)}
+                />
+                <CloseOutlined
+                  className="delete-button"
+                  onClick={() => {
+                    setEditingTitleId(null);
+                    setTempTitle('');
+                  }}
+                />
+              </>
+            ) : (
+              <span>{text}</span>
+            )}
+          </div>
+        );
+      }
     }, {
       title: <span className="table-span-head">Actions</span>,
       key: 'actions',
       render: (record) => (
-        <div className="table-div">
-          <PlusCircleOutlined
-            onClick={() => {
-              setAddVariantProduct(record);
-            }}
-            className="edit-button"
-          />
-          <DeleteOutlined
-            onClick={() => {
-              setDeleteKey(record.id);
-              setIsDeleteProductModalOpen(true);
-            }}
-            className="delete-button"
-          />
+        <div className="table-div flex">
+          <Tooltip title="Add Variant" placement="top">
+            <PlusCircleOutlined
+              onClick={() => setAddVariantProduct(record)}
+              className="add-button"
+            />
+          </Tooltip>
+
+          <Tooltip title="Edit Product Title" placement="top">
+            <EditOutlined
+              className="edit-button"
+              onClick={() => {
+                setEditingTitleId(record.id);
+                setTempTitle(record.title);
+              }}
+            />
+          </Tooltip>
+
+          <Tooltip title="Delete Product" placement="top">
+            <DeleteOutlined
+              onClick={() => {
+                setDeleteKey(record.id);
+                setIsDeleteProductModalOpen(true);
+              }}
+              className="delete-button"
+            />
+          </Tooltip>
         </div>
       )
     }
@@ -318,30 +398,36 @@ const AdminDetailTable = () => {
         key: 'actions',
         render: (_: unknown, variant: ProductVariant) => (
           <div className="table-div">
-            <EditOutlined
-              className="edit-button"
-              onClick={() => {
-                setEditProduct(product);
-                setEditVariant(variant);
-              }}
-            />
+            <Tooltip title="Edit Variant" placement="top">
+              <EditOutlined
+                className="edit-button"
+                onClick={() => {
+                  setEditProduct(product);
+                  setEditVariant(variant);
+                }}
+              />
+            </Tooltip>
 
             {variant.isDeleted ? (
-              <UndoOutlined
-                onClick={() => {
-                  setDeleteKey(variant.id);
-                  setIsReActiveVariantModalOpen(true);
-                }}
-                className="undo-button"
-              />
+              <Tooltip title="Activate Variant Status" placement="top">
+                <UndoOutlined
+                  onClick={() => {
+                    setDeleteKey(variant.id);
+                    setIsReActiveVariantModalOpen(true);
+                  }}
+                  className="undo-button"
+                />
+              </Tooltip>
             ) : (
-              <DeleteOutlined
-                onClick={() => {
-                  setDeleteKey(variant.id);
-                  setIsDeleteVariantModalOpen(true);
-                }}
-                className="delete-button"
-              />
+              <Tooltip title="Deactivate Variant Status" placement="top">
+                <DeleteOutlined
+                  onClick={() => {
+                    setDeleteKey(variant.id);
+                    setIsDeleteVariantModalOpen(true);
+                  }}
+                  className="delete-button"
+                />
+              </Tooltip>
             )}
           </div>
         )

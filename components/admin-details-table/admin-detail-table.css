@@ -86,15 +86,19 @@
 }
 
 .edit-button {
-  @apply cursor-pointer text-blue-500;
+  @apply cursor-pointer text-blue-500 hover:text-blue-600 transition-transform duration-150 hover:scale-110;
+}
+
+.add-button {
+  @apply cursor-pointer text-green-500 hover:text-green-600 transition-transform duration-150 hover:scale-110;
 }
 
 .delete-button {
-  @apply cursor-pointer text-red-500;
+  @apply cursor-pointer text-red-500 hover:text-red-600 transition-transform duration-150 hover:scale-110;
 }
 
 .undo-button {
-  @apply cursor-pointer text-green-500;
+  @apply cursor-pointer text-green-500 hover:text-green-600 transition-transform duration-150 hover:scale-110;
 }
 
 .delete-modal-div {

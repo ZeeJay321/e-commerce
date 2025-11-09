@@ -15,7 +15,8 @@ import {
   addVariantSchema,
   disableSchema,
   getProductSchema,
-  updateProductVariantSchema
+  updateProductVariantSchema,
+  updateTitleSchema
 } from './product-schemas';
 
 export const routeSchemas = {
@@ -25,6 +26,7 @@ export const routeSchemas = {
 
   '/api/products/get-products': { method: 'GET', schema: getProductSchema },
   '/api/products/add-product': { method: 'POST', schema: addProductSchema },
+  '/api/products/edit-product': { method: 'PUT', schema: updateTitleSchema },
   '/api/products/delete-product': { method: 'DELETE', schema: disableSchema },
 
   '/api/orders/place-orders': { method: 'POST', schema: placeOrderSchema },
