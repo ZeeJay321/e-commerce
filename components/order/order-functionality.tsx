@@ -13,7 +13,8 @@ import {
   Alert,
   Pagination,
   Spin,
-  Table
+  Table,
+  Tooltip
 } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -249,26 +250,30 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
         return (
           <div className="flex gap-3">
             {admin && (
-              <CheckCircleOutlined
-                className={`table-action-fulfill ${!isFulfilled ? 'opacity-40 cursor-not-allowed' : ''}`}
+              <Tooltip title="Ship Order" placement="top">
+                <CheckCircleOutlined
+                  className={`table-action-fulfill ${!isFulfilled ? 'opacity-40 cursor-not-allowed' : ''}`}
+                  onClick={() => {
+                    if (!isFulfilled) return;
+                    setSelectedOrderId(record.orderNumber);
+                    setModalOpen(true);
+                  }}
+                  style={{
+                    pointerEvents: !isFulfilled ? 'none' : 'auto',
+                    color: !isFulfilled ? '#9ca3af' : '#52c41a'
+                  }}
+                />
+              </Tooltip>
+            )}
+            <Tooltip title="Open Order Details" placement="top">
+              <ArrowsAltOutlined
+                className="table-action-open"
                 onClick={() => {
-                  if (!isFulfilled) return;
                   setSelectedOrderId(record.orderNumber);
-                  setModalOpen(true);
-                }}
-                style={{
-                  pointerEvents: !isFulfilled ? 'none' : 'auto',
-                  color: !isFulfilled ? '#9ca3af' : '#52c41a'
+                  setDrawerOpen(true);
                 }}
               />
-            )}
-            <ArrowsAltOutlined
-              className="table-action-open"
-              onClick={() => {
-                setSelectedOrderId(record.orderNumber);
-                setDrawerOpen(true);
-              }}
-            />
+            </Tooltip>
           </div>
         );
       }
