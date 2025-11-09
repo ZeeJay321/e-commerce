@@ -25,6 +25,8 @@ import './admin-modal.css';
 
 import { RootState } from '@/redux/store';
 
+import CustomNotification from '../notifications/notifications-functionality';
+
 const requiredColumns = [
   'product_id',
   'title',
@@ -95,8 +97,12 @@ const EditProductModal = ({
   } = useSelector(
     (state: RootState) => state.products
   );
+  const [notification, setNotification] = useState<{
+    type: 'success' | 'error';
+    message: string;
+    description?: string;
+  } | null>(null);
 
-  // for create mode (multiple variants)
   const [variants, setVariants] = useState<VariantForm[]>([
     {
       id: crypto.randomUUID(),
@@ -189,142 +195,301 @@ const EditProductModal = ({
   };
 
   return (
-    <Modal
-      open={open}
-      onCancel={() => {
-        onClose();
-        setFile(null);
-        setImage('');
-      }}
-      footer={null}
-      width={800}
-      closable={false}
-      className="!h-150"
-    >
-      {mode === 'upload' ? (
-        <>
-          <Button type="link" onClick={onClose} className="content-paragraph">
-            <ArrowLeftOutlined className="!text-nav-text !hover:text-blue-700 transition-colors" />
-            <span className="hover:text-gray-500 transition-colors">{title}</span>
-          </Button>
+    <div>
+      {notification && (
+        <CustomNotification
+          type={notification.type}
+          message={notification.message}
+          description={notification.description}
+          placement="topRight"
+          onClose={() => setNotification(null)}
+        />
+      )}
+      <Modal
+        open={open}
+        onCancel={() => {
+          onClose();
+          setFile(null);
+          setImage('');
+        }}
+        footer={null}
+        width={800}
+        closable={false}
+        className="!h-150"
+      >
+        {mode === 'upload' ? (
+          <>
+            <Button type="link" onClick={onClose} className="content-paragraph">
+              <ArrowLeftOutlined className="!text-nav-text !hover:text-blue-700 transition-colors" />
+              <span className="hover:text-gray-500 transition-colors">{title}</span>
+            </Button>
 
-          <Divider className="divider-midnight" />
+            <Divider className="divider-midnight" />
 
-          <div className="flex flex-col items-center border-2 border-dashed border-gray-300 rounded-lg p-6">
-            <Upload
-              accept=".csv"
-              beforeUpload={async (uploadFile) => {
-                const text = await uploadFile.text();
-                const firstLine = text.split('\n')[0];
-                const headers = firstLine
-                  .replace(/\r/g, '')
-                  .split(',')
-                  .map((h) => h.trim());
+            <div className="flex flex-col items-center border-2 border-dashed border-gray-300 rounded-lg p-6">
+              <Upload
+                accept=".csv"
+                beforeUpload={async (uploadFile) => {
+                  const text = await uploadFile.text();
+                  const firstLine = text.split('\n')[0];
+                  const headers = firstLine
+                    .replace(/\r/g, '')
+                    .split(',')
+                    .map((h) => h.trim());
 
-                const missing = requiredColumns.filter(
-                  (col) => !headers.includes(col)
-                );
+                  const missing = requiredColumns.filter(
+                    (col) => !headers.includes(col)
+                  );
 
-                if (missing.length > 0) {
-                  Modal.error({
-                    title: 'Invalid CSV',
-                    content: (
-                      <div>
-                        <p>The following required columns are missing:</p>
-                        <ul className="list-disc ml-4 text-red-500">
-                          {missing.map((col) => (
-                            <li key={col}>{col}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )
-                  });
+                  if (missing.length > 0) {
+                    setNotification({
+                      type: 'error',
+                      message: 'Invalid CSV',
+                      description: `The following required columns are missing: ${missing.join(', ')}`
+                    });
+                    setTimeout(() => setNotification(null), 4000);
+                    return false;
+                  }
+
+                  setFile(uploadFile);
+                  setImage(URL.createObjectURL(uploadFile));
                   return false;
-                }
+                }}
+                showUploadList={false}
+              >
+                <div className="flex flex-col items-center gap-2 cursor-pointer pb-6">
+                  <UploadOutlined className="text-3xl text-blue-500" />
+                  <span className="text-gray-500">
+                    Drop your file here to upload
+                  </span>
 
-                setFile(uploadFile);
-                setImage(URL.createObjectURL(uploadFile));
-                return false;
-              }}
-              showUploadList={false}
-            >
-              <div className="flex flex-col items-center gap-2 cursor-pointer pb-6">
-                <UploadOutlined className="text-3xl text-blue-500" />
-                <span className="text-gray-500">
-                  Drop your file here to upload
-                </span>
+                  <Button className="mt-2">Browse</Button>
+                </div>
+              </Upload>
+              <a href="/sample/sample.csv" download className="mt-2">
                 <Button type="link" className="p-0">
                   Download Sample File
                 </Button>
-                <Button className="mt-2">Browse</Button>
-              </div>
-            </Upload>
-          </div>
+              </a>
+            </div>
 
-          {file && (
-            <div className="mt-4 w-full flex justify-between items-center">
-              <span>{file.name}</span>
-              <Button danger size="small" onClick={() => setFile(null)}>
-                Delete
+            {file && (
+              <div className="mt-4 w-full flex justify-between items-center">
+                <span>{file.name}</span>
+                <Button danger size="small" onClick={() => setFile(null)}>
+                  Delete
+                </Button>
+              </div>
+            )}
+
+            <div className="flex justify-end mt-6">
+              <Button
+                type="primary"
+                disabled={!file}
+                loading={loading}
+                onClick={() => {
+                  if (onUploadAction && file) {
+                    onUploadAction(file);
+                  }
+                }}
+              >
+                Upload File
               </Button>
             </div>
-          )}
-
-          <div className="flex justify-end mt-6">
-            <Button
-              type="primary"
-              disabled={!file}
-              loading={loading}
-              onClick={() => {
-                if (onUploadAction && file) {
-                  onUploadAction(file);
-                }
-              }}
-            >
-              Upload File
+          </>
+        ) : mode === 'create' ? (
+          <>
+            <Button type="link" onClick={onClose} className="content-paragraph">
+              <ArrowLeftOutlined className="!text-nav-text !hover:text-blue-700 transition-colors" />
+              <span className="hover:text-gray-500 transition-colors">{title}</span>
             </Button>
-          </div>
-        </>
-      ) : mode === 'create' ? (
-        <>
-          <Button type="link" onClick={onClose} className="content-paragraph">
-            <ArrowLeftOutlined className="!text-nav-text !hover:text-blue-700 transition-colors" />
-            <span className="hover:text-gray-500 transition-colors">{title}</span>
-          </Button>
 
-          <Divider className="divider-midnight" />
+            <Divider className="divider-midnight" />
 
-          <div className="flex flex-col gap-4">
-            <label className="create-field">Product Title</label>
-            <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Enter product title"
-              className="edit-field-input"
-            />
+            <div className="flex flex-col gap-4">
+              <label className="create-field">Product Title</label>
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter product title"
+                className="edit-field-input"
+              />
 
-            <Divider>
-              Product Variants
-            </Divider>
+              <Divider>
+                Product Variants
+              </Divider>
 
-            {variants.map((v) => (
-              <div
-                key={v.id}
-                className="flex gap-8 border border-gray-200 rounded-lg p-4 mb-4 bg-gray-50 relative"
-              >
-                {variants.length > 1 && (
-                  <Button
-                    type="text"
-                    danger
-                    className="absolute right-2 top-2"
-                    onClick={() => removeVariant(v.id)}
-                  >
-                    Remove
-                  </Button>
-                )}
+              {variants.map((v) => (
+                <div
+                  key={v.id}
+                  className="flex gap-8 border border-gray-200 rounded-lg p-4 mb-4 bg-gray-50 relative"
+                >
+                  {variants.length > 1 && (
+                    <Button
+                      type="text"
+                      danger
+                      className="absolute right-2 top-2"
+                      onClick={() => removeVariant(v.id)}
+                    >
+                      Remove
+                    </Button>
+                  )}
 
-                {/* Upload */}
-                <div className="flex-shrink-0 p-3 relative">
+                  {/* Upload */}
+                  <div className="flex-shrink-0 p-3 relative">
+                    <div className="flex flex-col gap-2">
+                      <div
+                        className="flex flex-col items-center justify-center rounded-md border-2 border-dashed border-blue-500"
+                        style={{ width: 145, height: 145 }}
+                      >
+                        <Upload
+                          accept=".jpg,.jpeg,.png"
+                          beforeUpload={(uploadFile) => {
+                            updateVariant(v.id, 'file', uploadFile);
+                            updateVariant(v.id, 'image', URL.createObjectURL(uploadFile));
+                            return false;
+                          }}
+                          showUploadList={false}
+                        >
+                          <div className="flex flex-col items-center justify-center gap-2">
+                            <UploadOutlined className="text-blue-500 text-xl" />
+                            <Button size="small">Upload</Button>
+                          </div>
+                        </Upload>
+                      </div>
+
+                      {v.image && (
+                        <div className="rounded-md bg-green-100 text-green-700 text-sm px-3 py-1">
+                          ✅ Upload Successful
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Info */}
+                  <div className="product-info flex-1 flex flex-col">
+                    <div className="flex gap-6">
+                      <div className="flex-1">
+                        <label className="edit-field">Price</label>
+                        <InputNumber
+                          value={v.price}
+                          onChange={(val) => updateVariant(v.id, 'price', val || 0)}
+                          className="edit-field-sub-input"
+                          min={0}
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <label className="edit-field">Quantity</label>
+                        <InputNumber
+                          value={v.quantity}
+                          onChange={(val) => updateVariant(v.id, 'quantity', val || 0)}
+                          className="edit-field-sub-input"
+                          min={0}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex gap-6 mt-3">
+                      <div className="flex-1">
+                        <label className="edit-field">Color</label>
+                        <Input
+                          value={v.color}
+                          onChange={(e) => updateVariant(v.id, 'color', e.target.value)}
+                          className="edit-field-sub-input"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <label className="edit-field">Color Code</label>
+                        <Input
+                          value={v.colorCode}
+                          onChange={(e) => {
+                            const hexPattern = /^#([0-9A-Fa-f]{6})$/;
+                            const { value } = e.target;
+                            updateVariant(v.id, 'colorCode', value);
+                            setColorError(!hexPattern.test(value));
+                          }}
+                          className={`edit-field-sub-input ${colorError ? 'border-red-500' : ''}`}
+                          placeholder="#FFFFFF"
+                          maxLength={7}
+                        />
+                        {colorError && (
+                          <p className="text-red-500 text-xs mt-1">Invalid color code. Use format #RRGGBB.</p>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <label className="edit-field">Size</label>
+                        <Select
+                          value={v.size}
+                          onChange={(value) => updateVariant(v.id, 'size', value)}
+                          className="edit-field-sub-input w-full"
+                          options={[
+                            { value: 'S', label: 'Small (S)' },
+                            { value: 'M', label: 'Medium (M)' },
+                            { value: 'L', label: 'Large (L)' },
+                            { value: 'XL', label: 'Extra Large (XL)' }
+                          ]}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              <Button type="dashed" onClick={addVariant} className="self-start mt-2">
+                + Add Variant
+              </Button>
+
+              <div className="flex justify-end mt-6">
+                <Button
+                  type="primary"
+                  disabled={!name.trim() || variants.length === 0}
+                  onClick={async () => {
+                    const formData = buildFormData();
+                    if (onAction) await onAction(formData);
+                  }}
+                >
+                  {actionLabel || 'Create Product'}
+                </Button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <Button type="link" onClick={onClose} className="content-paragraph">
+              <ArrowLeftOutlined className="!text-nav-text !hover:text-blue-700 transition-colors" />
+              <span className="hover:text-gray-500 transition-colors">{title}</span>
+            </Button>
+
+            <Divider className="divider-midnight" />
+
+            <div className="flex gap-8">
+              {/* Image */}
+              <div className="flex-shrink-0 p-3 relative">
+                {showImage ? (
+                  <>
+                    <img
+                      src={image}
+                      alt={product?.name}
+                      width={145}
+                      height={145}
+                      className="object-cover rounded-md border"
+                    />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      ref={fileInputRef}
+                      style={{ display: 'none' }}
+                      onChange={handleFileChange}
+                    />
+                    <button
+                      type="button"
+                      className="image-icon"
+                      onClick={handleEditClick}
+                    >
+                      <EditOutlined className="!text-white text-sm" />
+                    </button>
+                  </>
+                ) : (
                   <div className="flex flex-col gap-2">
                     <div
                       className="flex flex-col items-center justify-center rounded-md border-2 border-dashed border-blue-500"
@@ -333,8 +498,8 @@ const EditProductModal = ({
                       <Upload
                         accept=".jpg,.jpeg,.png"
                         beforeUpload={(uploadFile) => {
-                          updateVariant(v.id, 'file', uploadFile);
-                          updateVariant(v.id, 'image', URL.createObjectURL(uploadFile));
+                          setFile(uploadFile);
+                          setImage(URL.createObjectURL(uploadFile));
                           return false;
                         }}
                         showUploadList={false}
@@ -345,260 +510,108 @@ const EditProductModal = ({
                         </div>
                       </Upload>
                     </div>
-
-                    {v.image && (
+                    {file && (
                       <div className="rounded-md bg-green-100 text-green-700 text-sm px-3 py-1">
                         ✅ Upload Successful
                       </div>
                     )}
                   </div>
-                </div>
-
-                {/* Info */}
-                <div className="product-info flex-1 flex flex-col">
-                  <div className="flex gap-6">
-                    <div className="flex-1">
-                      <label className="edit-field">Price</label>
-                      <InputNumber
-                        value={v.price}
-                        onChange={(val) => updateVariant(v.id, 'price', val || 0)}
-                        className="edit-field-sub-input"
-                        min={0}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <label className="edit-field">Quantity</label>
-                      <InputNumber
-                        value={v.quantity}
-                        onChange={(val) => updateVariant(v.id, 'quantity', val || 0)}
-                        className="edit-field-sub-input"
-                        min={0}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex gap-6 mt-3">
-                    <div className="flex-1">
-                      <label className="edit-field">Color</label>
-                      <Input
-                        value={v.color}
-                        onChange={(e) => updateVariant(v.id, 'color', e.target.value)}
-                        className="edit-field-sub-input"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <label className="edit-field">Color Code</label>
-                      <Input
-                        value={v.colorCode}
-                        onChange={(e) => {
-                          const hexPattern = /^#([0-9A-Fa-f]{6})$/;
-                          const { value } = e.target;
-                          updateVariant(v.id, 'colorCode', value);
-                          setColorError(!hexPattern.test(value));
-                        }}
-                        className={`edit-field-sub-input ${colorError ? 'border-red-500' : ''}`}
-                        placeholder="#FFFFFF"
-                        maxLength={7}
-                      />
-                      {colorError && (
-                        <p className="text-red-500 text-xs mt-1">Invalid color code. Use format #RRGGBB.</p>
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <label className="edit-field">Size</label>
-                      <Select
-                        value={v.size}
-                        onChange={(value) => updateVariant(v.id, 'size', value)}
-                        className="edit-field-sub-input w-full"
-                        options={[
-                          { value: 'S', label: 'Small (S)' },
-                          { value: 'M', label: 'Medium (M)' },
-                          { value: 'L', label: 'Large (L)' },
-                          { value: 'XL', label: 'Extra Large (XL)' }
-                        ]}
-                      />
-                    </div>
-                  </div>
-                </div>
+                )}
               </div>
-            ))}
 
-            <Button type="dashed" onClick={addVariant} className="self-start mt-2">
-              + Add Variant
-            </Button>
+              {/* Info */}
+              <div className="product-info flex-1 flex flex-col">
+                <label className="edit-field">Product Name</label>
+                <Input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  disabled
+                  className="edit-field-input"
+                />
 
-            <div className="flex justify-end mt-6">
-              <Button
-                type="primary"
-                disabled={!name.trim() || variants.length === 0}
-                onClick={async () => {
-                  const formData = buildFormData();
-                  if (onAction) await onAction(formData);
-                }}
-              >
-                {actionLabel || 'Create Product'}
-              </Button>
-            </div>
-          </div>
-        </>
-      ) : (
-        <>
-          <Button type="link" onClick={onClose} className="content-paragraph">
-            <ArrowLeftOutlined className="!text-nav-text !hover:text-blue-700 transition-colors" />
-            <span className="hover:text-gray-500 transition-colors">{title}</span>
-          </Button>
+                <div className="flex gap-6">
+                  <div className="flex-1">
+                    <label className="edit-field">Price</label>
+                    <InputNumber
+                      value={price}
+                      onChange={(val) => setPrice(val || 0)}
+                      className="edit-field-sub-input"
+                      min={0}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="edit-field">Quantity</label>
+                    <InputNumber
+                      value={quantity}
+                      onChange={(val) => setQuantity(val || 0)}
+                      className="edit-field-sub-input"
+                      min={0}
+                    />
+                  </div>
+                </div>
 
-          <Divider className="divider-midnight" />
-
-          <div className="flex gap-8">
-            {/* Image */}
-            <div className="flex-shrink-0 p-3 relative">
-              {showImage ? (
-                <>
-                  <img
-                    src={image}
-                    alt={product?.name}
-                    width={145}
-                    height={145}
-                    className="object-cover rounded-md border"
-                  />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    ref={fileInputRef}
-                    style={{ display: 'none' }}
-                    onChange={handleFileChange}
-                  />
-                  <button
-                    type="button"
-                    className="image-icon"
-                    onClick={handleEditClick}
-                  >
-                    <EditOutlined className="!text-white text-sm" />
-                  </button>
-                </>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  <div
-                    className="flex flex-col items-center justify-center rounded-md border-2 border-dashed border-blue-500"
-                    style={{ width: 145, height: 145 }}
-                  >
-                    <Upload
-                      accept=".jpg,.jpeg,.png"
-                      beforeUpload={(uploadFile) => {
-                        setFile(uploadFile);
-                        setImage(URL.createObjectURL(uploadFile));
-                        return false;
+                <div className="flex gap-6">
+                  <div className="flex-1">
+                    <label className="edit-field">Color</label>
+                    <Input
+                      value={color}
+                      onChange={(e) => setColor(e.target.value)}
+                      className="edit-field-sub-input"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="edit-field">Color Code</label>
+                    <Input
+                      value={colorCode}
+                      onChange={(e) => {
+                        const hexPattern = /^#([0-9A-Fa-f]{6})$/;
+                        const { value } = e.target;
+                        setColorCode(value);
+                        setColorError(value !== '' && !hexPattern.test(value));
                       }}
-                      showUploadList={false}
-                    >
-                      <div className="flex flex-col items-center justify-center gap-2">
-                        <UploadOutlined className="text-blue-500 text-xl" />
-                        <Button size="small">Upload</Button>
-                      </div>
-                    </Upload>
+                      className={`edit-field-sub-input ${colorError ? 'border-red-500' : ''}`}
+                      placeholder="#FFFFFF"
+                      maxLength={7}
+                    />
+                    {colorError && (
+                      <p className="text-red-500 text-xs mt-1">
+                        Invalid color code. Use format #RRGGBB.
+                      </p>
+                    )}
                   </div>
-                  {file && (
-                    <div className="rounded-md bg-green-100 text-green-700 text-sm px-3 py-1">
-                      ✅ Upload Successful
-                    </div>
-                  )}
+                  <div className="flex-1">
+                    <label className="edit-field">Size</label>
+                    <Select
+                      value={size}
+                      onChange={(value) => setSize(value)}
+                      className="edit-field-sub-input w-full"
+                      options={[
+                        { value: 'S', label: 'Small (S)' },
+                        { value: 'M', label: 'Medium (M)' },
+                        { value: 'L', label: 'Large (L)' },
+                        { value: 'XL', label: 'Extra Large (XL)' }
+                      ]}
+                    />
+                  </div>
                 </div>
-              )}
-            </div>
 
-            {/* Info */}
-            <div className="product-info flex-1 flex flex-col">
-              <label className="edit-field">Product Name</label>
-              <Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                disabled
-                className="edit-field-input"
-              />
+                <Button
+                  type="primary"
+                  className="self-end mt-6"
+                  onClick={async () => {
+                    const formData = buildFormData();
 
-              <div className="flex gap-6">
-                <div className="flex-1">
-                  <label className="edit-field">Price</label>
-                  <InputNumber
-                    value={price}
-                    onChange={(val) => setPrice(val || 0)}
-                    className="edit-field-sub-input"
-                    min={0}
-                  />
-                </div>
-                <div className="flex-1">
-                  <label className="edit-field">Quantity</label>
-                  <InputNumber
-                    value={quantity}
-                    onChange={(val) => setQuantity(val || 0)}
-                    className="edit-field-sub-input"
-                    min={0}
-                  />
-                </div>
+                    if (onAction) await onAction(formData);
+                  }}
+                >
+                  {actionLabel}
+                </Button>
               </div>
-
-              <div className="flex gap-6">
-                <div className="flex-1">
-                  <label className="edit-field">Color</label>
-                  <Input
-                    value={color}
-                    onChange={(e) => setColor(e.target.value)}
-                    className="edit-field-sub-input"
-                  />
-                </div>
-                <div className="flex-1">
-                  <label className="edit-field">Color Code</label>
-                  <Input
-                    value={colorCode}
-                    onChange={(e) => {
-                      const hexPattern = /^#([0-9A-Fa-f]{6})$/;
-                      const { value } = e.target;
-                      setColorCode(value);
-                      setColorError(value !== '' && !hexPattern.test(value));
-                    }}
-                    className={`edit-field-sub-input ${colorError ? 'border-red-500' : ''}`}
-                    placeholder="#FFFFFF"
-                    maxLength={7}
-                  />
-                  {colorError && (
-                    <p className="text-red-500 text-xs mt-1">
-                      Invalid color code. Use format #RRGGBB.
-                    </p>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <label className="edit-field">Size</label>
-                  <Select
-                    value={size}
-                    onChange={(value) => setSize(value)}
-                    className="edit-field-sub-input w-full"
-                    options={[
-                      { value: 'S', label: 'Small (S)' },
-                      { value: 'M', label: 'Medium (M)' },
-                      { value: 'L', label: 'Large (L)' },
-                      { value: 'XL', label: 'Extra Large (XL)' }
-                    ]}
-                  />
-                </div>
-              </div>
-
-              <Button
-                type="primary"
-                className="self-end mt-6"
-                onClick={async () => {
-                  const formData = buildFormData();
-
-                  if (onAction) await onAction(formData);
-                }}
-              >
-                {actionLabel}
-              </Button>
             </div>
-          </div>
-        </>
-      )}
-    </Modal>
+          </>
+        )}
+      </Modal>
+    </div>
   );
 };
 
