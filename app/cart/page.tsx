@@ -130,8 +130,17 @@ const Page = () => {
         }
       }, 2000);
     } catch (err) {
-      const message = typeof err === 'string' ? err : 'Order placement failed';
-      setNotification({ type: 'error', message });
+      let errorMessage = 'Order placement failed';
+
+      if (typeof err === 'string') {
+        errorMessage = err;
+      } else if (err && typeof err === 'object' && 'error' in err) {
+        errorMessage = err.error as string;
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+
+      setNotification({ type: 'error', message: errorMessage });
       setTimeout(() => setNotification(null), 3000);
     }
   };

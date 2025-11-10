@@ -251,6 +251,7 @@ const CartTable = ({ cartItems, setCartItems }: CartTableProps) => {
           dataSource={cartItems}
           pagination={false}
           bordered
+          rowKey={(record) => record.variantId}
           scroll={{ x: 'max-content' }}
         />
       )}
