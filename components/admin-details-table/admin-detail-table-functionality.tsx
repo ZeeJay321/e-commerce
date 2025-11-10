@@ -265,8 +265,9 @@ const AdminDetailTable = () => {
                 <Input
                   value={tempTitle}
                   onChange={(e) => setTempTitle(e.target.value)}
-                  style={{ width: 200 }}
+                  style={{ width: 400 }}
                   size="small"
+                  maxLength={100}
                 />
                 <CheckOutlined
                   className="add-button"
@@ -534,9 +535,8 @@ const AdminDetailTable = () => {
               const formColor = formData.get('color');
               const formColorCode = formData.get('colorCode');
               const formSize = formData.get('size');
-              const formImage = formData.get('image'); // File or null
+              const formImage = formData.get('image');
 
-              // Compare each field
               const hasChanges = Number(formPrice) !== editVariant.price
                 || Number(formQuantity) !== editVariant.stock
                 || formColor !== editVariant.color
