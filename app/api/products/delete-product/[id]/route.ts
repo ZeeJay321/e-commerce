@@ -24,6 +24,20 @@ export async function PUT(
 
     const { id } = resolvedParams;
 
+    const existingProduct = await prisma.product.findUnique({
+      where: { id }
+    });
+
+    if (!existingProduct || existingProduct.isDeleted) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'Product does not exist or has already been deleted'
+        },
+        { status: 200 }
+      );
+    }
+
     const updatedProduct = await prisma.$transaction(async (tx) => tx.product.update({
       where: { id, isDeleted: false },
       data: { isDeleted: true }

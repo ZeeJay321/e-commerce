@@ -24,7 +24,6 @@ export async function PUT(
 
     const { id } = resolvedParams;
 
-    // Get current variant
     const variant = await prisma.productVariant.findUnique({
       where: { id }
     });
@@ -36,7 +35,6 @@ export async function PUT(
       );
     }
 
-    // Toggle isDeleted value
     const updatedVariant = await prisma.productVariant.update({
       where: { id },
       data: { isDeleted: !variant.isDeleted }
@@ -46,14 +44,12 @@ export async function PUT(
       ? `Product Variant ${updatedVariant.id} marked as deleted`
       : `Product Variant ${updatedVariant.id} reactivated`;
 
-    return NextResponse.json(
-      {
-        success: true,
-        message,
-        variant: updatedVariant
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({
+      message,
+      variant: updatedVariant
+    }, {
+      status: 200
+    });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: message }, { status: 500 });

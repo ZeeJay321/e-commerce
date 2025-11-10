@@ -80,8 +80,8 @@ const AdminDetailTable = () => {
 
       if (res) {
         setNotification({
-          type: 'success',
-          message: 'Variant deleted successfully'
+          type: res.success ? 'success' : 'error',
+          message: res.message
         });
         setTimeout(() => setNotification(null), 3000);
       }
@@ -105,8 +105,8 @@ const AdminDetailTable = () => {
 
       if (res) {
         setNotification({
-          type: 'success',
-          message: 'Product deleted successfully'
+          type: res.success ? 'success' : 'error',
+          message: res.message
         });
         setTimeout(() => setNotification(null), 3000);
       }
@@ -114,9 +114,7 @@ const AdminDetailTable = () => {
       const errMessage = (err as string) || '';
       setNotification({
         type: 'error',
-        message: 'Operation Failed',
-        description:
-          errMessage || 'Something went wrong while deleting the product.'
+        message: errMessage || 'Something went wrong while deleting the product.'
       });
       setTimeout(() => setNotification(null), 3000);
     }
@@ -130,8 +128,8 @@ const AdminDetailTable = () => {
 
       if (res) {
         setNotification({
-          type: 'success',
-          message: 'Variant Reactivated successfully'
+          type: res.success ? 'success' : 'error',
+          message: res.message
         });
         setTimeout(() => setNotification(null), 3000);
       }
@@ -530,6 +528,31 @@ const AdminDetailTable = () => {
           actionLabel="Update"
           onAction={async (formData) => {
             try {
+              // Extract values from FormData
+              const formPrice = formData.get('price');
+              const formQuantity = formData.get('quantity');
+              const formColor = formData.get('color');
+              const formColorCode = formData.get('colorCode');
+              const formSize = formData.get('size');
+              const formImage = formData.get('image'); // File or null
+
+              // Compare each field
+              const hasChanges = Number(formPrice) !== editVariant.price
+                || Number(formQuantity) !== editVariant.stock
+                || formColor !== editVariant.color
+                || formColorCode !== editVariant.colorCode
+                || formSize !== editVariant.size
+                || (formImage && formImage instanceof File);
+
+              if (!hasChanges) {
+                setNotification({
+                  type: 'error',
+                  message: 'No changes detected — nothing to update.'
+                });
+                setTimeout(() => setNotification(null), 3000);
+                return;
+              }
+
               const res = await dispatch(
                 updateProductVariant({
                   id: editVariant.id,

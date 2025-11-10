@@ -125,48 +125,63 @@ export const fetchNextProducts = createAsyncThunk<
 });
 
 export const deleteProduct = createAsyncThunk<
-  string,
+  { success: boolean; message: string; id: string },
   string,
   { rejectValue: string }
->('products/deleteProduct', async (productId, { rejectWithValue }) => {
-  try {
-    const res = await fetch(`/api/products/delete-product/${productId}`, {
-      method: 'PUT',
-      credentials: 'include'
-    });
+>(
+  'products/deleteProduct',
+  async (productId, { rejectWithValue }) => {
+    try {
+      const res = await fetch(`/api/products/delete-product/${productId}`, {
+        method: 'PUT',
+        credentials: 'include'
+      });
 
-    const data = await res.json();
-    if (!res.ok) {
-      return rejectWithValue(data.error || 'Failed to delete product');
+      const data = await res.json();
+
+      if (!res.ok) {
+        return rejectWithValue(data.error || 'Failed to delete product');
+      }
+
+      return {
+        success: data.success ?? true,
+        message: data.message ?? 'Product deleted successfully',
+        id: productId
+      };
+    } catch (err) {
+      return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
     }
-
-    return productId;
-  } catch (err) {
-    return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
   }
-});
+);
 
 export const toggleVariant = createAsyncThunk<
-  string,
+  { success: boolean; message: string; variantId: string },
   string,
   { rejectValue: string }
->('products/toggleVariant', async (variantId, { rejectWithValue }) => {
-  try {
-    const res = await fetch(`/api/products/toggle-variant/${variantId}`, {
-      method: 'PUT',
-      credentials: 'include'
-    });
+>(
+  'products/toggleVariant',
+  async (variantId, { rejectWithValue }) => {
+    try {
+      const res = await fetch(`/api/products/toggle-variant/${variantId}`, {
+        method: 'PUT',
+        credentials: 'include'
+      });
 
-    const data = await res.json();
-    if (!res.ok) {
-      return rejectWithValue(data.error || 'Failed to delete product variant');
+      const data = await res.json();
+      if (!res.ok) {
+        return rejectWithValue(data.error || 'Failed to delete product variant');
+      }
+
+      return {
+        success: data.success ?? true,
+        message: data.message ?? 'Variant updated successfully',
+        variantId
+      };
+    } catch (err) {
+      return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
     }
-
-    return variantId;
-  } catch (err) {
-    return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
   }
-});
+);
 
 export const updateProductVariant = createAsyncThunk<
   Product,

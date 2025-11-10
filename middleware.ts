@@ -19,7 +19,7 @@ const USER_PRIVATE_PATHS = [
   '/order-details'
 ];
 
-const ADMIN_PUBLIC_PATHS = ['/admin/login'];
+const ADMIN_PUBLIC_PATHS = ['/login'];
 
 const ADMIN_PRIVATE_PATHS = [
   '/admin/products',
