@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 
+import { usePathname } from 'next/navigation';
+
 import {
   BellOutlined,
   ShoppingOutlined,
@@ -25,6 +27,7 @@ type NavBarProps = {
 
 const NavBar = ({ authed }: NavBarProps) => {
   const { data: session } = useSession();
+  const pathname = usePathname();
 
   const [cartCount, setCartCount] = useState(0);
 
@@ -49,7 +52,8 @@ const NavBar = ({ authed }: NavBarProps) => {
       }
 
       localStorage.removeItem('cartData');
-      await signOut({ redirect: false });
+      console.log('pathname', pathname);
+      await signOut({ redirect: (pathname !== '/'), callbackUrl: '/login' });
 
       window.dispatchEvent(new Event('cartUpdated'));
     } catch (err) {
