@@ -55,7 +55,7 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
     description?: string;
   } | null>(null);
 
-  const pageSize = admin ? 12 : 8;
+  const pageSize = admin ? 10 : 8;
 
   const getUpdatedOrders = useCallback(() => {
     dispatch(fetchOrders({
