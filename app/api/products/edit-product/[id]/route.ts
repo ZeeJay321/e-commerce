@@ -26,7 +26,7 @@ export async function PUT(
 
     return NextResponse.json(
       {
-        message: `Product title updated to "${updatedProduct.title}"`,
+        message: 'Product title updated sucessfully',
         product: {
           id: updatedProduct.id,
           title: updatedProduct.title

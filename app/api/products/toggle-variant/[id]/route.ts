@@ -41,8 +41,8 @@ export async function PUT(
     });
 
     const message = updatedVariant.isDeleted
-      ? `Product Variant ${updatedVariant.id} marked as deleted`
-      : `Product Variant ${updatedVariant.id} reactivated`;
+      ? 'Product Variant marked as deleted'
+      : 'Product Variant reactivated';
 
     return NextResponse.json({
       message,

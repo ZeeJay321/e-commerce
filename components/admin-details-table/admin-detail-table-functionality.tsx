@@ -232,14 +232,14 @@ const AdminDetailTable = () => {
     }
 
     try {
-      await dispatch(editProductTitle({
+      const res = await dispatch(editProductTitle({
         id: productId,
         title: changeTitle
       })).unwrap();
 
       setNotification({
         type: 'success',
-        message: `Product title updated to "${changeTitle}"`
+        message: res.message
       });
 
       setEditingTitleId(null);

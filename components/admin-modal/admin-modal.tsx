@@ -9,6 +9,7 @@ import {
 } from '@ant-design/icons';
 import {
   Button,
+  ColorPicker,
   Divider,
   Input,
   InputNumber,
@@ -16,6 +17,7 @@ import {
   Select,
   Upload
 } from 'antd';
+import type { Color } from 'antd/es/color-picker';
 
 import { useSelector } from 'react-redux';
 
@@ -400,20 +402,31 @@ const EditProductModal = ({
                       </div>
                       <div className="flex-1">
                         <label className="edit-field">Color Code</label>
-                        <Input
-                          value={v.colorCode}
-                          onChange={(e) => {
-                            const hexPattern = /^#([0-9A-Fa-f]{6})$/;
-                            const { value } = e.target;
-                            updateVariant(v.id, 'colorCode', value);
-                            setColorError(!hexPattern.test(value));
-                          }}
-                          className={`edit-field-sub-input ${colorError ? 'border-red-500' : ''}`}
-                          placeholder="#FFFFFF"
-                          maxLength={7}
-                        />
+                        <div className="flex items-center text-center gap-2">
+                          <ColorPicker
+                            value={v.colorCode || '#ffffff'}
+                            onChange={(colorUse: Color) => updateVariant(v.id, 'colorCode', colorUse.toHexString())}
+                            className='mb-4'
+                            disabledAlpha
+                          />
+
+                          <Input
+                            value={v.colorCode}
+                            onChange={(e) => {
+                              const { value } = e.target;
+                              const hexPattern = /^#([0-9A-Fa-f]{6})$/;
+                              updateVariant(v.id, 'colorCode', value);
+                              setColorError(value !== '' && !hexPattern.test(value));
+                            }}
+                            className={`edit-field-sub-input ${colorError ? 'border-red-500' : ''}`}
+                            placeholder="#FFFFFF"
+                            maxLength={7}
+                          />
+                        </div>
                         {colorError && (
-                          <p className="text-red-500 text-xs mt-1">Invalid color code. Use format #RRGGBB.</p>
+                          <p className="text-red-500 text-xs mt-1">
+                            Invalid color code. Use format #RRGGBB.
+                          </p>
                         )}
                       </div>
                       <div className="flex-1">
@@ -559,20 +572,31 @@ const EditProductModal = ({
                       className="edit-field-sub-input"
                     />
                   </div>
+
                   <div className="flex-1">
                     <label className="edit-field">Color Code</label>
-                    <Input
-                      value={colorCode}
-                      onChange={(e) => {
-                        const hexPattern = /^#([0-9A-Fa-f]{6})$/;
-                        const { value } = e.target;
-                        setColorCode(value);
-                        setColorError(value !== '' && !hexPattern.test(value));
-                      }}
-                      className={`edit-field-sub-input ${colorError ? 'border-red-500' : ''}`}
-                      placeholder="#FFFFFF"
-                      maxLength={7}
-                    />
+                    <div className="flex items-center gap-2">
+                      <ColorPicker
+                        value={colorCode || '#ffffff'}
+                        onChange={(colorUse: Color) => setColorCode(colorUse.toHexString())}
+                        className='mb-4'
+                        disabledAlpha
+                      />
+
+                      <Input
+                        value={colorCode}
+                        onChange={(e) => {
+                          const { value } = e.target;
+                          const hexPattern = /^#([0-9A-Fa-f]{6})$/;
+                          setColorCode(value);
+                          setColorError(value !== '' && !hexPattern.test(value));
+                        }}
+                        className={`edit-field-sub-input ${colorError ? 'border-red-500' : ''}`}
+                        placeholder="#FFFFFF"
+                        maxLength={7}
+                      />
+                    </div>
+
                     {colorError && (
                       <p className="text-red-500 text-xs mt-1">
                         Invalid color code. Use format #RRGGBB.

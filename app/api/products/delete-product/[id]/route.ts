@@ -46,7 +46,7 @@ export async function PUT(
     return NextResponse.json(
       {
         success: true,
-        message: `Product ${updatedProduct.id} deleted successfully`,
+        message: 'Product deleted successfully',
         product: { id: updatedProduct.id }
       },
       { status: 200 }
