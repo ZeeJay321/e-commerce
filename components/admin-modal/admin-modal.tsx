@@ -108,8 +108,8 @@ const EditProductModal = ({
   const [variants, setVariants] = useState<VariantForm[]>([
     {
       id: crypto.randomUUID(),
-      price: 0,
-      quantity: 0,
+      price: 1,
+      quantity: 1,
       color: '',
       colorCode: '',
       size: Size.S,
@@ -149,8 +149,8 @@ const EditProductModal = ({
       ...prev,
       {
         id: crypto.randomUUID(),
-        price: 0,
-        quantity: 0,
+        price: 1,
+        quantity: 1,
         color: '',
         colorCode: '',
         size: Size.S,
@@ -375,7 +375,7 @@ const EditProductModal = ({
                         <label className="edit-field">Price</label>
                         <InputNumber
                           value={v.price}
-                          onChange={(val) => updateVariant(v.id, 'price', val || 0)}
+                          onChange={(val) => updateVariant(v.id, 'price', val || 1)}
                           className="edit-field-sub-input"
                           min={0}
                         />
@@ -384,7 +384,7 @@ const EditProductModal = ({
                         <label className="edit-field">Quantity</label>
                         <InputNumber
                           value={v.quantity}
-                          onChange={(val) => updateVariant(v.id, 'quantity', val || 0)}
+                          onChange={(val) => updateVariant(v.id, 'quantity', val || 1)}
                           className="edit-field-sub-input"
                           min={0}
                         />
@@ -547,7 +547,7 @@ const EditProductModal = ({
                     <label className="edit-field">Price</label>
                     <InputNumber
                       value={price}
-                      onChange={(val) => setPrice(val || 0)}
+                      onChange={(val) => setPrice(val || 1)}
                       className="edit-field-sub-input"
                       min={0}
                     />
@@ -556,7 +556,7 @@ const EditProductModal = ({
                     <label className="edit-field">Quantity</label>
                     <InputNumber
                       value={quantity}
-                      onChange={(val) => setQuantity(val || 0)}
+                      onChange={(val) => setQuantity(val || 1)}
                       className="edit-field-sub-input"
                       min={0}
                     />

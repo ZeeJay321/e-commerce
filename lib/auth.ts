@@ -151,7 +151,7 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.role = user.role;
         token.rememberMe = user.rememberMe;
-        const maxAge = user.rememberMe ? 30 * 24 * 60 * 60 : 30 * 60;
+        const maxAge = user.rememberMe ? 30 * 24 * 60 * 60 : 2 * 24 * 60 * 60;
         token.exp = Math.floor(Date.now() / 1000 + maxAge);
       }
 

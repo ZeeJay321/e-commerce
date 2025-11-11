@@ -598,8 +598,8 @@ const AdminDetailTable = () => {
           }}
           variant={{
             id: '',
-            price: 0,
-            quantity: 0,
+            price: 1,
+            quantity: 1,
             image: '',
             color: '',
             colorCode: '',
