@@ -64,7 +64,7 @@ const DetailTable = () => {
         dataSource={products}
         pagination={false}
         bordered
-        scroll={{ x: 'max-content' }}
+        scroll={{ x: 'max-content', y: 600 }}
       />
     </div>
   );
