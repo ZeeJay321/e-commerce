@@ -144,8 +144,7 @@ export const authOptions: NextAuthOptions = {
           token.role = dbUser.role;
           token.rememberMe = false;
 
-          // Example: set token expiry to 30 minutes
-          const maxAge = 30 * 60;
+          const maxAge = 2 * 24 * 60 * 60;
           token.exp = Math.floor(Date.now() / 1000 + maxAge);
         }
       } else if (user) {
