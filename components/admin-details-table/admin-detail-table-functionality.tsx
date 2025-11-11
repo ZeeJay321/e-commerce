@@ -225,7 +225,7 @@ const AdminDetailTable = () => {
     if (changeTitle.trim() === currentTitle.trim()) {
       setNotification({
         type: 'error',
-        message: 'Title is the same, nothing to update'
+        message: 'No changes detected in title'
       });
       setEditingTitleId(null);
       return;
@@ -547,7 +547,7 @@ const AdminDetailTable = () => {
               if (!hasChanges) {
                 setNotification({
                   type: 'error',
-                  message: 'No changes detected — nothing to update.'
+                  message: 'No changes detected in variant'
                 });
                 setTimeout(() => setNotification(null), 3000);
                 return;
