@@ -66,7 +66,8 @@ export async function PUT(
       where: {
         productId,
         color: body.color,
-        size: body.size as Size
+        size: body.size as Size,
+        NOT: { id }
       }
     });
 
