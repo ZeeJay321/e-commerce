@@ -597,7 +597,7 @@ const AdminDetailTable = () => {
                   errMessage
                   || 'Something went wrong while updating the product variant.'
               });
-              setTimeout(() => setNotification(null), 3000);
+              setTimeout(() => setNotification(null), 4000);
             }
           }}
         />
