@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import type { Response } from 'express';
 
-import { PrismaClient } from '@/app/generated/prisma';
+import { PrismaClient, Size } from '@/app/generated/prisma';
 import { runMiddleware, upload } from '@/lib/multer';
 
 const prisma = new PrismaClient();
@@ -61,6 +61,23 @@ export async function PUT(
     if (body.size) updateData.size = body.size;
     if (file) updateData.img = `/home/images/${file.filename}`;
     updateData.isDeleted = false;
+
+    const existingVariant = await prisma.productVariant.findFirst({
+      where: {
+        productId,
+        color: body.color,
+        size: body.size as Size
+      }
+    });
+
+    if (existingVariant) {
+      return NextResponse.json(
+        {
+          error: `Variant with color "${body.color}" and size "${body.size}" already exists for this product.`
+        },
+        { status: 400 }
+      );
+    }
 
     const updated = await prisma.productVariant.update({
       where: { id },

@@ -3,7 +3,7 @@ import {
   createSlice
 } from '@reduxjs/toolkit';
 
-import { Product, ProductVariant } from '@/models';
+import { Product } from '@/models';
 
 type ProductsState = {
   items: Product[];
@@ -238,7 +238,7 @@ export const addProduct = createAsyncThunk<
 });
 
 export const addVariant = createAsyncThunk<
-  ProductVariant,
+  string,
   { productId: string; formData: FormData },
   { rejectValue: string }
 >(
@@ -257,7 +257,7 @@ export const addVariant = createAsyncThunk<
         return rejectWithValue(data.error || 'Failed to add variant');
       }
 
-      return data;
+      return data.message;
     } catch (err) {
       return rejectWithValue(
         err instanceof Error ? err.message : 'Unknown error'

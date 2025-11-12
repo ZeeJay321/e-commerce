@@ -62,6 +62,23 @@ export async function POST(req: NextRequest) {
 
     const { body, file } = expressReq;
 
+    const existingVariant = await prisma.productVariant.findFirst({
+      where: {
+        productId,
+        color: body.color,
+        size: body.size as Size
+      }
+    });
+
+    if (existingVariant) {
+      return NextResponse.json(
+        {
+          error: `Variant with color "${body.color}" and size "${body.size}" already exists for this product.`
+        },
+        { status: 400 }
+      );
+    }
+
     const variant = await prisma.productVariant.create({
       data: {
         id: newId,
@@ -82,7 +99,7 @@ export async function POST(req: NextRequest) {
     );
   } catch (err) {
     return NextResponse.json(
-      { error: (err as Error).message },
+      { error: (err as Error) },
       { status: 500 }
     );
   }

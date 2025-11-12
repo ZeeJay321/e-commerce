@@ -537,6 +537,23 @@ const AdminDetailTable = () => {
               const formSize = formData.get('size');
               const formImage = formData.get('image');
 
+              if (
+                !formPrice
+                || !formQuantity
+                || !formColor
+                || !formColorCode
+                || !formSize
+              ) {
+                setNotification({
+                  type: 'error',
+                  message: 'Missing required fields',
+                  description:
+                    'Please fill in all fields including image before submitting.'
+                });
+                setTimeout(() => setNotification(null), 3000);
+                return;
+              }
+
               const hasChanges = Number(formPrice) !== editVariant.price
                 || Number(formQuantity) !== editVariant.stock
                 || formColor !== editVariant.color
@@ -549,7 +566,7 @@ const AdminDetailTable = () => {
                   type: 'error',
                   message: 'No changes detected in variant'
                 });
-                setTimeout(() => setNotification(null), 3000);
+                setTimeout(() => setNotification(null), 4000);
                 return;
               }
 
@@ -610,17 +627,42 @@ const AdminDetailTable = () => {
           actionLabel="Add"
           onAction={async (formData) => {
             try {
+              const formPrice = formData.get('price');
+              const formQuantity = formData.get('quantity');
+              const formColor = formData.get('color');
+              const formColorCode = formData.get('colorCode');
+              const formSize = formData.get('size');
+              const formImage = formData.get('image');
+
+              if (
+                !formPrice
+                || !formQuantity
+                || !formColor
+                || !formColorCode
+                || !formSize
+                || !formImage
+              ) {
+                setNotification({
+                  type: 'error',
+                  message: 'Missing required fields',
+                  description:
+                    'Please fill in all fields including image before submitting.'
+                });
+                setTimeout(() => setNotification(null), 3000);
+                return;
+              }
+
               const res = await dispatch(
                 addVariant({
                   productId: addVariantProduct.id,
                   formData
                 })
-              );
+              ).unwrap();
 
               if (res) {
                 setNotification({
                   type: 'success',
-                  message: 'Product Variant added successfully'
+                  message: res
                 });
                 setTimeout(() => setNotification(null), 3000);
                 window.dispatchEvent(new Event('ProductUpdated'));
@@ -635,7 +677,7 @@ const AdminDetailTable = () => {
                   errMessage
                   || 'Something went wrong while adding the product variant.'
               });
-              setTimeout(() => setNotification(null), 3000);
+              setTimeout(() => setNotification(null), 4000);
             }
           }}
         />
