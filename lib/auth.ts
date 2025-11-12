@@ -44,7 +44,8 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.DRIVE_SECRET!,
       authorization: {
         params: {
-          scope: 'openid email profile'
+          scope: 'openid email profile',
+          prompt: 'consent select_account'
         }
       }
     }),
