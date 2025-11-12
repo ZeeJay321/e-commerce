@@ -456,6 +456,7 @@ const EditProductModal = ({
                 <Button
                   type="primary"
                   disabled={!name.trim() || variants.length === 0}
+                  loading={loading}
                   onClick={async () => {
                     const formData = buildFormData();
                     if (onAction) await onAction(formData);
@@ -622,6 +623,7 @@ const EditProductModal = ({
                 <Button
                   type="primary"
                   className="self-end mt-6"
+                  loading={loading}
                   onClick={async () => {
                     const formData = buildFormData();
 
