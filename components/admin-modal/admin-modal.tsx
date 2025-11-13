@@ -91,6 +91,7 @@ const EditProductModal = ({
   const [color, setColor] = useState(variant?.color || '');
   const [colorCode, setColorCode] = useState(variant?.colorCode || '');
   const [colorError, setColorError] = useState(false);
+  const [colorErrors, setColorErrors] = useState<Record<string, boolean>>({});
   const [image, setImage] = useState(variant?.image || '');
   const [size, setSize] = useState(variant?.size || '');
   const [file, setFile] = useState<File | null>(null);
@@ -105,6 +106,7 @@ const EditProductModal = ({
     description?: string;
   } | null>(null);
 
+  // Generating identifier for saving image uniquely
   const generateId = () => `${Date.now()}_${Math.floor(Math.random() * 100000)}`;
 
   const [variants, setVariants] = useState<VariantForm[]>([
@@ -422,14 +424,17 @@ const EditProductModal = ({
                               const { value } = e.target;
                               const hexPattern = /^#([0-9A-Fa-f]{6})$/;
                               updateVariant(v.id, 'colorCode', value);
-                              setColorError(value !== '' && !hexPattern.test(value));
+                              setColorErrors((prev) => ({
+                                ...prev,
+                                [v.id]: value !== '' && !hexPattern.test(value)
+                              }));
                             }}
-                            className={`edit-field-sub-input ${colorError ? 'border-red-500' : ''}`}
+                            className={`edit-field-sub-input ${colorErrors[v.id] ? 'border-red-500' : ''}`}
                             placeholder="#FFFFFF"
                             maxLength={7}
                           />
                         </div>
-                        {colorError && (
+                        {colorErrors[v.id] && (
                           <p className="text-red-500 text-xs mt-1">
                             Invalid color code. Use format #RRGGBB.
                           </p>
