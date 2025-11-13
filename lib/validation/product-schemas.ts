@@ -66,10 +66,8 @@ export const addProductSchema = Joi.object({
     .items(
       Joi.object({
         id: Joi.string()
-          .guid({ version: ['uuidv4'] })
           .required()
           .messages({
-            'string.guid': 'Invalid variant ID format',
             'any.required': 'Variant ID is required'
           }),
 

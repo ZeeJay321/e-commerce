@@ -35,8 +35,7 @@ export async function PUT(
       headers: Object.fromEntries(req.headers) as IncomingHttpHeaders,
       method: req.method ?? 'PUT',
       url: req.url,
-      body: {},
-      query: { id }
+      body: {}
     });
 
     const expressRes = {} as unknown as Response;

@@ -5,7 +5,6 @@ import type { ReadableStream as NodeReadableStream } from 'stream/web';
 import { NextRequest, NextResponse } from 'next/server';
 
 import type { Response } from 'express';
-import { v4 as uuidv4 } from 'uuid';
 
 import { PrismaClient } from '@/app/generated/prisma';
 import { runMiddleware, upload } from '@/lib/multer';
@@ -34,8 +33,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const newId = uuidv4();
-
     const nodeStream = Readable.fromWeb(
       req.body as NodeReadableStream<Uint8Array>
     );
@@ -44,8 +41,7 @@ export async function POST(req: NextRequest) {
       headers: Object.fromEntries(req.headers) as IncomingHttpHeaders,
       method: req.method ?? 'POST',
       url: req.url,
-      body: {},
-      query: { id: newId, productId }
+      body: {}
     });
 
     const expressRes = {} as unknown as Response;
@@ -81,7 +77,6 @@ export async function POST(req: NextRequest) {
 
     const variant = await prisma.productVariant.create({
       data: {
-        id: newId,
         productId,
         color: body.color,
         colorCode: body.colorCode,

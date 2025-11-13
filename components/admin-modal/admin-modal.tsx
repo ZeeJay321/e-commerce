@@ -105,9 +105,11 @@ const EditProductModal = ({
     description?: string;
   } | null>(null);
 
+  const generateId = () => `${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+
   const [variants, setVariants] = useState<VariantForm[]>([
     {
-      id: crypto.randomUUID(),
+      id: generateId(),
       price: 1,
       quantity: 1,
       color: '',
@@ -148,7 +150,7 @@ const EditProductModal = ({
     setVariants((prev) => [
       ...prev,
       {
-        id: crypto.randomUUID(),
+        id: generateId(),
         price: 1,
         quantity: 1,
         color: '',
@@ -190,7 +192,11 @@ const EditProductModal = ({
       formData.append('color', color);
       formData.append('colorCode', colorCode);
       formData.append('size', size);
-      if (file) formData.append('image', file);
+      if (file) {
+        const ext = file.name.split('.').pop();
+        const newFile = new File([file], `${generateId()}.${ext}`, { type: file.type });
+        formData.append('image', newFile);
+      }
     }
 
     return formData;

@@ -23,8 +23,7 @@ const BaseLayout = ({
     return <Content>{children}</Content>;
   }
 
-  // Determine active menu based on pathname
-  let activeMenu: 'products' | 'orders' = 'orders'; // default
+  let activeMenu: 'products' | 'orders' = 'orders';
   if (pathname?.startsWith('/admin/products')) {
     activeMenu = 'products';
   } else if (pathname?.startsWith('/admin/orders')) {

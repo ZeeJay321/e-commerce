@@ -5,7 +5,6 @@ import type { ReadableStream as NodeReadableStream } from 'stream/web';
 import { NextRequest, NextResponse } from 'next/server';
 
 import type { Response } from 'express';
-import { v4 as uuidv4 } from 'uuid';
 
 import { PrismaClient } from '@/app/generated/prisma';
 import { runMiddleware, upload } from '@/lib/multer';
@@ -33,8 +32,6 @@ type VariantForm = {
 
 export async function POST(req: NextRequest) {
   try {
-    const newId = uuidv4();
-
     const nodeStream = Readable.fromWeb(req.body as NodeReadableStream<Uint8Array>);
     const expressReq: MulterLikeRequest = Object.assign(nodeStream, {
       headers: Object.fromEntries(req.headers) as IncomingHttpHeaders,
@@ -80,17 +77,14 @@ export async function POST(req: NextRequest) {
 
     const created = await prisma.product.create({
       data: {
-        id: newId,
         title: productData.name,
         variants: {
           create: productData.variants.map((v: VariantForm) => ({
-            id: v.id,
             price: Number(v.price),
             stock: Number(v.quantity),
             color: v.color,
             colorCode: v.colorCode,
             size: v.size,
-            isDeleted: false,
             img: v.image ?? ''
           }))
         }

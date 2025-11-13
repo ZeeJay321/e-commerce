@@ -584,9 +584,9 @@ const AdminDetailTable = () => {
                   message: 'Product Variant updated successfully'
                 });
                 setTimeout(() => setNotification(null), 3000);
-                window.dispatchEvent(new Event('ProductUpdated'));
                 setEditProduct(null);
                 setEditVariant(null);
+                window.dispatchEvent(new Event('ProductUpdated'));
               }
             } catch (err) {
               const errMessage = (err as string) || '';
