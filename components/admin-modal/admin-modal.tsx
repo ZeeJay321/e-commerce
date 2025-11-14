@@ -386,6 +386,8 @@ const EditProductModal = ({
                           onChange={(val) => updateVariant(v.id, 'price', val || 1)}
                           className="edit-field-sub-input"
                           min={0}
+                          formatter={(value) => `$ ${value}`}
+
                         />
                       </div>
                       <div className="flex-1">

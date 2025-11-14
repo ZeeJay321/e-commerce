@@ -61,6 +61,24 @@ export async function POST(req: NextRequest) {
       variants = [];
     }
 
+    const seen = new Set<string>();
+
+    const hasDuplicate = variants.some((v) => {
+      const key = `${v.color.toLowerCase()}_${v.size.toUpperCase()}`;
+      if (seen.has(key)) {
+        return true;
+      }
+      seen.add(key);
+      return false;
+    });
+
+    if (hasDuplicate) {
+      return NextResponse.json(
+        { error: 'Duplicate variant detected for color and size combination.' },
+        { status: 400 }
+      );
+    }
+
     (files || []).forEach((file) => {
       const idMatch = file.fieldname.match(/^image_(.+)$/);
       if (idMatch) {
