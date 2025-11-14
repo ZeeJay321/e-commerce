@@ -346,32 +346,52 @@ const EditProductModal = ({
                   )}
 
                   {/* Upload */}
+
                   <div className="flex-shrink-0 p-3 relative">
                     <div className="flex flex-col gap-2">
-                      <div
-                        className="flex flex-col items-center justify-center rounded-md border-2 border-dashed border-blue-500"
-                        style={{ width: 145, height: 145 }}
-                      >
-                        <Upload
-                          accept=".jpg,.jpeg,.png"
-                          beforeUpload={(uploadFile) => {
-                            updateVariant(v.id, 'file', uploadFile);
-                            updateVariant(v.id, 'image', URL.createObjectURL(uploadFile));
-                            return false;
-                          }}
-                          showUploadList={false}
+                      {!v.image && (
+                        <div
+                          className="flex flex-col items-center justify-center rounded-md border-2 border-dashed border-blue-500"
+                          style={{ width: 145, height: 145 }}
                         >
-                          <div className="flex flex-col items-center justify-center gap-2">
-                            <UploadOutlined className="text-blue-500 text-xl" />
-                            <Button size="small">Upload</Button>
-                          </div>
-                        </Upload>
-                      </div>
+                          <Upload
+                            accept=".jpg,.jpeg,.png"
+                            beforeUpload={(uploadFile) => {
+                              updateVariant(v.id, 'file', uploadFile);
+                              updateVariant(v.id, 'image', URL.createObjectURL(uploadFile));
+                              return false;
+                            }}
+                            showUploadList={false}
+                          >
+                            <div className="flex flex-col items-center justify-center gap-2">
+                              <UploadOutlined className="text-blue-500 text-xl" />
+                              <Button size="small">Upload</Button>
+                            </div>
+                          </Upload>
+                        </div>
+                      )}
 
                       {v.image && (
-                        <div className="rounded-md bg-green-100 text-green-700 text-sm px-3 py-1">
-                          ✅ Upload Successful
-                        </div>
+                        <>
+                          <img
+                            src={v.image}
+                            alt="Preview"
+                            className="w-32 h-32 object-cover rounded-md border mt-2"
+                          />
+                          <Upload
+                            accept=".jpg,.jpeg,.png"
+                            beforeUpload={(uploadFile) => {
+                              updateVariant(v.id, 'file', uploadFile);
+                              updateVariant(v.id, 'image', URL.createObjectURL(uploadFile));
+                              return false;
+                            }}
+                            showUploadList={false}
+                          >
+                            <div className="flex flex-col items-center justify-center gap-2">
+                              <Button size="small">Upload</Button>
+                            </div>
+                          </Upload>
+                        </>
                       )}
                     </div>
                   </div>
@@ -385,9 +405,8 @@ const EditProductModal = ({
                           value={v.price}
                           onChange={(val) => updateVariant(v.id, 'price', val || 1)}
                           className="edit-field-sub-input"
-                          min={0}
-                          formatter={(value) => `$ ${value}`}
-
+                          min={1}
+                          prefix="$"
                         />
                       </div>
                       <div className="flex-1">
@@ -396,7 +415,7 @@ const EditProductModal = ({
                           value={v.quantity}
                           onChange={(val) => updateVariant(v.id, 'quantity', val || 1)}
                           className="edit-field-sub-input"
-                          min={0}
+                          min={1}
                         />
                       </div>
                     </div>
@@ -538,9 +557,11 @@ const EditProductModal = ({
                       </Upload>
                     </div>
                     {file && (
-                      <div className="rounded-md bg-green-100 text-green-700 text-sm px-3 py-1">
-                        ✅ Upload Successful
-                      </div>
+                      <img
+                        src={file}
+                        alt="Preview"
+                        className="w-32 h-32 object-cover rounded-md border mt-2"
+                      />
                     )}
                   </div>
                 )}
@@ -563,7 +584,9 @@ const EditProductModal = ({
                       value={price}
                       onChange={(val) => setPrice(val || 1)}
                       className="edit-field-sub-input"
-                      min={0}
+                      min={1}
+                      prefix="$"
+
                     />
                   </div>
                   <div className="flex-1">
@@ -572,7 +595,7 @@ const EditProductModal = ({
                       value={quantity}
                       onChange={(val) => setQuantity(val || 1)}
                       className="edit-field-sub-input"
-                      min={0}
+                      min={1}
                     />
                   </div>
                 </div>
