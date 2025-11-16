@@ -30,19 +30,14 @@ import { RootState } from '@/redux/store';
 import CustomNotification from '../notifications/notifications-functionality';
 
 const requiredColumns = [
-  'product_id',
+  'product_index',
   'title',
-  'isDeleted',
-  'createdAt',
-  'updatedAt',
-  'variant_id',
   'color',
   'colorCode',
   'size',
   'img',
   'price',
-  'stock',
-  'variant_isDeleted'
+  'stock'
 ];
 
 type VariantForm = {
