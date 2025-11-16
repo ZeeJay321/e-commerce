@@ -1,6 +1,6 @@
 import Joi from 'joi';
 
-import { Size } from '@/app/generated/prisma';
+import { Size } from '@/models';
 
 export const getProductSchema = Joi.object({
   skip: Joi.number()
