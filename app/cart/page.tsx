@@ -122,7 +122,6 @@ const Page = () => {
       setTotals({ subtotal: 0, tax: 0, total: 0 });
 
       setTimeout(() => {
-        setNotification(null);
         if (response?.url) {
           window.location.href = response.url;
         } else {
@@ -141,7 +140,6 @@ const Page = () => {
       }
 
       setNotification({ type: 'error', message: errorMessage });
-      setTimeout(() => setNotification(null), 3000);
     }
   };
 

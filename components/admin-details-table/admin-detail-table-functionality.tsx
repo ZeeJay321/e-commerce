@@ -83,7 +83,6 @@ const AdminDetailTable = () => {
           type: res.success ? 'success' : 'error',
           message: res.message
         });
-        setTimeout(() => setNotification(null), 3000);
       }
     } catch (err) {
       const errMessage = (err as string) || '';
@@ -93,7 +92,6 @@ const AdminDetailTable = () => {
         description:
           errMessage || 'Something went wrong while deleting the variant.'
       });
-      setTimeout(() => setNotification(null), 3000);
     }
   };
 
@@ -108,7 +106,6 @@ const AdminDetailTable = () => {
           type: res.success ? 'success' : 'error',
           message: res.message
         });
-        setTimeout(() => setNotification(null), 3000);
       }
     } catch (err) {
       const errMessage = (err as string) || '';
@@ -116,7 +113,6 @@ const AdminDetailTable = () => {
         type: 'error',
         message: errMessage || 'Something went wrong while deleting the product.'
       });
-      setTimeout(() => setNotification(null), 3000);
     }
   };
 
@@ -131,7 +127,6 @@ const AdminDetailTable = () => {
           type: res.success ? 'success' : 'error',
           message: res.message
         });
-        setTimeout(() => setNotification(null), 3000);
       }
     } catch (err) {
       const errMessage = (err as string) || '';
@@ -141,7 +136,6 @@ const AdminDetailTable = () => {
         description:
           errMessage || 'Something went wrong while deleting the variant.'
       });
-      setTimeout(() => setNotification(null), 3000);
     }
   };
 
@@ -212,8 +206,6 @@ const AdminDetailTable = () => {
         message: 'Operation Failed',
         description: error
       });
-
-      setTimeout(() => setNotification(null), 1000);
     }
   }, [error]);
 
@@ -550,7 +542,6 @@ const AdminDetailTable = () => {
                   description:
                     'Please fill in all fields including image before submitting.'
                 });
-                setTimeout(() => setNotification(null), 3000);
                 return;
               }
 
@@ -566,7 +557,6 @@ const AdminDetailTable = () => {
                   type: 'error',
                   message: 'No changes detected in variant'
                 });
-                setTimeout(() => setNotification(null), 4000);
                 return;
               }
 
@@ -583,7 +573,6 @@ const AdminDetailTable = () => {
                   type: 'success',
                   message: 'Product Variant updated successfully'
                 });
-                setTimeout(() => setNotification(null), 3000);
                 setEditProduct(null);
                 setEditVariant(null);
                 window.dispatchEvent(new Event('ProductUpdated'));
@@ -597,7 +586,6 @@ const AdminDetailTable = () => {
                   errMessage
                   || 'Something went wrong while updating the product variant.'
               });
-              setTimeout(() => setNotification(null), 4000);
             }
           }}
         />
@@ -648,7 +636,6 @@ const AdminDetailTable = () => {
                   description:
                     'Please fill in all fields including image before submitting.'
                 });
-                setTimeout(() => setNotification(null), 3000);
                 return;
               }
 
@@ -664,7 +651,6 @@ const AdminDetailTable = () => {
                   type: 'success',
                   message: res
                 });
-                setTimeout(() => setNotification(null), 3000);
                 window.dispatchEvent(new Event('ProductUpdated'));
                 setAddVariantProduct(null);
               }
@@ -677,7 +663,6 @@ const AdminDetailTable = () => {
                   errMessage
                   || 'Something went wrong while adding the product variant.'
               });
-              setTimeout(() => setNotification(null), 4000);
             }
           }}
         />

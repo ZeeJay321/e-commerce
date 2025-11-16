@@ -45,7 +45,7 @@ export async function PUT(
       }
 
       const updatedOrder = await tx.order.update({
-        where: { id: existingOrder.id, orderStatus: 'FULFILLED' },
+        where: { id: existingOrder.id, orderStatus: 'PAID' },
         data: { orderStatus: 'SHIPPED' }
       });
 

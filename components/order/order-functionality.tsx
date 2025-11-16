@@ -101,7 +101,6 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
           type: 'success',
           message: 'Product Shipped successfully'
         });
-        setTimeout(() => setNotification(null), 3000);
         window.dispatchEvent(new Event('ProductUpdated'));
       }
     } catch (err) {
@@ -112,7 +111,6 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
         description:
           errMessage || 'Something went wrong while Shipping the product.'
       });
-      setTimeout(() => setNotification(null), 3000);
     } finally {
       setModalOpen(false);
       window.dispatchEvent(new Event('OrderUpdated'));
@@ -200,10 +198,10 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
             color: '#7f1d1d',
             label: 'Failed'
           },
-          FULFILLED: {
+          PAID: {
             bg: '#bfdbfe', // bright blue
             color: '#1e3a8a',
-            label: 'Fulfilled'
+            label: 'Paid'
           },
           SHIPPED: {
             bg: '#bbf7d0', // bright green
@@ -244,7 +242,7 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
       title: <span className="table-span-head">Actions</span>,
       key: 'actions',
       render: (_, record) => {
-        const isFulfilled = (record.orderStatus?.toLowerCase() === 'fulfilled'
+        const isFulfilled = (record.orderStatus?.toLowerCase() === 'paid'
           && record.orderStatus?.toLowerCase() !== 'shipped');
 
         return (

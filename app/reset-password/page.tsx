@@ -75,7 +75,6 @@ function ResetPasswordPage() {
       setIsNextPage(true);
 
       setTimeout(() => {
-        setNotification(null);
         router.push('/login');
       }, 3000);
     } catch (err) {
@@ -83,7 +82,6 @@ function ResetPasswordPage() {
         type: 'error',
         message: typeof err === 'string' ? err : 'Password reset failed'
       });
-      setTimeout(() => setNotification(null), 3000);
     }
   };
 

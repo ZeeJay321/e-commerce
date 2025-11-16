@@ -252,7 +252,6 @@ const EditProductModal = ({
                       message: 'Invalid CSV',
                       description: `The following required columns are missing: ${missing.join(', ')}`
                     });
-                    setTimeout(() => setNotification(null), 4000);
                     return false;
                   }
 

@@ -39,8 +39,6 @@ const Page = () => {
           type: 'success',
           message: 'Products CSV uploaded successfully'
         });
-
-        setTimeout(() => setNotification(null), 3000);
       }
     } catch (err) {
       const errMessage = (err as string) || '';
@@ -49,8 +47,6 @@ const Page = () => {
         message: 'Import Failed',
         description: errMessage || 'Something went wrong while importing products.'
       });
-
-      setTimeout(() => setNotification(null), 3000);
     }
   };
 
@@ -66,8 +62,6 @@ const Page = () => {
           type: 'success',
           message: 'Product added successfully'
         });
-
-        setTimeout(() => setNotification(null), 3000);
       }
     } catch (err) {
       const errMessage = err as string || '';
@@ -76,8 +70,6 @@ const Page = () => {
         message: 'Operation Failed',
         description: errMessage || 'Something went wrong while adding the product.'
       });
-
-      setTimeout(() => setNotification(null), 3000);
     }
   };
 

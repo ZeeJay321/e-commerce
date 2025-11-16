@@ -64,7 +64,6 @@ const ProductCard = ({ product }: { product: Product }) => {
         type: 'error',
         message: `${product.title} is out of stock!`
       });
-      setTimeout(() => setNotification(null), 3000);
       return;
     }
 
@@ -85,7 +84,6 @@ const ProductCard = ({ product }: { product: Product }) => {
           type: 'error',
           message: `You cannot add more of this item: ${product.title}`
         });
-        setTimeout(() => setNotification(null), 3000);
         return;
       }
       cart[index].qty = newQty;
@@ -111,8 +109,6 @@ const ProductCard = ({ product }: { product: Product }) => {
       type: 'success',
       message: `${product.title} added to cart!`
     });
-
-    setTimeout(() => setNotification(null), 3000);
   };
 
   return (

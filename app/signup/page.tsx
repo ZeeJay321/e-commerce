@@ -113,7 +113,6 @@ const Page = () => {
       setIsNextPage(true);
 
       setTimeout(() => {
-        setNotification(null);
         router.push('/login');
       }, 2000);
     } catch (error) {
@@ -121,7 +120,6 @@ const Page = () => {
         type: 'error',
         message: typeof error === 'string' ? error : 'Signup failed'
       });
-      setTimeout(() => setNotification(null), 3000);
     }
   };
 
