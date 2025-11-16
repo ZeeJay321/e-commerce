@@ -1,0 +1,15 @@
+// prisma/enums.prisma
+
+enum Size {
+  S
+  M
+  L
+  XL
+}
+
+enum OrderStatus {
+  PENDING
+  FAILED
+  PAID
+  SHIPPED
+}

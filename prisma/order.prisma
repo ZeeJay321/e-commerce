@@ -1,0 +1,43 @@
+// prisma/order.prisma
+
+model Order {
+  id          String       @id @default(uuid())
+  orderNumber Int          @unique @default(autoincrement())
+  userId      String
+  amount      Float
+  date        String
+  orderStatus OrderStatus   @default(PENDING)
+  sessionId   String?       @unique
+  metadata    Json?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  user        User          @relation(fields: [userId], references: [id])
+  products    OrderItem[]
+}
+
+model OrderItem {
+  id           String          @id @default(uuid())
+  orderId      String
+  productId    String?
+  variantId    String?
+  quantity     Int             @default(1)
+  price        Float
+  metadata     Json?
+
+  // Relations
+  order        Order           @relation(fields: [orderId], references: [id])
+  product      Product?        @relation("ProductOrderItems", fields: [productId], references: [id])
+  variant      ProductVariant? @relation("VariantOrderItems", fields: [variantId], references: [id])
+}
+
+model OrderSummary {
+  id                      String    @id @default(uuid())
+  totalOrders             Int
+  totalProductsInOrders   Int
+  totalOrderAmount        Float
+  createdAt               DateTime  @default(now())
+
+  metadata                Json?
+}
