@@ -242,7 +242,7 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
       title: <span className="table-span-head">Actions</span>,
       key: 'actions',
       render: (_, record) => {
-        const isFulfilled = (record.orderStatus?.toLowerCase() === 'paid'
+        const isPaid = (record.orderStatus?.toLowerCase() === 'paid'
           && record.orderStatus?.toLowerCase() !== 'shipped');
 
         return (
@@ -250,15 +250,15 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
             {admin && (
               <Tooltip title="Ship Order" placement="top">
                 <CheckCircleOutlined
-                  className={`table-action-fulfill ${!isFulfilled ? 'opacity-40 cursor-not-allowed' : ''}`}
+                  className={`table-action-fulfill ${!isPaid ? 'opacity-40 cursor-not-allowed' : ''}`}
                   onClick={() => {
-                    if (!isFulfilled) return;
+                    if (!isPaid) return;
                     setSelectedOrderId(record.orderNumber);
                     setModalOpen(true);
                   }}
                   style={{
-                    pointerEvents: !isFulfilled ? 'none' : 'auto',
-                    color: !isFulfilled ? '#9ca3af' : '#52c41a'
+                    pointerEvents: !isPaid ? 'none' : 'auto',
+                    color: !isPaid ? '#9ca3af' : '#52c41a'
                   }}
                 />
               </Tooltip>

@@ -1,5 +1,7 @@
 import Joi from 'joi';
 
+import { Size } from '@/app/generated/prisma';
+
 export const getProductSchema = Joi.object({
   skip: Joi.number()
     .integer()
@@ -30,6 +32,12 @@ export const updateProductSchema = Joi.object({
   color: Joi.string(),
   colorCode: Joi.string().pattern(/^#([0-9A-Fa-f]{6})$/),
   size: Joi.string()
+    .valid(...Object.values(Size))
+    .required()
+    .messages({
+      'any.only': `Size must be one of ${Object.values(Size).join(', ')}`,
+      'any.required': 'Size is required'
+    })
 }).min(1);
 
 export const updateProductVariantSchema = Joi.object({
@@ -38,7 +46,13 @@ export const updateProductVariantSchema = Joi.object({
   quantity: Joi.number().integer().min(0),
   color: Joi.string(),
   colorCode: Joi.string().pattern(/^#([0-9A-Fa-f]{6})$/),
-  size: Joi.string(),
+  size: Joi.string()
+    .valid(...Object.values(Size))
+    .required()
+    .messages({
+      'any.only': `Size must be one of ${Object.values(Size).join(', ')}`,
+      'any.required': 'Size is required'
+    }),
   image: Joi.any().optional()
 }).min(1);
 
@@ -92,10 +106,13 @@ export const addProductSchema = Joi.object({
           'any.required': 'Color code is required'
         }),
 
-        size: Joi.string().valid('S', 'M', 'L', 'XL').required().messages({
-          'any.only': 'Size must be one of S, M, L, XL',
-          'any.required': 'Size is required'
-        }),
+        size: Joi.string()
+          .valid(...Object.values(Size))
+          .required()
+          .messages({
+            'any.only': `Size must be one of ${Object.values(Size).join(', ')}`,
+            'any.required': 'Size is required'
+          }),
 
         image: Joi.string().allow('').optional()
       })
@@ -144,10 +161,10 @@ export const addVariantSchema = Joi.object({
     }),
 
   size: Joi.string()
-    .valid('S', 'M', 'L', 'XL')
+    .valid(...Object.values(Size))
     .required()
     .messages({
-      'any.only': 'Size must be one of S, M, L, or XL',
+      'any.only': `Size must be one of ${Object.values(Size).join(', ')}`,
       'any.required': 'Size is required'
     }),
 
