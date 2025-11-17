@@ -39,14 +39,7 @@ const CustomNotification: React.FC<CustomNotificationProps> = ({
       className: type === 'success' ? 'notif-success' : 'notif-failure',
       onClose
     });
-  }, [api,
-    message,
-    description,
-    placement,
-    duration,
-    type,
-    onClose
-  ]);
+  }, []);
 
   return contextHolder;
 };
