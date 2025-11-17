@@ -277,15 +277,14 @@ export const importProductsCsv = createAsyncThunk<
       const formData = new FormData();
       formData.append('file', file);
 
-      console.log('📤 Uploading CSV:', file.name);
+      console.log(formData);
 
-      const response = await fetch('http://127.0.0.1:8000/products/import-csv', {
+      const response = await fetch('/api/products/import-product-csv', {
         method: 'POST',
         body: formData
       });
 
       const data = await response.json();
-      console.log('✅ Upload successful:', data);
 
       if (!response.ok) {
         return rejectWithValue(data.error || 'Upload failed');
@@ -293,7 +292,6 @@ export const importProductsCsv = createAsyncThunk<
 
       return data;
     } catch (err) {
-      console.error('❌ Upload error:', err);
       return rejectWithValue(
         err instanceof Error ? err.message : 'Unknown error'
       );

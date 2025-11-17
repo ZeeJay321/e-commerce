@@ -175,3 +175,8 @@ export const updateTitleSchema = Joi.object({
   title: Joi.string().trim().min(1).max(255)
     .required()
 });
+
+export const importCsvSchema = Joi.object({
+  file: Joi.any().optional()
+});
+
