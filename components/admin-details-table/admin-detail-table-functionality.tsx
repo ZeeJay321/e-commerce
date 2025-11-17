@@ -42,7 +42,11 @@ import ConfirmDeleteModal from '../delete-modal/delete-modal';
 
 import './admin-detail-table.css';
 
-const AdminDetailTable = () => {
+type AdminDetailTableProps = {
+  search?: string;
+};
+
+const AdminDetailTable: React.FC<AdminDetailTableProps> = ({ search = '' }) => {
   const [isDeleteVariantModalOpen, setIsDeleteVariantModalOpen] = useState(false);
   const [isReActiveVariantModalOpen, setIsReActiveVariantModalOpen] = useState(false);
   const [isDeleteProductModalOpen, setIsDeleteProductModalOpen] = useState(false);
@@ -187,11 +191,11 @@ const AdminDetailTable = () => {
       fetchProducts({
         skip: currentPage,
         limit: pageSize,
-        query: '',
+        query: search,
         sortOption: null
       })
     );
-  }, [dispatch, currentPage, pageSize]);
+  }, [dispatch, currentPage, pageSize, search]);
 
   useEffect(() => {
     getUpdatedProducts();
@@ -439,7 +443,11 @@ const AdminDetailTable = () => {
   };
 
   if (loading) {
-    return <Spin size="large" className="flex justify-center py-10" />;
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Spin size="large" />
+      </div>
+    );
   }
 
   return (

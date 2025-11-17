@@ -531,31 +531,50 @@ const EditProductModal = ({
                   </>
                 ) : (
                   <div className="flex flex-col gap-2">
-                    <div
-                      className="flex flex-col items-center justify-center rounded-md border-2 border-dashed border-blue-500"
-                      style={{ width: 145, height: 145 }}
-                    >
-                      <Upload
-                        accept=".jpg,.jpeg,.png"
-                        beforeUpload={(uploadFile) => {
-                          setFile(uploadFile);
-                          setImage(URL.createObjectURL(uploadFile));
-                          return false;
-                        }}
-                        showUploadList={false}
+                    {!file && (
+                      <div
+                        className="flex flex-col items-center justify-center rounded-md border-2 border-dashed border-blue-500"
+                        style={{ width: 145, height: 145 }}
                       >
-                        <div className="flex flex-col items-center justify-center gap-2">
-                          <UploadOutlined className="text-blue-500 text-xl" />
-                          <Button size="small">Upload</Button>
-                        </div>
-                      </Upload>
-                    </div>
+                        <Upload
+                          accept=".jpg,.jpeg,.png"
+                          beforeUpload={(uploadFile) => {
+                            setFile(uploadFile);
+                            setImage(URL.createObjectURL(uploadFile));
+                            return false;
+                          }}
+                          showUploadList={false}
+                        >
+                          <div className="flex flex-col items-center justify-center gap-2">
+                            <UploadOutlined className="text-blue-500 text-xl" />
+                            <Button size="small">Upload</Button>
+                          </div>
+                        </Upload>
+                      </div>
+                    )}
                     {file && (
-                      <img
-                        src={file}
-                        alt="Preview"
-                        className="w-32 h-32 object-cover rounded-md border mt-2"
-                      />
+                      <>
+                        <img
+                          src={image}
+                          alt={product?.name}
+                          width={145}
+                          height={145}
+                          className="object-cover rounded-md border"
+                        />
+                        <Upload
+                          accept=".jpg,.jpeg,.png"
+                          beforeUpload={(uploadFile) => {
+                            setFile(uploadFile);
+                            setImage(URL.createObjectURL(uploadFile));
+                            return false;
+                          }}
+                          showUploadList={false}
+                        >
+                          <div className="flex flex-col items-center justify-center gap-2">
+                            <Button size="small">Upload</Button>
+                          </div>
+                        </Upload>
+                      </>
                     )}
                   </div>
                 )}

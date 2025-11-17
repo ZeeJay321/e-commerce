@@ -13,6 +13,7 @@ import AdminDetailTable from '@/components/admin-details-table/admin-detail-tabl
 import EditProductModal from '@/components/admin-modal/admin-modal';
 import LoadingSpinner from '@/components/loading/loading-spinner';
 import CustomNotification from '@/components/notifications/notifications-functionality';
+import SearchBar from '@/components/search-bar/search-bar-functionality';
 import 'antd/dist/reset.css';
 import './products.css';
 
@@ -20,6 +21,7 @@ const Page = () => {
   const [isRendered, setIsRendered] = useState(false);
   const [addProductOpen, setAddProductOpen] = useState(false);
   const [addMultipleOpen, setAddMultipleOpen] = useState(false);
+  const [search, setSearch] = useState('');
   const dispatch = useDispatch<AppDispatch>();
   const [notification, setNotification] = useState<{
     type: 'success' | 'error';
@@ -95,6 +97,7 @@ const Page = () => {
       <div className="content-div">
         <span className="content-paragraph">Our Products</span>
         <div className="content-features w-full">
+          <SearchBar onSearch={setSearch} />
           <Button
             type="default"
             className="px-4 py-1.5"
@@ -113,7 +116,7 @@ const Page = () => {
         </div>
       </div>
 
-      <AdminDetailTable />
+      <AdminDetailTable search={search} />
 
       {addProductOpen && (
         <EditProductModal

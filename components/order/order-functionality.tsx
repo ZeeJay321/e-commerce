@@ -293,7 +293,7 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
       {error && <Alert type="error" message={error} showIcon className="mb-4" />}
 
       {(loading || !loadTable || !isRendered) && (
-        <div className="flex justify-center py-10">
+        <div className="flex justify-center items-center min-h-screen">
           <Spin size="large" />
         </div>
       )}
