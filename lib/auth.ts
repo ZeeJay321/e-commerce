@@ -44,7 +44,8 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.DRIVE_SECRET!,
       authorization: {
         params: {
-          scope: 'openid email profile'
+          scope: 'openid email profile',
+          prompt: 'consent select_account'
         }
       }
     }),
@@ -144,15 +145,14 @@ export const authOptions: NextAuthOptions = {
           token.role = dbUser.role;
           token.rememberMe = false;
 
-          // Example: set token expiry to 30 minutes
-          const maxAge = 30 * 60;
+          const maxAge = 2 * 24 * 60 * 60;
           token.exp = Math.floor(Date.now() / 1000 + maxAge);
         }
       } else if (user) {
         token.id = user.id;
         token.role = user.role;
         token.rememberMe = user.rememberMe;
-        const maxAge = user.rememberMe ? 30 * 24 * 60 * 60 : 30 * 60;
+        const maxAge = user.rememberMe ? 30 * 24 * 60 * 60 : 2 * 24 * 60 * 60;
         token.exp = Math.floor(Date.now() / 1000 + maxAge);
       }
 

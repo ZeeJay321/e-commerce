@@ -53,7 +53,7 @@ describe('POST /api/auth/signup', () => {
     const data = await res.json();
 
     expect(res.status).toBe(500);
-    expect(data.error).toBe('Email already registered');
+    expect(data.error).toBe('Email or Phone Number already registered');
     expect(prisma.user.create).not.toHaveBeenCalled();
   });
 

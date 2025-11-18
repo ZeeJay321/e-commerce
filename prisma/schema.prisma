@@ -18,7 +18,7 @@ enum Size {
 enum OrderStatus {
   PENDING
   FAILED
-  FULFILLED
+  PAID
   SHIPPED
 }
 

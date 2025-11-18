@@ -16,10 +16,12 @@ const USER_PUBLIC_PATHS = [
 const USER_PRIVATE_PATHS = [
   '/cart',
   '/orders',
-  '/order-details'
+  '/order-details',
+  '/payment-successful',
+  '/payment-failure'
 ];
 
-const ADMIN_PUBLIC_PATHS = ['/admin/login'];
+const ADMIN_PUBLIC_PATHS = ['/login'];
 
 const ADMIN_PRIVATE_PATHS = [
   '/admin/products',

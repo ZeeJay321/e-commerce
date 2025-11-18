@@ -5,7 +5,6 @@ import type { ReadableStream as NodeReadableStream } from 'stream/web';
 import { NextRequest, NextResponse } from 'next/server';
 
 import type { Response } from 'express';
-import { v4 as uuidv4 } from 'uuid';
 
 import { PrismaClient } from '@/app/generated/prisma';
 import { runMiddleware, upload } from '@/lib/multer';
@@ -34,8 +33,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const newId = uuidv4();
-
     const nodeStream = Readable.fromWeb(
       req.body as NodeReadableStream<Uint8Array>
     );
@@ -44,8 +41,7 @@ export async function POST(req: NextRequest) {
       headers: Object.fromEntries(req.headers) as IncomingHttpHeaders,
       method: req.method ?? 'POST',
       url: req.url,
-      body: {},
-      query: { id: newId, productId }
+      body: {}
     });
 
     const expressRes = {} as unknown as Response;
@@ -62,9 +58,25 @@ export async function POST(req: NextRequest) {
 
     const { body, file } = expressReq;
 
+    const existingVariant = await prisma.productVariant.findFirst({
+      where: {
+        productId,
+        color: body.color,
+        size: body.size as Size
+      }
+    });
+
+    if (existingVariant) {
+      return NextResponse.json(
+        {
+          error: `Variant with color "${body.color}" and size "${body.size}" already exists for this product.`
+        },
+        { status: 400 }
+      );
+    }
+
     const variant = await prisma.productVariant.create({
       data: {
-        id: newId,
         productId,
         color: body.color,
         colorCode: body.colorCode,
@@ -82,7 +94,7 @@ export async function POST(req: NextRequest) {
     );
   } catch (err) {
     return NextResponse.json(
-      { error: (err as Error).message },
+      { error: (err as Error) },
       { status: 500 }
     );
   }

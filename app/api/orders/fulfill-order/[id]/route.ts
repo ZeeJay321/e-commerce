@@ -40,8 +40,12 @@ export async function PUT(
         throw new Error('Order already shipped');
       }
 
+      if (existingOrder.orderStatus === 'PENDING' || existingOrder.orderStatus === 'FAILED') {
+        throw new Error('Order is not Shippable yet');
+      }
+
       const updatedOrder = await tx.order.update({
-        where: { id: existingOrder.id, orderStatus: 'FULFILLED' },
+        where: { id: existingOrder.id, orderStatus: 'PAID' },
         data: { orderStatus: 'SHIPPED' }
       });
 

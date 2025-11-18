@@ -23,10 +23,8 @@ const ConfirmDeleteModal = ({
   onCancel,
   onConfirm
 }: ConfirmDeleteModalProps) => {
-  const { productsLoading, ordersLoading } = useSelector((state: RootState) => ({
-    productsLoading: state.products.loading,
-    ordersLoading: state.orders.loading
-  }));
+  const productsLoading = useSelector((state: RootState) => state.products.loading);
+  const ordersLoading = useSelector((state: RootState) => state.orders.loading);
 
   return (
     <Modal

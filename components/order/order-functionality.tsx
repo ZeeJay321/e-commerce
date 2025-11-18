@@ -13,7 +13,8 @@ import {
   Alert,
   Pagination,
   Spin,
-  Table
+  Table,
+  Tooltip
 } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -37,7 +38,7 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
 
   const {
     items: orders,
-    total,
+    totalPagination,
     loading,
     loadTable,
     error
@@ -54,7 +55,7 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
     description?: string;
   } | null>(null);
 
-  const pageSize = admin ? 12 : 8;
+  const pageSize = admin ? 10 : 8;
 
   const getUpdatedOrders = useCallback(() => {
     dispatch(fetchOrders({
@@ -100,7 +101,6 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
           type: 'success',
           message: 'Product Shipped successfully'
         });
-        setTimeout(() => setNotification(null), 3000);
         window.dispatchEvent(new Event('ProductUpdated'));
       }
     } catch (err) {
@@ -111,7 +111,6 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
         description:
           errMessage || 'Something went wrong while Shipping the product.'
       });
-      setTimeout(() => setNotification(null), 3000);
     } finally {
       setModalOpen(false);
       window.dispatchEvent(new Event('OrderUpdated'));
@@ -185,39 +184,94 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
       title: <span className="table-span-head">Status</span>,
       dataIndex: 'orderStatus',
       key: 'orderStatus',
-      render: (orderStatus: string) => (
-        <span className="table-span">
-          {orderStatus}
-        </span>
-      )
+      render: (orderStatus: string) => {
+        const status = orderStatus?.toUpperCase();
+
+        const statusStyles: Record<string, { bg: string; color: string; label: string }> = {
+          PENDING: {
+            bg: '#fde68a', // bright yellow
+            color: '#92400e',
+            label: 'Pending'
+          },
+          FAILED: {
+            bg: '#fecaca', // bright red
+            color: '#7f1d1d',
+            label: 'Failed'
+          },
+          PAID: {
+            bg: '#bfdbfe', // bright blue
+            color: '#1e3a8a',
+            label: 'Paid'
+          },
+          SHIPPED: {
+            bg: '#bbf7d0', // bright green
+            color: '#065f46',
+            label: 'Shipped'
+          }
+        };
+
+        const { bg, color, label } = statusStyles[status] || {
+          bg: '#e5e7eb',
+          color: '#374151',
+          label: status || 'Unknown'
+        };
+
+        return (
+          <span className="table-span">
+            <span
+              style={{
+                backgroundColor: bg,
+                color,
+                borderRadius: '9999px',
+                padding: '5px 14px',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                display: 'inline-block',
+                minWidth: 90,
+                textAlign: 'center',
+                boxShadow: '0 0 4px rgba(0,0,0,0.1)',
+                letterSpacing: '0.3px'
+              }}
+            >
+              {label}
+            </span>
+          </span>
+        );
+      }
     }, {
       title: <span className="table-span-head">Actions</span>,
       key: 'actions',
       render: (_, record) => {
-        const isFulfilled = (record.orderStatus?.toLowerCase() === 'fulfilled'
+        const isPaid = (record.orderStatus?.toLowerCase() === 'paid'
           && record.orderStatus?.toLowerCase() !== 'shipped');
 
         return (
           <div className="flex gap-3">
-            <CheckCircleOutlined
-              className={`table-action-fulfill ${!isFulfilled ? 'opacity-40 cursor-not-allowed' : ''}`}
-              onClick={() => {
-                if (!isFulfilled) return;
-                setSelectedOrderId(record.orderNumber);
-                setModalOpen(true);
-              }}
-              style={{
-                pointerEvents: !isFulfilled ? 'none' : 'auto',
-                color: !isFulfilled ? '#9ca3af' : '#52c41a'
-              }}
-            />
-            <ArrowsAltOutlined
-              className="table-action-open"
-              onClick={() => {
-                setSelectedOrderId(record.orderNumber);
-                setDrawerOpen(true);
-              }}
-            />
+            {admin && (
+              <Tooltip title="Ship Order" placement="top">
+                <CheckCircleOutlined
+                  className={`table-action-fulfill ${!isPaid ? 'opacity-40 cursor-not-allowed' : ''}`}
+                  onClick={() => {
+                    if (!isPaid) return;
+                    setSelectedOrderId(record.orderNumber);
+                    setModalOpen(true);
+                  }}
+                  style={{
+                    pointerEvents: !isPaid ? 'none' : 'auto',
+                    color: !isPaid ? '#9ca3af' : '#52c41a'
+                  }}
+                />
+              </Tooltip>
+            )}
+            <Tooltip title="Open Order Details" placement="top">
+              <ArrowsAltOutlined
+                className="table-action-open"
+                onClick={() => {
+                  setSelectedOrderId(record.orderNumber);
+                  setDrawerOpen(true);
+                }}
+              />
+            </Tooltip>
           </div>
         );
       }
@@ -239,7 +293,7 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
       {error && <Alert type="error" message={error} showIcon className="mb-4" />}
 
       {(loading || !loadTable || !isRendered) && (
-        <div className="flex justify-center py-10">
+        <div className="flex justify-center items-center min-h-screen">
           <Spin size="large" />
         </div>
       )}
@@ -255,7 +309,7 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
           <div className="orders-footer-div">
             <div>
               <span className="orders-footer-span">
-                {total}
+                {totalPagination}
                 {' '}
                 Total Count
               </span>
@@ -264,7 +318,7 @@ const OrdersTable = ({ admin = false, search = '' }: OrdersTableProps) => {
               <Pagination
                 current={current}
                 pageSize={pageSize}
-                total={total}
+                total={totalPagination}
                 onChange={(page) => setCurrent(page)}
               />
             </div>

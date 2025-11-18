@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css');
+
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-display: Inter, sans-serif;
+
+  --color-nav: #F8F9FA;
+  --color-nav-text: #007BFF;
+  --color-site-text: #343A40;
+  --color-card-text: #212529;
+  --color-card-price: #868E96;
+  --color-login-background: #E9ECEF;
+
+}
+
+
+.container {
+  @apply w-full h-full max-w-[1920px] mt-6 flex items-center px-175;
+}
+
+.card {
+  @apply bg-white shadow-lg rounded-2xl p-10 max-w-md w-full text-center;
+}
+
+.icon {
+  @apply text-8xl w-16 h-16 mx-auto mb-6;
+}
+
+.title {
+  @apply text-2xl font-semibold text-gray-800 mb-2;
+}
+
+.subtitle {
+  @apply text-gray-500 mb-8;
+}
+
+.actions {
+  @apply flex gap-4 justify-center;
+}
+
+.buttonOutline {
+  @apply rounded-xl px-6;
+}
+
+.buttonPrimary {
+  @apply rounded-xl px-6;
+}

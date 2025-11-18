@@ -24,19 +24,32 @@ export async function PUT(
 
     const { id } = resolvedParams;
 
-    const updatedVariant = await prisma.$transaction(async (tx) => tx.productVariant.update({
-      where: { id, isDeleted: false },
-      data: { isDeleted: true }
-    }));
+    const variant = await prisma.productVariant.findUnique({
+      where: { id }
+    });
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: `Product Variant ${updatedVariant.id} deleted successfully`,
-        product: { id: updatedVariant.id }
-      },
-      { status: 200 }
-    );
+    if (!variant) {
+      return NextResponse.json(
+        { error: `Variant with ID ${id} not found` },
+        { status: 404 }
+      );
+    }
+
+    const updatedVariant = await prisma.productVariant.update({
+      where: { id },
+      data: { isDeleted: !variant.isDeleted }
+    });
+
+    const message = updatedVariant.isDeleted
+      ? 'Product Variant marked as deleted'
+      : 'Product Variant reactivated';
+
+    return NextResponse.json({
+      message,
+      variant: updatedVariant
+    }, {
+      status: 200
+    });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: message }, { status: 500 });

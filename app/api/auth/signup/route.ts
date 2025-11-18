@@ -39,11 +39,16 @@ export async function POST(req: Request) {
 
     const user = await prisma.$transaction(async (tx) => {
       const existingUser = await tx.user.findFirst({
-        where: { email: emailLower }
+        where: {
+          OR: [
+            { email: emailLower },
+            { phoneNumber }
+          ]
+        }
       });
 
       if (existingUser) {
-        throw new Error('Email already registered');
+        throw new Error('Email or Phone Number already registered');
       }
 
       if (password !== confirmPassword) {

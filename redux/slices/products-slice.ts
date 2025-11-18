@@ -3,7 +3,7 @@ import {
   createSlice
 } from '@reduxjs/toolkit';
 
-import { Product, ProductVariant } from '@/models';
+import { Product } from '@/models';
 
 type ProductsState = {
   items: Product[];
@@ -125,48 +125,63 @@ export const fetchNextProducts = createAsyncThunk<
 });
 
 export const deleteProduct = createAsyncThunk<
-  string,
-  string,
-  { rejectValue: string }
->('products/deleteProduct', async (productId, { rejectWithValue }) => {
-  try {
-    const res = await fetch(`/api/products/delete-product/${productId}`, {
-      method: 'PUT',
-      credentials: 'include'
-    });
-
-    const data = await res.json();
-    if (!res.ok) {
-      return rejectWithValue(data.error || 'Failed to delete product');
-    }
-
-    return productId;
-  } catch (err) {
-    return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
-  }
-});
-
-export const deleteVariant = createAsyncThunk<
-  string,
+  { success: boolean; message: string; id: string },
   string,
   { rejectValue: string }
->('products/deleteVariant', async (variantId, { rejectWithValue }) => {
-  try {
-    const res = await fetch(`/api/products/delete-variant/${variantId}`, {
-      method: 'PUT',
-      credentials: 'include'
-    });
+>(
+  'products/deleteProduct',
+  async (productId, { rejectWithValue }) => {
+    try {
+      const res = await fetch(`/api/products/delete-product/${productId}`, {
+        method: 'PUT',
+        credentials: 'include'
+      });
 
-    const data = await res.json();
-    if (!res.ok) {
-      return rejectWithValue(data.error || 'Failed to delete product variant');
+      const data = await res.json();
+
+      if (!res.ok) {
+        return rejectWithValue(data.error || 'Failed to delete product');
+      }
+
+      return {
+        success: data.success ?? true,
+        message: data.message ?? 'Product deleted successfully',
+        id: productId
+      };
+    } catch (err) {
+      return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
     }
-
-    return variantId;
-  } catch (err) {
-    return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
   }
-});
+);
+
+export const toggleVariant = createAsyncThunk<
+  { success: boolean; message: string; variantId: string },
+  string,
+  { rejectValue: string }
+>(
+  'products/toggleVariant',
+  async (variantId, { rejectWithValue }) => {
+    try {
+      const res = await fetch(`/api/products/toggle-variant/${variantId}`, {
+        method: 'PUT',
+        credentials: 'include'
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        return rejectWithValue(data.error || 'Failed to delete product variant');
+      }
+
+      return {
+        success: data.success ?? true,
+        message: data.message ?? 'Variant updated successfully',
+        variantId
+      };
+    } catch (err) {
+      return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
+    }
+  }
+);
 
 export const updateProductVariant = createAsyncThunk<
   Product,
@@ -216,14 +231,14 @@ export const addProduct = createAsyncThunk<
       return rejectWithValue(data.error || 'Failed to add product');
     }
 
-    return data as Product;
+    return data;
   } catch (err) {
     return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
   }
 });
 
 export const addVariant = createAsyncThunk<
-  ProductVariant,
+  string,
   { productId: string; formData: FormData },
   { rejectValue: string }
 >(
@@ -242,7 +257,7 @@ export const addVariant = createAsyncThunk<
         return rejectWithValue(data.error || 'Failed to add variant');
       }
 
-      return data.variant as ProductVariant;
+      return data.message;
     } catch (err) {
       return rejectWithValue(
         err instanceof Error ? err.message : 'Unknown error'
@@ -262,15 +277,14 @@ export const importProductsCsv = createAsyncThunk<
       const formData = new FormData();
       formData.append('file', file);
 
-      console.log('📤 Uploading CSV:', file.name);
+      console.log(formData);
 
-      const response = await fetch('http://127.0.0.1:8000/products/import-csv', {
+      const response = await fetch('/api/products/import-product-csv', {
         method: 'POST',
         body: formData
       });
 
       const data = await response.json();
-      console.log('✅ Upload successful:', data);
 
       if (!response.ok) {
         return rejectWithValue(data.error || 'Upload failed');
@@ -278,9 +292,45 @@ export const importProductsCsv = createAsyncThunk<
 
       return data;
     } catch (err) {
-      console.error('❌ Upload error:', err);
       return rejectWithValue(
         err instanceof Error ? err.message : 'Unknown error'
+      );
+    }
+  }
+);
+
+export const editProductTitle = createAsyncThunk<
+  {
+    status: string;
+    message: string;
+    product: Product;
+  },
+  { id: string; title: string },
+  { rejectValue: string }
+>(
+  'products/editProductTitle',
+  async ({ id, title }, { rejectWithValue }) => {
+    try {
+      const res = await fetch(`/api/products/edit-product/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        return rejectWithValue(data.message || 'Failed to update title');
+      }
+
+      return {
+        status: data.status,
+        message: data.message,
+        product: data.product
+      };
+    } catch (err) {
+      return rejectWithValue(
+        err instanceof Error ? err.message : 'Error updating title'
       );
     }
   }
@@ -379,14 +429,14 @@ const productsSlice = createSlice({
         state.error = action.payload || 'Failed to delete product';
       })
 
-      .addCase(deleteVariant.pending, (state) => {
+      .addCase(toggleVariant.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(deleteVariant.fulfilled, (state) => {
+      .addCase(toggleVariant.fulfilled, (state) => {
         state.loading = false;
       })
-      .addCase(deleteVariant.rejected, (state, action) => {
+      .addCase(toggleVariant.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to delete product';
       })
@@ -425,6 +475,22 @@ const productsSlice = createSlice({
       .addCase(addVariant.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to add product';
+      })
+
+      .addCase(editProductTitle.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(editProductTitle.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.items.findIndex((p) => p.id === action.payload.product.id);
+        if (index !== -1) {
+          state.items[index].title = action.payload.product.title;
+        }
+      })
+      .addCase(editProductTitle.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to update product title';
       })
 
       .addCase(importProductsCsv.pending, (state) => {

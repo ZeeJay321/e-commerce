@@ -68,15 +68,20 @@ async function main() {
 
   // ---- CREATE PRODUCTS ----
   const products = await Promise.all(
-    Array.from({ length: 80 }).map((_, i) =>
-      prisma.product.create({
+    Array.from({ length: 80 }).map((_, i) => {
+      const createdAt = moment()
+        .subtract(i, 'minutes') // each product 1 minute apart
+        .toDate(); // Prisma requires a Date object
+
+      return prisma.product.create({
         data: {
           title: `Product ${i + 1}`,
           isDeleted: false,
           metadata: {},
+          createdAt, // ✅ unique timestamp
         },
-      })
-    )
+      });
+    })
   );
 
   // ---- CREATE VARIANTS ----

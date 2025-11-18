@@ -7,14 +7,19 @@ import {
 } from 'react';
 
 import {
+  CheckOutlined,
+  CloseOutlined,
   DeleteOutlined,
   EditOutlined,
-  PlusCircleOutlined
+  PlusCircleOutlined,
+  UndoOutlined
 } from '@ant-design/icons';
 import type { TableColumnsType } from 'antd';
 import {
+  Input,
   Spin,
-  Table
+  Table,
+  Tooltip
 } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -23,8 +28,9 @@ import {
   addVariant,
   clearProducts,
   deleteProduct,
-  deleteVariant,
+  editProductTitle,
   fetchProducts,
+  toggleVariant,
   updateProductVariant
 } from '@/redux/slices/products-slice';
 import { AppDispatch, RootState } from '@/redux/store';
@@ -36,11 +42,15 @@ import ConfirmDeleteModal from '../delete-modal/delete-modal';
 
 import './admin-detail-table.css';
 
-const AdminDetailTable = () => {
+type AdminDetailTableProps = {
+  search?: string;
+};
+
+const AdminDetailTable: React.FC<AdminDetailTableProps> = ({ search = '' }) => {
   const [isDeleteVariantModalOpen, setIsDeleteVariantModalOpen] = useState(false);
+  const [isReActiveVariantModalOpen, setIsReActiveVariantModalOpen] = useState(false);
   const [isDeleteProductModalOpen, setIsDeleteProductModalOpen] = useState(false);
   const [deleteKey, setDeleteKey] = useState<string | null>(null);
-  const [reload, setReload] = useState(false);
   const [editVariant, setEditVariant] = useState<ProductVariant | null>(null);
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [addVariantProduct, setAddVariantProduct] = useState<Product | null>(null);
@@ -49,6 +59,8 @@ const AdminDetailTable = () => {
     message: string;
     description?: string;
   } | null>(null);
+  const [editingTitleId, setEditingTitleId] = useState<string | null>(null);
+  const [tempTitle, setTempTitle] = useState<string>('');
 
   const dispatch = useDispatch<AppDispatch>();
   const {
@@ -68,15 +80,13 @@ const AdminDetailTable = () => {
     if (!deleteId) return;
 
     try {
-      const res = await dispatch(deleteVariant(deleteId)).unwrap();
+      const res = await dispatch(toggleVariant(deleteId)).unwrap();
 
       if (res) {
         setNotification({
-          type: 'success',
-          message: 'Variant deleted successfully'
+          type: res.success ? 'success' : 'error',
+          message: res.message
         });
-        setTimeout(() => setNotification(null), 3000);
-        window.dispatchEvent(new Event('ProductUpdated'));
       }
     } catch (err) {
       const errMessage = (err as string) || '';
@@ -86,7 +96,6 @@ const AdminDetailTable = () => {
         description:
           errMessage || 'Something went wrong while deleting the variant.'
       });
-      setTimeout(() => setNotification(null), 3000);
     }
   };
 
@@ -98,11 +107,30 @@ const AdminDetailTable = () => {
 
       if (res) {
         setNotification({
-          type: 'success',
-          message: 'Product deleted successfully'
+          type: res.success ? 'success' : 'error',
+          message: res.message
         });
-        setTimeout(() => setNotification(null), 3000);
-        window.dispatchEvent(new Event('ProductUpdated'));
+      }
+    } catch (err) {
+      const errMessage = (err as string) || '';
+      setNotification({
+        type: 'error',
+        message: errMessage || 'Something went wrong while deleting the product.'
+      });
+    }
+  };
+
+  const handleReactivateVariant = async (deleteId: string | null) => {
+    if (!deleteId) return;
+
+    try {
+      const res = await dispatch(toggleVariant(deleteId)).unwrap();
+
+      if (res) {
+        setNotification({
+          type: res.success ? 'success' : 'error',
+          message: res.message
+        });
       }
     } catch (err) {
       const errMessage = (err as string) || '';
@@ -110,28 +138,34 @@ const AdminDetailTable = () => {
         type: 'error',
         message: 'Operation Failed',
         description:
-          errMessage || 'Something went wrong while deleting the product.'
+          errMessage || 'Something went wrong while deleting the variant.'
       });
-      setTimeout(() => setNotification(null), 3000);
     }
   };
 
-  const confirmVariantDelete = () => {
+  const confirmVariantDelete = async () => {
     if (deleteKey !== null) {
-      handleDeleteVariant(deleteKey);
+      await handleDeleteVariant(deleteKey);
     }
-    setReload((prev) => !prev);
     setIsDeleteVariantModalOpen(false);
     setDeleteKey(null);
     window.dispatchEvent(new Event('ProductUpdated'));
   };
 
-  const confirmProductDelete = () => {
+  const confirmProductDelete = async () => {
     if (deleteKey !== null) {
-      handleDeleteProduct(deleteKey);
+      await handleDeleteProduct(deleteKey);
     }
-    setReload((prev) => !prev);
     setIsDeleteProductModalOpen(false);
+    setDeleteKey(null);
+    window.dispatchEvent(new Event('ProductUpdated'));
+  };
+
+  const confirmVariantReactivate = async () => {
+    if (deleteKey !== null) {
+      await handleReactivateVariant(deleteKey);
+    }
+    setIsReActiveVariantModalOpen(false);
     setDeleteKey(null);
     window.dispatchEvent(new Event('ProductUpdated'));
   };
@@ -146,23 +180,28 @@ const AdminDetailTable = () => {
     setDeleteKey(null);
   };
 
+  const cancelVariantReactivate = () => {
+    setIsReActiveVariantModalOpen(false);
+    setDeleteKey(null);
+  };
+
   const getUpdatedProducts = useCallback(() => {
     dispatch(clearProducts());
     dispatch(
       fetchProducts({
         skip: currentPage,
         limit: pageSize,
-        query: '',
+        query: search,
         sortOption: null
       })
     );
-  }, [dispatch, currentPage, pageSize]);
+  }, [dispatch, currentPage, pageSize, search]);
 
   useEffect(() => {
     getUpdatedProducts();
     window.addEventListener('ProductUpdated', getUpdatedProducts);
     return () => window.removeEventListener('ProductUpdated', getUpdatedProducts);
-  }, [getUpdatedProducts, reload]);
+  }, [getUpdatedProducts]);
 
   useEffect(() => {
     if (error) {
@@ -171,38 +210,110 @@ const AdminDetailTable = () => {
         message: 'Operation Failed',
         description: error
       });
-
-      setTimeout(() => setNotification(null), 1000);
     }
   }, [error]);
+
+  const handleEditConfirm = async (
+    productId: string,
+    changeTitle: string,
+    currentTitle: string
+  ) => {
+    if (changeTitle.trim() === currentTitle.trim()) {
+      setNotification({
+        type: 'error',
+        message: 'No changes detected in title'
+      });
+      setEditingTitleId(null);
+      return;
+    }
+
+    try {
+      const res = await dispatch(editProductTitle({
+        id: productId,
+        title: changeTitle
+      })).unwrap();
+
+      setNotification({
+        type: 'success',
+        message: res.message
+      });
+
+      setEditingTitleId(null);
+      window.dispatchEvent(new Event('ProductUpdated'));
+    } catch (err) {
+      setNotification({
+        type: 'error',
+        message: err instanceof Error ? err.message : (err as string) || 'Error updating title'
+      });
+    }
+  };
 
   const columns: TableColumnsType<Product> = [
     {
       title: <span className="table-span-head">Title</span>,
       dataIndex: 'title',
-      render: (text: string) => (
-        <div className="cart-product-div">
-          <span className="font-display text-xs whitespace-normal">{text}</span>
-        </div>
-      )
+      render: (text: string, record: Product) => {
+        const isEditing = editingTitleId === record.id;
+        return (
+          <div className="table-span flex items-center gap-2 p-2">
+            {isEditing ? (
+              <>
+                <Input
+                  value={tempTitle}
+                  onChange={(e) => setTempTitle(e.target.value)}
+                  style={{ width: 400 }}
+                  size="small"
+                  maxLength={100}
+                />
+                <CheckOutlined
+                  className="add-button"
+                  onClick={() => handleEditConfirm(record.id, tempTitle, record.title)}
+                />
+                <CloseOutlined
+                  className="delete-button"
+                  onClick={() => {
+                    setEditingTitleId(null);
+                    setTempTitle('');
+                  }}
+                />
+              </>
+            ) : (
+              <span>{text}</span>
+            )}
+          </div>
+        );
+      }
     }, {
       title: <span className="table-span-head">Actions</span>,
       key: 'actions',
       render: (record) => (
-        <div className="table-div">
-          <PlusCircleOutlined
-            onClick={() => {
-              setAddVariantProduct(record);
-            }}
-            className="edit-button"
-          />
-          <DeleteOutlined
-            onClick={() => {
-              setDeleteKey(record.id);
-              setIsDeleteProductModalOpen(true);
-            }}
-            className="delete-button"
-          />
+        <div className="table-div flex">
+          <Tooltip title="Add Variant" placement="top">
+            <PlusCircleOutlined
+              onClick={() => setAddVariantProduct(record)}
+              className="add-button"
+            />
+          </Tooltip>
+
+          <Tooltip title="Edit Product Title" placement="top">
+            <EditOutlined
+              className="edit-button"
+              onClick={() => {
+                setEditingTitleId(record.id);
+                setTempTitle(record.title);
+              }}
+            />
+          </Tooltip>
+
+          <Tooltip title="Delete Product" placement="top">
+            <DeleteOutlined
+              onClick={() => {
+                setDeleteKey(record.id);
+                setIsDeleteProductModalOpen(true);
+              }}
+              className="delete-button"
+            />
+          </Tooltip>
         </div>
       )
     }
@@ -243,24 +354,76 @@ const AdminDetailTable = () => {
         title: <span className="table-span-head">Stock</span>,
         dataIndex: 'stock'
       }, {
+        title: <span className="table-span-head">Status</span>,
+        dataIndex: 'isDeleted',
+        render: (isDeleted: boolean) => {
+          const statusLabel = isDeleted ? 'Inactive' : 'Active';
+          const styles = isDeleted
+            ? {
+              bg: '#fecaca',
+              color: '#7f1d1d'
+            }
+            : {
+              bg: '#bbf7d0',
+              color: '#065f46'
+            };
+
+          return (
+            <span
+              style={{
+                backgroundColor: styles.bg,
+                color: styles.color,
+                borderRadius: '9999px',
+                padding: '5px 14px',
+                fontWeight: 600,
+                display: 'inline-block',
+                textAlign: 'center',
+                fontSize: '0.8rem',
+                boxShadow: '0 0 6px rgba(0,0,0,0.1)',
+                letterSpacing: '0.3px',
+                minWidth: 90
+              }}
+            >
+              {statusLabel}
+            </span>
+          );
+        }
+      }, {
         title: <span className="table-span-head">Actions</span>,
         key: 'actions',
         render: (_: unknown, variant: ProductVariant) => (
           <div className="table-div">
-            <EditOutlined
-              className="edit-button"
-              onClick={() => {
-                setEditProduct(product);
-                setEditVariant(variant);
-              }}
-            />
-            <DeleteOutlined
-              onClick={() => {
-                setDeleteKey(variant.id);
-                setIsDeleteVariantModalOpen(true);
-              }}
-              className="delete-button"
-            />
+            <Tooltip title="Edit Variant" placement="top">
+              <EditOutlined
+                className="edit-button"
+                onClick={() => {
+                  setEditProduct(product);
+                  setEditVariant(variant);
+                }}
+              />
+            </Tooltip>
+
+            {variant.isDeleted ? (
+              <Tooltip title="Activate Variant Status" placement="top">
+                <UndoOutlined
+                  onClick={() => {
+                    setDeleteKey(variant.id);
+                    setIsReActiveVariantModalOpen(true);
+                  }}
+                  className="undo-button"
+                />
+              </Tooltip>
+            ) : (
+              <Tooltip title="Deactivate Variant Status" placement="top">
+                <DeleteOutlined
+                  onClick={() => {
+                    setDeleteKey(variant.id);
+                    setIsDeleteVariantModalOpen(true);
+                  }}
+                  className="delete-button"
+                />
+              </Tooltip>
+            )}
           </div>
         )
       }
@@ -280,7 +443,11 @@ const AdminDetailTable = () => {
   };
 
   if (loading) {
-    return <Spin size="large" className="flex justify-center py-10" />;
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Spin size="large" />
+      </div>
+    );
   }
 
   return (
@@ -303,10 +470,19 @@ const AdminDetailTable = () => {
           current: currentPage,
           pageSize,
           total,
+          showSizeChanger: false,
           onChange: (page) => setCurrentPage(page)
         }}
         bordered
         rowKey="id"
+      />
+
+      <ConfirmDeleteModal
+        open={isReActiveVariantModalOpen}
+        title="Reactivate Product Variant"
+        text="Are you sure you want to reactivate this item?"
+        onCancel={cancelVariantReactivate}
+        onConfirm={confirmVariantReactivate}
       />
 
       {/* Delete Confirmation Variant Modal */}
@@ -353,6 +529,45 @@ const AdminDetailTable = () => {
           actionLabel="Update"
           onAction={async (formData) => {
             try {
+              // Extract values from FormData
+              const formPrice = formData.get('price');
+              const formQuantity = formData.get('quantity');
+              const formColor = formData.get('color');
+              const formColorCode = formData.get('colorCode');
+              const formSize = formData.get('size');
+              const formImage = formData.get('image');
+
+              if (
+                !formPrice
+                || !formQuantity
+                || !formColor
+                || !formColorCode
+                || !formSize
+              ) {
+                setNotification({
+                  type: 'error',
+                  message: 'Missing required fields',
+                  description:
+                    'Please fill in all fields including image before submitting.'
+                });
+                return;
+              }
+
+              const hasChanges = Number(formPrice) !== editVariant.price
+                || Number(formQuantity) !== editVariant.stock
+                || formColor !== editVariant.color
+                || formColorCode !== editVariant.colorCode
+                || formSize !== editVariant.size
+                || (formImage && formImage instanceof File);
+
+              if (!hasChanges) {
+                setNotification({
+                  type: 'error',
+                  message: 'No changes detected in variant'
+                });
+                return;
+              }
+
               const res = await dispatch(
                 updateProductVariant({
                   id: editVariant.id,
@@ -366,10 +581,9 @@ const AdminDetailTable = () => {
                   type: 'success',
                   message: 'Product Variant updated successfully'
                 });
-                setTimeout(() => setNotification(null), 3000);
-                window.dispatchEvent(new Event('ProductUpdated'));
                 setEditProduct(null);
                 setEditVariant(null);
+                window.dispatchEvent(new Event('ProductUpdated'));
               }
             } catch (err) {
               const errMessage = (err as string) || '';
@@ -380,7 +594,6 @@ const AdminDetailTable = () => {
                   errMessage
                   || 'Something went wrong while updating the product variant.'
               });
-              setTimeout(() => setNotification(null), 3000);
             }
           }}
         />
@@ -398,8 +611,8 @@ const AdminDetailTable = () => {
           }}
           variant={{
             id: '',
-            price: 0,
-            quantity: 0,
+            price: 1,
+            quantity: 1,
             image: '',
             color: '',
             colorCode: '',
@@ -410,6 +623,30 @@ const AdminDetailTable = () => {
           actionLabel="Add"
           onAction={async (formData) => {
             try {
+              const formPrice = formData.get('price');
+              const formQuantity = formData.get('quantity');
+              const formColor = formData.get('color');
+              const formColorCode = formData.get('colorCode');
+              const formSize = formData.get('size');
+              const formImage = formData.get('image');
+
+              if (
+                !formPrice
+                || !formQuantity
+                || !formColor
+                || !formColorCode
+                || !formSize
+                || !formImage
+              ) {
+                setNotification({
+                  type: 'error',
+                  message: 'Missing required fields',
+                  description:
+                    'Please fill in all fields including image before submitting.'
+                });
+                return;
+              }
+
               const res = await dispatch(
                 addVariant({
                   productId: addVariantProduct.id,
@@ -420,9 +657,8 @@ const AdminDetailTable = () => {
               if (res) {
                 setNotification({
                   type: 'success',
-                  message: 'Product Variant added successfully'
+                  message: res
                 });
-                setTimeout(() => setNotification(null), 3000);
                 window.dispatchEvent(new Event('ProductUpdated'));
                 setAddVariantProduct(null);
               }
@@ -435,7 +671,6 @@ const AdminDetailTable = () => {
                   errMessage
                   || 'Something went wrong while adding the product variant.'
               });
-              setTimeout(() => setNotification(null), 3000);
             }
           }}
         />

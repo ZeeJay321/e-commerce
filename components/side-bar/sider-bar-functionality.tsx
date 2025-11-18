@@ -15,10 +15,8 @@ type AdminSidebarProps = {
 const AdminSidebar = ({ active }: AdminSidebarProps) => (
   <Sider className="sidebar-background">
     <div className="sidebar-div">
-      {/* Title */}
       <h2 className="sidebar-text">E-commerce</h2>
 
-      {/* Buttons */}
       <div className="sidebar-main-div">
         <div className="sidebar-buttons">
           <Button
@@ -26,7 +24,9 @@ const AdminSidebar = ({ active }: AdminSidebarProps) => (
             block
             className="sidebar-button"
             onClick={() => {
-              window.location.href = '/admin/products';
+              if (active !== 'products') {
+                window.location.href = '/admin/products';
+              }
             }}
           >
             <AppstoreOutlined />
@@ -38,7 +38,9 @@ const AdminSidebar = ({ active }: AdminSidebarProps) => (
             block
             className="sidebar-button"
             onClick={() => {
-              window.location.href = '/admin/orders';
+              if (active !== 'orders') {
+                window.location.href = '/admin/orders';
+              }
             }}
           >
             <CodeSandboxOutlined />

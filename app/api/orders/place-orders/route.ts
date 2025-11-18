@@ -21,9 +21,20 @@ export async function POST(req: Request) {
     }
 
     const productIds = items.map((item) => item.productId);
+
     const products = await prisma.product.findMany({
-      where: { id: { in: productIds } },
-      include: { variants: true }
+      where: {
+        id: { in: productIds },
+        isDeleted: false,
+        variants: {
+          some: { isDeleted: false }
+        }
+      },
+      include: {
+        variants: {
+          where: { isDeleted: false }
+        }
+      }
     });
 
     const { validItems, outOfStock } = items.reduce((acc, item) => {
@@ -79,8 +90,13 @@ export async function POST(req: Request) {
     });
 
     if (outOfStock.length > 0) {
+      const variantNames = outOfStock.map((v) => v.title || v.productId).join(', ');
+
       return NextResponse.json(
-        { error: 'Some variants are out of stock', outOfStock },
+        {
+          error: `The following product variants are out of stock: ${variantNames}`,
+          outOfStock
+        },
         { status: 400 }
       );
     }
@@ -97,13 +113,6 @@ export async function POST(req: Request) {
       where: { id: userId },
       select: { stripeCustomerId: true, email: true }
     });
-
-    if (!user?.stripeCustomerId) {
-      return NextResponse.json(
-        { error: 'Stripe customer not found for this user' },
-        { status: 400 }
-      );
-    }
 
     if (!user?.stripeCustomerId) {
       return NextResponse.json(

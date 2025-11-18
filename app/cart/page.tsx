@@ -122,7 +122,6 @@ const Page = () => {
       setTotals({ subtotal: 0, tax: 0, total: 0 });
 
       setTimeout(() => {
-        setNotification(null);
         if (response?.url) {
           window.location.href = response.url;
         } else {
@@ -130,9 +129,17 @@ const Page = () => {
         }
       }, 2000);
     } catch (err) {
-      const message = typeof err === 'string' ? err : 'Order placement failed';
-      setNotification({ type: 'error', message });
-      setTimeout(() => setNotification(null), 3000);
+      let errorMessage = 'Order placement failed';
+
+      if (typeof err === 'string') {
+        errorMessage = err;
+      } else if (err && typeof err === 'object' && 'error' in err) {
+        errorMessage = err.error as string;
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+
+      setNotification({ type: 'error', message: errorMessage });
     }
   };
 
@@ -148,8 +155,8 @@ const Page = () => {
         />
       )}
 
-      {(isLoadPage && (
-        <div className="fixed inset-0 bg-white z-50 flex items-center justify-center">
+      {((isLoadPage || loading) && (
+        <div className="fixed inset-0 bg-white opacity-40 z-50 flex items-center justify-center">
           <LoadingSpinner />
         </div>
       ))}

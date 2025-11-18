@@ -64,8 +64,8 @@ export async function createCheckoutSession({
       description: 'Order payment via E-Commerce App',
       setup_future_usage: 'off_session'
     },
-    success_url: `${baseUrl}orders`,
-    cancel_url: `${baseUrl}`
+    success_url: `${baseUrl}payment-successful`,
+    cancel_url: `${baseUrl}payment-failure`
   });
   return session;
 }

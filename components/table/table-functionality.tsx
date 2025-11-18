@@ -44,17 +44,17 @@ const CartTable = ({ cartItems, setCartItems }: CartTableProps) => {
     if (selectedKeys.length === cartItems.length) {
       setSelectedKeys([]);
     } else {
-      setSelectedKeys(cartItems.map((item) => item.id));
+      setSelectedKeys(cartItems.map((item) => item.variantId));
     }
   };
 
   const handleRemove = (key: string) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== key));
+    setCartItems((prev) => prev.filter((item) => item.variantId !== key));
     setSelectedKeys((prev) => prev.filter((k) => k !== key));
   };
 
   const handleBulkRemove = () => {
-    setCartItems((prev) => prev.filter((item) => !selectedKeys.includes(item.id)));
+    setCartItems((prev) => prev.filter((item) => !selectedKeys.includes(item.variantId)));
     setSelectedKeys([]);
     setIsBulkDeleteOpen(false);
   };
@@ -109,8 +109,8 @@ const CartTable = ({ cartItems, setCartItems }: CartTableProps) => {
       render: (text: string, record) => (
         <div className="cart-product-check">
           <Checkbox
-            checked={selectedKeys.includes(record.id)}
-            onChange={() => toggleSelect(record.id)}
+            checked={selectedKeys.includes(record.variantId)}
+            onChange={() => toggleSelect(record.variantId)}
             className="mr-2"
           />
           <div className="cart-product-div">
@@ -164,7 +164,7 @@ const CartTable = ({ cartItems, setCartItems }: CartTableProps) => {
               if (Number.isNaN(newQty) || newQty < 1) newQty = 1;
               if (newQty > record.stock) newQty = record.stock;
 
-              setCartItems((prev) => prev.map((item) => (item.id === record.id ? {
+              setCartItems((prev) => prev.map((item) => (item.variantId === record.variantId ? {
                 ...item,
                 qty: newQty
               } : item)));
@@ -214,7 +214,7 @@ const CartTable = ({ cartItems, setCartItems }: CartTableProps) => {
       render: (_, record) => (
         <DeleteOutlined
           onClick={() => {
-            setDeleteKey(record.id);
+            setDeleteKey(record.variantId);
             setIsModalOpen(true);
           }}
           className="cart-button text-red-500 cursor-pointer pl-3 py-4"
@@ -251,6 +251,7 @@ const CartTable = ({ cartItems, setCartItems }: CartTableProps) => {
           dataSource={cartItems}
           pagination={false}
           bordered
+          rowKey={(record) => record.variantId}
           scroll={{ x: 'max-content' }}
         />
       )}

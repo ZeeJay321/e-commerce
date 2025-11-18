@@ -29,8 +29,7 @@
 }
 
 .card-text {
-  @apply text-sm text-left text-card-text font-semibold pb-2;
-
+  @apply text-sm text-left font-semibold pb-2 break-words whitespace-normal overflow-visible line-clamp-3;
 }
 
 .card-description {

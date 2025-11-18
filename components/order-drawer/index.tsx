@@ -51,7 +51,7 @@ const OrderDetailsDrawer = ({
       placement="right"
       onClose={onClose}
       open={open}
-      width="50%"
+      width="65%"
       destroyOnClose
     >
       {detailLoading ? (

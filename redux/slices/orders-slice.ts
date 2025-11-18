@@ -294,6 +294,7 @@ const ordersSlice = createSlice({
         }
 
         state.error = errorMessage;
+        console.log(state.error);
         state.loading = false;
       });
 
